@@ -1,0 +1,20 @@
+{
+  "name": "admin",
+  "account": "associate",
+  "children": [
+    {
+      "name": "test1",
+      "account": "basic",
+      "children": [
+        {
+          "name": "test3",
+          "account": "basic"
+        }
+      ]
+    },
+    {
+      "name": "test2",
+      "account": "basic"
+    }
+  ]
+}

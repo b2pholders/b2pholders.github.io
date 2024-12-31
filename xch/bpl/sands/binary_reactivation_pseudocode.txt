@@ -1,0 +1,16 @@
+functionality: reactivation
+
+initial pairing bonus
+final pairing bonus
+
+deactivation
+	capping pairs limit
+
+reactivation
+
+requirements to get final pairing bonus
+	minimum pairs
+	minimum directs
+	
+manual reactivation
+	reactivation cost
