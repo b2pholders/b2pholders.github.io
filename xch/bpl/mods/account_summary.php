@@ -26,8 +26,7 @@ function row_referral_link($user): string
 
 	$str = '';
 
-	if ($settings_plans->direct_referral)
-	{
+	if ($settings_plans->direct_referral) {
 		$http = 'http';
 
 		$link = $http . '://' . $_SERVER['SERVER_NAME'] . root_url() . '/' . $user->username;
@@ -91,7 +90,7 @@ function row_balance($user): string
 	return '<tr>
         <td>Balance:</td>
         <td><span class="usd_bal_now_user">' .
-		number_format($user->{$field_balance}, 8) .
+	number_format($user->{$field_balance}, 8) .
 		' ' . $settings_ancillaries->currency .
 		'</span></td>
     </tr>';
@@ -111,7 +110,7 @@ function row_efund($user): string
 	return '<tr>
         <td>' . $sa->efund_name . ':</td>
         <td><span class="usd_bal_now_user">' .
-		number_format($user->payout_transfer, 8) . ' ' . $sa->currency . '</span></td>
+	number_format($user->payout_transfer, 8) . ' ' . $sa->currency . '</span></td>
     </tr>';
 }
 
@@ -128,8 +127,7 @@ function row_points($user): string
 
 	$str = '';
 
-	if ($settings_plans->unilevel || $settings_plans->redundant_binary)
-	{
+	if ($settings_plans->unilevel || $settings_plans->redundant_binary) {
 		$str .= '<tr>
         <td>Points:</td>
         <td>' . number_format($user->points, 2) . ' pts.</td>
@@ -154,15 +152,16 @@ function row_daily_incentive($user): string
 
 	$str = '';
 
-	if (($settings_plans->etrade && !empty(user_compound($user->id))) ||
+	if (
+		($settings_plans->etrade && !empty(user_compound($user->id))) ||
 		($settings_plans->top_up && !empty(user_top_up($user->id))) ||
 		($settings_plans->fast_track && !empty(user_fast_track($user->id))) ||
-		($settings_plans->fixed_daily && !empty(user_fixed_daily($user->id))))
-	{
+		($settings_plans->fixed_daily && !empty(user_fixed_daily($user->id)))
+	) {
 		$passive_income = $user->fixed_daily_interest + $user->top_up_interest + $user->fast_track_interest;
 
 		$str .= '<tr>
-            <td>Daily Reward:</td>
+            <td>Accumulated:</td>
             <td>' . number_format($passive_income, 8) . ' ' . $currency . '</td>
         </tr>';
 
@@ -261,16 +260,14 @@ function row_merchant($user): string
 	$currency = settings('ancillaries')->currency;
 
 	$token_name = $settings_trading->token_name;
-//	$fmc_to_usd = $settings_trading->fmc_to_usd;
+	//	$fmc_to_usd = $settings_trading->fmc_to_usd;
 
 	$token = token();
 
 	$str = '';
 
-	if (settings('plans')->trading)
-	{
-		if ($user->merchant_type !== 'starter')
-		{
+	if (settings('plans')->trading) {
+		if ($user->merchant_type !== 'starter') {
 			$str .= '<tr>
 	            <td>Merchant Bonus:</td>
 	            <td>' . number_format($user->bonus_merchant, 8) . ' ' . $currency . '<span
@@ -280,11 +277,11 @@ function row_merchant($user): string
 	        </tr>';
 		}
 
-//		$data = api_coin_price();
+		//		$data = api_coin_price();
 
-//		$btc_currency = btc_currency();
+		//		$btc_currency = btc_currency();
 
-//		$coin_usd = usdt_currency() * $user->balance_fmc;
+		//		$coin_usd = usdt_currency() * $user->balance_fmc;
 
 		$str .= '<tr>
             <td>' . $token_name . ' Tokens:</td>
@@ -293,8 +290,8 @@ function row_merchant($user): string
                 <span id="fmc_bal_now_user">' . number_format($user->balance_fmc, 8) .
 			'</span><span style="padding-left: 5px">' . $token_name . '</span><span style="float:right;
                         padding-left:5px">' . /*$currency .
-			'</span><span id="fmc_bal_now_user_usd" style="float:right">' .
-			(isset($coin_usd) ? number_format($coin_usd, 5) : '') .*/ '</span>
+'</span><span id="fmc_bal_now_user_usd" style="float:right">' .
+(isset($coin_usd) ? number_format($coin_usd, 5) : '') .*/ '</span>
             </td>
         </tr>
         <tr id="active-income">
@@ -359,12 +356,9 @@ function script_coin_price(): string
 
 	$str = '';
 
-	if ($currency === 'PHP')
-	{
+	if ($currency === 'PHP') {
 		$str .= script_coin_price_php();
-	}
-	else
-	{
+	} else {
 		$currency = settings('ancillaries')->currency;
 
 		$symbol = $currency === 'USD' ? 'TUSDUSDT' : 'EURUSDT';
@@ -412,12 +406,11 @@ function ticker_coin_price(): string
 
 	$str = '';
 
-	if (settings('plans')->trading)
-	{
+	if (settings('plans')->trading) {
 		$btc_currency = usdt_currency();
 
 		$str .= '<span style="float: right; font-size: large; font-weight: bold">
-            <span style="color: #26A69A">' . $token_name . 
+            <span style="color: #26A69A">' . $token_name .
 			' Price: </span><span id="coin_price" style="color: #EF5350">' .
 			number_format($btc_currency, 12) . '</span> ' .
 			settings('ancillaries')->currency . '</span>';

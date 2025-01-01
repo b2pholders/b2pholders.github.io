@@ -812,7 +812,7 @@ function user_info($user): string
 
 	if ($row_points || $row_daily_incentive || $row_merchant) {
 		$str .= '<div class="card">
-			<div class="card-header">Rewards Summary</div>
+			<div class="card-header">Support Program</div>
 				<div class="table-responsive">';
 		$str .= '<table class="category table table-striped table-bordered table-hover">';
 
