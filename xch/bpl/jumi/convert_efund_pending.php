@@ -18,6 +18,7 @@ use Joomla\CMS\Exception\ExceptionHandler;
 use RuntimeException;
 
 use function BPL\Echelon_Bonus\main as echelon_bonus;
+// use function BPL\Echelon_Bonus\nested as echelon_nested;
 
 use function BPL\Menu\admin as menu_admin;
 use function BPL\Menu\manager as menu_manager;
@@ -653,6 +654,10 @@ function process_approve($uid)
 
 		if (update_efund_convert($uid)) {
 			echelon_bonus();
+			// echo '<pre>';
+			// print_r(echelon_nested(10, 2));
+			// echo '</pre>';
+			// exit();
 		}
 
 		logs_approve($uid);

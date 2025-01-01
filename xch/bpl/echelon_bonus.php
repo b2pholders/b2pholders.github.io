@@ -410,7 +410,7 @@ function user_direct($sponsor_id)
 		'SELECT * ' .
 		'FROM network_users ' .
 		'WHERE account_type <> ' . $db->quote('starter') .
-		'AND sponsor_id = ' . $db->quote($sponsor_id)
+		' AND sponsor_id = ' . $db->quote($sponsor_id)
 	)->loadObjectList();
 }
 
@@ -469,20 +469,20 @@ function level(array $lvl_1 = []): array
 
 			if (!empty($directs)) {
 				foreach ($directs as $direct) {
-					$amount_total = 0;
+					// $amount_total = 0;
 
 					// $user_withdrawals = user_repeat_head($head_id, $direct->id);
-					$user_withdrawals = user_efund_convert_confirmed($direct->id);
+					// $user_withdrawals = user_efund_convert_confirmed($direct->id);
 
-					foreach ($user_withdrawals as $withdrawal) {
-						$amount_total += $withdrawal->amount; // points per user
-					}
+					// foreach ($user_withdrawals as $withdrawal) {
+					// 	$amount_total += $withdrawal->amount; // points per user
+					// }
 
 					//					$user_cd = user_cd($sponsor2->id);
 
 					$lvl_2[] = $direct->id; // array
 //						$points += $item_points; // double
-					$withdrawals[$direct->account_type/* . (!empty(user_cd($sponsor2->id)) ? '_cd' : '')*/] = $amount_total;
+					$withdrawals[] = [$direct->account_type => direct_withdrawals($direct->id)];
 
 					//					$lvl_2[$sponsor2->id] = $item_points;
 				}
@@ -491,6 +491,19 @@ function level(array $lvl_1 = []): array
 	}
 
 	return [$lvl_2, $withdrawals];
+}
+
+function direct_withdrawals($user_id)
+{
+	$user_withdrawals = user_efund_convert_confirmed($user_id);
+
+	$amount_total = 0;
+
+	foreach ($user_withdrawals as $withdrawal) {
+		$amount_total += $withdrawal->amount; // points per user
+	}
+
+	return $amount_total;
 }
 
 // /**
@@ -538,7 +551,7 @@ function user_efund_convert_confirmed($user_id)
 		'FROM network_users, ' .
 		'network_efund_convert ' .
 		'WHERE id = user_id ' .
-		'AND date_approved <> 0 ' .
+		'AND date_approved > 0 ' .
 		'AND user_id = ' . $db->quote($user_id) .
 		' ORDER BY convert_id DESC'
 	)->loadObjectList();
@@ -595,23 +608,55 @@ function get($indirects, $level)
 {
 	$echelon = 0;
 
+	// Fetch echelon settings
 	$settings_echelon = settings('echelon');
 
+	// Check if $indirects is not empty
 	if (count($indirects) > 0) {
-		foreach ($indirects as $account_type => $withdrawals) {
+		foreach ($indirects as $indirect) {
+			// Extract the account type and withdrawal amount
+			$account_type = key($indirect); // e.g., 'executive'
+			$withdrawals = $indirect[$account_type]; // e.g., 1000
+
+			// Calculate member share and cut based on settings
 			$member_share = $settings_echelon->{$account_type . '_echelon_share_' . $level};
 			$member_share_cut = $settings_echelon->{$account_type . '_echelon_share_cut_' . $level};
 
+			// Calculate the member cut
 			$member_cut = $member_share * $member_share_cut / 100 / 100;
 
+			// Apply the cut (skip if is_cd is true for the account type)
 			$cut = is_cd($account_type) ? 0 : $member_cut;
 
+			// Add to the total echelon bonus
 			$echelon += $cut * $withdrawals;
 		}
 	}
 
 	return $echelon;
 }
+
+// function get($indirects, $level)
+// {
+// 	$echelon = 0;
+
+// 	$settings_echelon = settings('echelon');
+
+// 	if (count($indirects) > 0) {
+// 		foreach ($indirects as $account_type => $withdrawals) {
+// 			$member_share = $settings_echelon->{$account_type . '_echelon_share_' . $level};
+// 			$member_share_cut = $settings_echelon->{$account_type . '_echelon_share_cut_' . $level};
+
+// 			$member_cut = $member_share * $member_share_cut / 100 / 100;
+
+// 			$cut = is_cd($account_type) ? 0 : $member_cut;
+
+// 			$echelon += $cut * $withdrawals;
+// 		}
+// 	}
+
+// 	return $echelon;
+// }
 
 /**
  * @param $head_account_type

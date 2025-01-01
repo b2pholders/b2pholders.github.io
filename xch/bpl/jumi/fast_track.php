@@ -117,7 +117,7 @@ function fast_track($user_id, $page): string
 
     $user = user($user_id);
 
-	$currency = settings('ancillaries')->currency;
+    $currency = settings('ancillaries')->currency;
 
     $str = '';
 
@@ -129,7 +129,7 @@ function fast_track($user_id, $page): string
             '<span style="float: right; font-size: x-large; font-weight: bold">
             <span style="color: green">' . $sa->efund_name . ' Balance: '
             /*'Points: '*/ . '</span><span class="usd_bal_now_user">' .
-            number_format($user->payout_transfer /*$user->points*/, 2) . ' ' . $currency .
+            number_format($user->payout_transfer /*$user->points*/ , 2) . ' ' . $currency .
             '</span></h2>';
 
         // wallet button
@@ -144,7 +144,9 @@ function fast_track($user_id, $page): string
                     <td rowspan="3" style="text-align: center; width: 33%; vertical-align: middle">
                         <strong style="font-size: x-large"><span style="color: #006600">Shares:</span> <span
                                     class="fast_track_value_last">' . number_format(
-                $value_last, 2) . '</span>' . ' ' . /*$currency .*/
+            $value_last,
+            2
+        ) . '</span>' . ' ' . /*$currency .*/
             '</strong>
                     </td>
                     <td colspan="2" style="text-align: center; vertical-align: middle" height="21px">
@@ -195,7 +197,9 @@ function fast_track($user_id, $page): string
                         <strong style="font-size: xx-large; color: #006600"><strong style="font-size: x-large">
                                 Value: <span style="color: #444444"
                                              class="fast_track_principal">' . number_format(
-                $user->fast_track_principal, 2) . ' ' . /*$currency .*/
+            $user->fast_track_principal,
+            2
+        ) . ' ' . /*$currency .*/
             '</span></strong>
                         </strong>
                     </td>
@@ -203,6 +207,169 @@ function fast_track($user_id, $page): string
 
         $str .= '</table>';
         $str .= '</div>';
+
+        // $str .= <<<HTML
+        //     <!-- Notification Handler -->
+        //     <div class="notification-container">
+        //         <div class="notification success_fast_track"></div>
+        //         <div class="notification error_fast_track"></div>
+        //         <div class="notification debug_fast_track"></div>
+        //     </div>
+        //     <div class="card-container">
+        //         <!-- Card for Shares -->
+        //         <div class="card">
+        //             <div class="card-header">Shares</div>
+        //             <div class="card-content">
+        //                 <span style="color: #006600; font-size: x-large;">0.00</span>
+        //             </div>
+        //         </div>
+
+        //         <!-- Card for Value (Switched Position) -->
+        //         <div class="card">
+        //             <div class="card-header">Value</div>
+        //             <div class="card-content">
+        //                 <span style="color: #444444; font-size: x-large;">0.00</span>
+        //             </div>
+        //         </div>
+
+        //         <!-- Card for Fast Track Input (Switched Position) -->
+        //         <div class="card">
+        //             <div class="card-header">Fast Track</div>
+        //             <div class="card-content">
+        //                 <input type="text" id="fast_track_input" placeholder="Enter value" class="input-field">
+        //                 <button id="fast_track" class="btn-primary" disabled>Fast Track</button>
+        //             </div>
+        //         </div>
+        //     </div>
+        // HTML;
+
+        // $str .= <<<CSS
+        //     <style>
+        //         /* Card Container */
+        //         .card-container {
+        //             display: flex;
+        //             flex-wrap: wrap;
+        //             gap: 15px;
+        //             padding: 15px;
+        //             justify-content: center;
+        //         }
+
+        //         /* Card Styling */
+        //         .card {
+        //             flex: 1 1 calc(33.333% - 30px); /* Three cards per row on desktop */
+        //             background-color: #fff;
+        //             border-radius: 8px;
+        //             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        //             padding: 15px;
+        //             text-align: center;
+        //             transition: transform 0.2s;
+        //         }
+
+        //         .card:hover {
+        //             transform: translateY(-5px);
+        //         }
+
+        //         .card-header {
+        //             font-size: 18px;
+        //             font-weight: bold;
+        //             margin-bottom: 10px;
+        //             color: #006600;
+        //         }
+
+        //         .card-content {
+        //             font-size: 16px;
+        //         }
+
+        //         /* Input Field */
+        //         .input-field {
+        //             width: 100%;
+        //             padding: 10px;
+        //             font-size: 16px;
+        //             border: 1px solid #ddd;
+        //             border-radius: 4px;
+        //             margin-bottom: 10px;
+        //         }
+
+        //         /* Button */
+        //         .btn-primary {
+        //             width: 100%;
+        //             padding: 10px;
+        //             font-size: 16px;
+        //             background-color: #006600;
+        //             color: #fff;
+        //             border: none;
+        //             border-radius: 4px;
+        //             cursor: pointer;
+        //         }
+
+        //         .btn-primary:disabled {
+        //             background-color: #ccc;
+        //             cursor: not-allowed;
+        //         }
+
+        //         /* Notification Container */
+        //         .notification-container {
+        //             margin-top: 20px;
+        //             padding: 15px;
+        //         }
+
+        //         .notification {
+        //             padding: 10px;
+        //             margin-bottom: 10px;
+        //             border-radius: 4px;
+        //             display: none; /* Hidden by default */
+        //         }
+
+        //         .success_fast_track {
+        //             background-color: #d4edda;
+        //             color: #155724;
+        //         }
+
+        //         .error_fast_track {
+        //             background-color: #f8d7da;
+        //             color: #721c24;
+        //         }
+
+        //         .debug_fast_track {
+        //             background-color: #fff3cd;
+        //             color: #856404;
+        //         }
+
+        //         /* Responsive Design */
+        //         @media (max-width: 768px) {
+        //             .card {
+        //                 flex: 1 1 calc(50% - 30px); /* Two cards per row on tablets */
+        //             }
+        //         }
+
+        //         @media (max-width: 480px) {
+        //             .card {
+        //                 flex: 1 1 100%; /* One card per row on mobile */
+        //             }
+        //         }
+        //     </style>
+        // CSS;
+
+        // $str .= <<<JS
+        //     <script>
+        //         // Function to show notifications
+        //         function showNotification(type, message) {
+        //             const notification = document.querySelector(`.\${type}`);
+        //             notification.textContent = message;
+        //             notification.style.display = 'block';
+
+        //             // Hide notification after 5 seconds
+        //             setTimeout(() => {
+        //                 notification.style.display = 'none';
+        //             }, 5000);
+        //         }
+
+        //         // Example usage:
+        //         // showNotification('success_fast_track', 'Operation successful!');
+        //         // showNotification('error_fast_track', 'An error occurred.');
+        //         // showNotification('debug_fast_track', 'Debugging information.');
+        //     </script>
+        // JS;
 
         // tracker
         $str .= '<div class="table-responsive" id="table_fast_track">' . table_fast_track($user_id, $page) . '</div>';
@@ -234,7 +401,7 @@ function table_fast_track($user_id, $page, int $limit_to = 3): string
 
     $last_page = ($total - $total % $limit_to) / $limit_to;
 
-//	$currency = settings('ancillaries')->currency;
+    //	$currency = settings('ancillaries')->currency;
 
     $settings_investment = settings('investment');
 
@@ -251,7 +418,7 @@ function table_fast_track($user_id, $page, int $limit_to = 3): string
         $str .= '<div class="uk-panel uk-panel-box tm-panel-line">';
 
         if ($total > ($limit_from + $limit_to)) {
-            if ((int)$page !== (int)$last_page) {
+            if ((int) $page !== (int) $last_page) {
                 $str .= '<span style="float: right"><a href="' . sef(19) . qs() . 'page=' . ($last_page) .
                     '" class="uk-button uk-button-primary">Oldest</a></span>';
             }
@@ -264,13 +431,13 @@ function table_fast_track($user_id, $page, int $limit_to = 3): string
             $str .= '<span style="float: right"><a href="' . sef(19) . qs() . 'page=' . ($page - 1) .
                 '" class="uk-button uk-button-primary">Next</a></span>';
 
-            if ((int)$page !== 1) {
+            if ((int) $page !== 1) {
                 $str .= '<span style="float: right"><a href="' . sef(19) . qs() . 'page=' . (1) .
                     '" class="uk-button uk-button-success">Latest</a></span>';
             }
         }
 
-//		$str .= '<span style="float: left"><a href="' . sef(20) . '" class="uk-button uk-button-success">Deposit</a></span>';
+        //		$str .= '<span style="float: left"><a href="' . sef(20) . '" class="uk-button uk-button-success">Deposit</a></span>';
 
         $str .= '<table class="category table table-striped table-bordered table-hover">' .
             '<thead>
