@@ -773,9 +773,9 @@ function member($user_id): string
 		//		}
 	}
 
-	$str .= '<h2>Dashboard</h2>';
-	$str .= '<div class="card">
-		<div class="table-responsive">';
+	$str .= '<div class="card">';
+	$str .= '<div class="card-header">Dashboard</div>';
+	$str .= '<div class="table-responsive">';
 	$str .= '<table class="category table table-striped table-bordered table-hover" style="width: 100%;">';
 
 	$str .= core($user_id);
@@ -1712,7 +1712,7 @@ function row_savings($user_id): string
 'balance' : 'payout_transfer'*/ 'share_fund';
 
 	/*$reactivate = $user->status_global === 'active' ? '' :
-																																																								   '<a style="float:right" href="' . sef(130) . '">Reactivate Account</a>';*/
+																																																									  '<a style="float:right" href="' . sef(130) . '">Reactivate Account</a>';*/
 
 	return '<tr>
 	        <td><a href="javascript:void(0)">' . $sa->share_fund_name . '</a>:</td>
@@ -1741,7 +1741,7 @@ function row_loans($user_id): string
 'balance' : 'payout_transfer'*/ 'loans';
 
 	/*$reactivate = $user->status_global === 'active' ? '' :
-																																																								   '<a style="float:right" href="' . sef(130) . '">Reactivate Account</a>';*/
+																																																									  '<a style="float:right" href="' . sef(130) . '">Reactivate Account</a>';*/
 
 	return '<tr>
 	        <td><a href="javascript:void(0)">Loans</a>:</td>
