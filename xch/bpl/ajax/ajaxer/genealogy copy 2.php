@@ -172,7 +172,7 @@ function ajax($type, $user_id, string $plan = 'binary_pair'): string
                 "plan": "{$plan}"
             },
             success: function (data) {
-                const treeVis = new TreeVisualization("#genealogy_{$type}", data, "{$plan}");
+                const treeVis = new TreeVisualization("#genealogy_{$type}", data);
             }
         });
     JS;
@@ -246,10 +246,9 @@ function render($type, $user_id, $plan): string
              * @param {string} containerId - ID of the DOM element to contain the tree
              * @param {TreeNode} data - Hierarchical data structure for the tree
             */
-            constructor(containerId, data, plan) {
+            constructor(containerId, data) {
                 this.i = 0;
                 this.container = d3.select(containerId);
-                this.plan = plan; // Store the plan type
                 
                 this.updateDimensions();
                 this.initializeResizeHandler();
@@ -450,26 +449,7 @@ function render($type, $user_id, $plan): string
                 this.tree = d3.tree().size([this.width, this.height - this.initialVerticalOffset]);
         
                 // Create hierarchy from data
-                this.root = d3.hierarchy(data, d => {
-                    if (d.children) {
-                        // Sort children based on position if plan is binary_pair
-                        if (this.plan === 'binary_pair') {
-                            d.children.sort((a, b) => {
-                                if (a.details.position === 'Left' && b.details.position !== 'Left') {
-                                    return -1;
-                                } else if (a.details.position !== 'Left' && b.details.position === 'Left') {
-                                    return 1;
-                                } else {
-                                    return 0;
-                                }
-                            });
-                        }
-
-                        return d.children;
-                    }
-                    
-                    return null;
-                });
+                this.root = d3.hierarchy(data, d => d.children);
         
                 // Set initial position with offset
                 this.root.x0 = this.width / 2;

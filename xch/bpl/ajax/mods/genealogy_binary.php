@@ -98,6 +98,7 @@ function buildUserDetails(object $user): array
 		'account' => settings('entry')->{$user->account_type . '_package_name'},
 		'balance' => $balance,
 		'income_cycle' => number_format($user->income_cycle, 2),
+		'position' => $user->position,
 		'status' => ucfirst($user->status)
 	];
 
