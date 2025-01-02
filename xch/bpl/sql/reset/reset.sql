@@ -1654,6 +1654,7 @@ CREATE TABLE IF NOT EXISTS `network_users` (
     `compound_daily_balance` double NOT NULL DEFAULT '0',
     `upline_support` double NOT NULL DEFAULT '0',
     `passup_bonus` double NOT NULL DEFAULT '0',
+    `passup_binary_bonus` double NOT NULL DEFAULT '0',
     `stockist_bonus` double NOT NULL DEFAULT '0',
     `franchise_bonus` double NOT NULL DEFAULT '0',
     `endowment_bonus` double NOT NULL DEFAULT '0',
@@ -1940,3 +1941,36 @@ CREATE TABLE IF NOT EXISTS `network_p2p_item_transactions` (
     `date_close` int(11) NOT NULL DEFAULT '0',
     PRIMARY KEY (`trx_id`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `network_p2p_commerce_logs`
+--
+
+DROP TABLE IF EXISTS network_passup_binary;
+
+CREATE TABLE IF NOT EXISTS `network_passup_binary` (
+  `id` int NOT NULL,
+  `user_id` int NOT NULL,
+  `bonus_passup_binary` double NOT NULL DEFAULT '0',
+  `bonus_passup_binary_now` double NOT NULL DEFAULT '0',
+  `bonus_passup_binary_last` double NOT NULL DEFAULT '0',
+  `bonus_passup_binary_points` double NOT NULL DEFAULT '0',
+  `bonus_passup_binary_points_now` double NOT NULL DEFAULT '0',
+  `bonus_passup_binary_points_last` double NOT NULL DEFAULT '0',
+  `bonus_passup_binary_fmc` double NOT NULL DEFAULT '0',
+  `bonus_passup_binary_fmc_now` double NOT NULL DEFAULT '0',
+  `bonus_passup_binary_fmc_last` double NOT NULL DEFAULT '0',
+  `income_today` double NOT NULL DEFAULT '0',
+  `flushout_local` double NOT NULL DEFAULT '0',
+  `flushout_global` double NOT NULL DEFAULT '0',
+  `date_last_flushout` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `network_passup_binary`
+--
+
+INSERT INTO `network_passup_binary` (`user_id`) VALUES (1);
