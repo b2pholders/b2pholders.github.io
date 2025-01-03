@@ -988,13 +988,19 @@ function settings_adjust($admintype): string
 			$settings_plans->harvest_name . '</a></li>' : '');
 		$str .= (($settings_plans->matrix) ? '<li><a href="' . sef(86) . '">' .
 			$settings_plans->matrix_name . '</a></li>' : '');
-		$str .= (($settings_plans->power) ? '<li><a href="' . sef(89) . '">' .
-			$settings_plans->power_name . '</a></li>' : '');
+
+		// $str .= (($settings_plans->power) ? '<li><a href="' . sef(89) . '">' .
+		// 	$settings_plans->power_name . '</a></li>' : '');
 
 		$str .= (($settings_plans->upline_support) ? '<li><a href="' . sef(117) . '">' .
 			$settings_plans->upline_support_name . '</a></li>' : '');
-		$str .= (($settings_plans->passup) ? '<li><a href="' . sef(118) . '">' .
-			$settings_plans->passup_name . '</a></li>' : '');
+
+		// $str .= (($settings_plans->passup) ? '<li><a href="' . sef(118) . '">' .
+		// 	$settings_plans->passup_name . '</a></li>' : '');
+
+		$str .= (($settings_plans->passup_binary) ? '<li><a href="' . sef(148) . '">' .
+			$settings_plans->passup_binary_name . '</a></li>' : '');
+
 		$str .= (($settings_plans->elite_reward) ? '<li><a href="' . sef(119) . '">' .
 			$settings_plans->elite_reward_name . '</a></li>' : '');
 
@@ -1990,7 +1996,7 @@ function affiliates($account_type, $user_id): string
 	// unilevel
 	if (
 			/*$account_type !== 'starter'
-																																																												   &&*/ (
+																																																																					   &&*/ (
 			$sp->unilevel
 			&& $sul->{$account_type . '_unilevel_level'} > 0
 			&& !empty(user_unilevel($user_id))
@@ -2008,7 +2014,7 @@ function affiliates($account_type, $user_id): string
 	//binary
 	if (
 			/*$account_type !== 'starter'
-																																																												   &&*/ ($sp->binary_pair || $sp->redundant_binary)
+																																																																					   &&*/ ($sp->binary_pair || $sp->redundant_binary)
 	) {
 		$str .= $first ? '<li class="uk-nav-divider"></li>' : '';
 		$first = !$first ? 1 : $first;

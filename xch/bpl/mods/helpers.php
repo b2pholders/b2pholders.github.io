@@ -29,16 +29,15 @@ use function BPL\Mods\Url_SEF\sef;
  */
 function menu(): string
 {
-	$username     = session_get('username');
-	$usertype     = session_get('usertype');
-	$admintype    = session_get('admintype');
+	$username = session_get('username');
+	$usertype = session_get('usertype');
+	$admintype = session_get('admintype');
 	$account_type = session_get('account_type');
-	$user_id      = session_get('user_id');
+	$user_id = session_get('user_id');
 
 	$str = '';
 
-	switch ($usertype)
-	{
+	switch ($usertype) {
 		case 'Admin':
 			$str .= menu_admin($admintype, $account_type, $user_id, $username);
 
@@ -67,7 +66,7 @@ function paginate($p, $src, $sef, $rows, string $q = 'pg'): string
 {
 	$p = (int) $p;
 
-	$lim_to   = $rows;
+	$lim_to = $rows;
 	$lim_from = $lim_to * ($p);
 
 	$total = count($src);
@@ -76,10 +75,8 @@ function paginate($p, $src, $sef, $rows, string $q = 'pg'): string
 
 	$str = '<div style="float:right; margin-top:30px;">';
 
-	if ($total > $rows)
-	{
-		if ((int) $p > 0)
-		{
+	if ($total > $rows) {
+		if ((int) $p > 0) {
 			$str .= '<a href="' . sef($sef) . qs() . $q . '=' . (0) . '" class="uk-button uk-button-danger">';
 			$str .= '<i class="uk-icon-arrow-left" data-uk-tooltip title="First"></i>';
 			$str .= '</a>';
@@ -89,8 +86,7 @@ function paginate($p, $src, $sef, $rows, string $q = 'pg'): string
 			$str .= '</a>';
 		}
 
-		if ($total > ($lim_from + $lim_to))
-		{
+		if ($total > ($lim_from + $lim_to)) {
 			$str .= '<a href="' . sef($sef) . qs() . $q . '=' . ($p + 1) . '" class="uk-button uk-button-danger">';
 			$str .= '<i class="uk-icon-chevron-right" data-uk-tooltip title="Next"></i>';
 			$str .= '</a>';
@@ -113,8 +109,7 @@ function paginate($p, $src, $sef, $rows, string $q = 'pg'): string
  */
 function page_validate()
 {
-	if (session_get('usertype') === '')
-	{
+	if (session_get('usertype') === '') {
 		application()->redirect(Uri::root(true) . '/' . sef(43));
 	}
 }
@@ -133,8 +128,7 @@ function restrict_page()
  */
 function page_validate_admin($usertype, $admintype)
 {
-	if ($usertype === '' || $admintype !== 'Super')
-	{
+	if ($usertype === '' || $admintype !== 'Super') {
 		application()->redirect(Uri::root(true) . '/' . sef(43));
 	}
 }
@@ -229,25 +223,55 @@ function settings($type)
 	)->loadObject();
 }
 
+// /**
+//  *
+//  * @return CMSApplication|object
+//  *
+//  * @since version
+//  */
+// function application()
+// {
+// 	$app = null;
+
+// 	try
+// 	{
+// 		$app = Factory::getApplication();
+// 	}
+// 	catch (Exception $e)
+// 	{
+// 	}
+
+// 	return !is_null($app) ? $app : (object) [];
+// }
+
 /**
+ * Get the Joomla application instance.
  *
- * @return CMSApplication|object
- *
- * @since version
+ * @return CMSApplication|object The Joomla application instance.
+ * @throws Exception If the application instance cannot be retrieved.
  */
 function application()
 {
-	$app = null;
+	static $app = null;
 
-	try
-	{
+	// If the application instance is already cached, return it
+	if ($app instanceof CMSApplication) {
+		return $app;
+	}
+
+	// Try to get the Joomla application instance
+	try {
 		$app = Factory::getApplication();
-	}
-	catch (Exception $e)
-	{
+	} catch (Exception $e) {
+		throw new Exception('Unable to retrieve Joomla application instance.');
 	}
 
-	return !is_null($app) ? $app : (object) [];
+	// Ensure the application instance is valid
+	if (!($app instanceof CMSApplication)) {
+		throw new Exception('Invalid Joomla application instance.');
+	}
+
+	return $app;
 }
 
 /**

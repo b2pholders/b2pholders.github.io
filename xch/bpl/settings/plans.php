@@ -81,8 +81,11 @@ function input(): array
 	$inputs['upline_support']['name'] = input_get('upline_support_name', '', 'RAW');
 	$inputs['upline_support']['status'] = input_get('upline_support', 0);
 
-	$inputs['passup']['name'] = input_get('passup_name', '', 'RAW');
-	$inputs['passup']['status'] = input_get('passup', 0);
+	// $inputs['passup']['name'] = input_get('passup_name', '', 'RAW');
+	// $inputs['passup']['status'] = input_get('passup', 0);
+
+	$inputs['passup_binary']['name'] = input_get('passup_binary_name', '', 'RAW');
+	$inputs['passup_binary']['status'] = input_get('passup_binary', 0);
 
 	$inputs['elite_reward']['name'] = input_get('elite_reward_name', '', 'RAW');
 	$inputs['elite_reward']['status'] = input_get('elite_reward', 0);
@@ -105,6 +108,8 @@ function input(): array
  */
 function update()
 {
+	$app = application();
+
 	$db = db();
 
 	$inputs = input();
@@ -145,11 +150,8 @@ function update()
 			ExceptionHandler::render($e);
 		}
 
-		application()->redirect(
-			Uri::root(true) . '/' . sef(88),
-			'Compensation Plan Settings Updated Successfully!',
-			'success'
-		);
+		$app->enqueueMessage('Compensation Plan Settings Updated Successfully!', 'success');
+		$app->redirect(Uri::root(true) . '/' . sef(88));
 	}
 }
 
@@ -228,7 +230,7 @@ function view(): string
 
 			$str .= $name !== '' ? '<td>
                     <div class="center_align">
-                        <label>' . /*$settings_plans->$name*/ $default[$name] . '</label>
+                        <label>' . $default[$name] . '</label>
                     </div>
                 </td>
                 <td>
@@ -292,6 +294,7 @@ function name_default(): array
 		'merchant_name' => 'Merchant',
 		'upline_support_name' => 'Upline Support',
 		'passup_name' => 'Passup',
+		'passup_binary_name' => 'Passup Binary',
 		'elite_reward_name' => 'Elite Reward',
 		'stockist_name' => 'Stockist',
 		'franchise_name' => 'Franchise',

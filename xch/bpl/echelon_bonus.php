@@ -67,7 +67,7 @@ function main()
 //				$bonus_ir_new = upline_support(cd_filter($user_id, $ir_add), $user_id);
 
 				/*if (*/
-				update_bonus_echelon($echelon_total, $echelon_add, $user);/*)*/
+				update_passup_binary($echelon_total, $echelon_add, $user);/*)*/
 				//				{
 //					update_user($bonus_ir_new, $ir_add, $user_id);
 //					log_activity($ir_add, $user_id, $sponsor_id, $username);
@@ -241,7 +241,7 @@ function update_bonus_echelon($total, $add, $user)
 			);
 		}
 
-		update_network_echelon($total, 0, $user_id);
+		update_network_pb($total, 0, $user_id);
 	} else {
 		$diff = $freeze_limit - $income_cycle_global;
 
@@ -268,7 +268,7 @@ function update_bonus_echelon($total, $add, $user)
 				);
 			}
 
-			update_network_echelon($total, $diff, $user_id);
+			update_network_pb($total, $diff, $user_id);
 			log_activity($diff, $user_id, $sponsor_id, $username);
 		} else {
 			$field_user = ['bonus_echelon = bonus_echelon + ' . $add];
@@ -287,7 +287,7 @@ function update_bonus_echelon($total, $add, $user)
 				['id = ' . $db->quote($user_id)]
 			);
 
-			update_network_echelon($total, $add, $user_id);
+			update_network_pb($total, $add, $user_id);
 			log_activity($add, $user_id, $sponsor_id, $username);
 		}
 	}
