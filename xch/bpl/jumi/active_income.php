@@ -6,14 +6,14 @@ require_once 'bpl/mods/income.php';
 require_once 'bpl/mods/account_summary.php';
 require_once 'bpl/mods/helpers.php';
 
-use Joomla\CMS\Uri\Uri;
+// use Joomla\CMS\Uri\Uri;
 
 use function BPL\Mods\Account_Summary\row_referral_link;
 use function BPL\Mods\Account_Summary\row_username;
 use function BPL\Mods\Account_Summary\row_account_type;
 
 //use function BPL\Mods\Account_Summary\row_balance;
-use function BPL\Mods\Account_Summary\row_efund;
+// use function BPL\Mods\Account_Summary\row_efund;
 use function BPL\Mods\Account_Summary\row_points;
 use function BPL\Mods\Account_Summary\row_daily_incentive;
 use function BPL\Mods\Account_Summary\row_merchant;
@@ -21,7 +21,7 @@ use function BPL\Mods\Account_Summary\row_merchant;
 use function BPL\Mods\Income\income_marketing;
 use function BPL\Mods\Url_SEF\sef;
 
-use function BPL\Mods\Helpers\application;
+// use function BPL\Mods\Helpers\application;
 use function BPL\Mods\Helpers\session_get;
 use function BPL\Mods\Helpers\settings;
 use function BPL\Mods\Helpers\page_validate;
@@ -308,6 +308,37 @@ function row_binary($user_id): string
            	<td>' . number_format($binary->income_cycle, 8) . ' ' .
 			settings('ancillaries')->currency . /*($flushout ? '' : $reactivate) .*/
 			'</td></tr>';
+	}
+
+	return $str;
+}
+
+/**
+ *
+ * @param $user_id
+ *
+ * @return string
+ *
+ * @since version
+ */
+function row_passup_binary($user_id): string
+{
+	$settings_plans = settings('plans');
+
+	$str = '';
+
+	if (
+		$settings_plans->passup_binary &&
+		$settings_plans->binary_pair &&
+		binary($user_id)
+	) {
+		$str .= '<tr>
+	        <td><a href="javascript:void(0)">' .
+			$settings_plans->passup_binary_name . '</a>:</td>
+	        <td>' . number_format(user($user_id)->passup_binary_bonus, 8) .
+			' ' . settings('ancillaries')->currency .
+			'</td>
+	        </tr>';
 	}
 
 	return $str;
@@ -737,12 +768,19 @@ function admin($user_id): string
 {
 	$str = page_reload();
 
+	$str .= tableStyle();
+
 	$str .= '<h2>Profit Chart</h2>';
 	$str .= '<div class="card">
 		<div class="table-responsive">';
 	$str .= '<table class="category table table-striped table-bordered table-hover" style="width: 100%;">';
 
 	$str .= core($user_id);
+
+	$str .= '</table>';
+	$str .= '</div></div>';
+
+	$str .= table_binary_summary($user_id);
 
 	return $str;
 }
@@ -779,12 +817,19 @@ function member($user_id): string
 		}
 	}
 
+	$str .= tableStyle();
+
 	$str .= '<div class="card">';
 	$str .= '<div class="card-header">Dashboard</div>';
 	$str .= '<div class="table-responsive">';
 	$str .= '<table class="category table table-striped table-bordered table-hover" style="width: 100%;">';
 
 	$str .= core($user_id);
+
+	$str .= '</table>';
+	$str .= '</div></div>';
+
+	$str .= table_binary_summary($user_id);
 
 	$str .= user_info(user($user_id));
 
@@ -839,6 +884,7 @@ function core($user_id): string
 	$str = row_direct_referral($user_id);
 	$str .= row_indirect_referral($user_id);
 	$str .= row_binary($user_id);
+	$str .= row_passup_binary($user_id);
 	$str .= row_leadership_binary($user_id);
 	$str .= row_leadership_passive($user_id);
 	$str .= row_matrix($user_id);
@@ -854,12 +900,6 @@ function core($user_id): string
 	$str .= row_franchise($user_id);
 	$str .= row_income_active_total($user_id);
 	$str .= row_balance($user_id);
-	$str .= '</table>';
-	$str .= '</div></div>';
-
-	$str .= table_binary_summary($user_id);
-
-	$str .= tableStyle();
 
 	return $str;
 }

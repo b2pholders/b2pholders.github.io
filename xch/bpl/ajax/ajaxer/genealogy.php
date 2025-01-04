@@ -453,7 +453,7 @@ function render($type, $user_id, $plan): string
                 this.root = d3.hierarchy(data, d => {
                     if (d.children) {
                         // Sort children based on position if plan is binary_pair
-                        if (this.plan === 'binary_pair') {
+                        if (this.plan === 'binary_pair' || this.plan === 'passup_binary') {
                             d.children.sort((a, b) => {
                                 if (a.details.position === 'Left' && b.details.position !== 'Left') {
                                     return -1;
@@ -761,26 +761,48 @@ function tooltipContent($plan): string
         // Handle multiple attributes
         $attrList = implode(', ', $attributes);
 
-        $tooltipContent = <<<JS
-            /**
-             * Generates HTML content for the tooltip
-             * @param {Object} details - Node details object
-             * @returns {string} HTML content for tooltip
-             * @private
-             */
-            generateTooltipContent(details) {
-                const { username, account, balance, {$attrList} } = details;
-            
-                return `
-                    <div><strong>User:</strong> \${username}</div>
-                    <div><strong>Account:</strong> \${account}</div>
-                    <div><strong>Balance:</strong> \${balance}</div>
-                    <div><strong>Income:</strong> \${{$attributes[0]}}</div>
-                    <div><strong>Position:</strong> \${{$attributes[1]}}</div>
-                    <div><strong>Status:</strong> \${{$attributes[2]}}</div>
-                `;
-            }
-        JS;
+        if ($plan === 'passup_binary') {
+            $tooltipContent = <<<JS
+                /**
+                 * Generates HTML content for the tooltip
+                 * @param {Object} details - Node details object
+                 * @returns {string} HTML content for tooltip
+                 * @private
+                 */
+                generateTooltipContent(details) {
+                    const { username, account, balance, {$attrList} } = details;
+                
+                    return `
+                        <div><strong>User:</strong> \${username}</div>
+                        <div><strong>Account:</strong> \${account}</div>
+                        <div><strong>Balance:</strong> \${balance}</div>
+                        <div><strong>Position:</strong> \${{$attributes[0]}}</div>
+                        <div><strong>Income:</strong> \${{$attributes[1]}}</div>                        
+                    `;
+                }
+            JS;
+        } else {
+            $tooltipContent = <<<JS
+                /**
+                 * Generates HTML content for the tooltip
+                 * @param {Object} details - Node details object
+                 * @returns {string} HTML content for tooltip
+                 * @private
+                 */
+                generateTooltipContent(details) {
+                    const { username, account, balance, {$attrList} } = details;
+                
+                    return `
+                        <div><strong>User:</strong> \${username}</div>
+                        <div><strong>Account:</strong> \${account}</div>
+                        <div><strong>Balance:</strong> \${balance}</div>
+                        <div><strong>Income:</strong> \${{$attributes[0]}}</div>
+                        <div><strong>Position:</strong> \${{$attributes[1]}}</div>
+                        <div><strong>Status:</strong> \${{$attributes[2]}}</div>
+                    `;
+                }
+            JS;
+        }
     } else {
         // Handle single attribute
         $tooltipContent = <<<JS
@@ -847,6 +869,7 @@ function plan_attr(): array
         'unilevel' => 'unilevel',
         'echelon' => 'bonus_echelon',
         'binary_pair' => ['income_cycle', 'position', 'status'],
+        'passup_binary' => ['position', 'passup_binary_bonus'],
         'leadership_binary' => 'bonus_leadership',
         'leadership_passive' => 'bonus_leadership_passive',
         'matrix' => 'bonus_matrix',

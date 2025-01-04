@@ -1235,9 +1235,28 @@ function user_indirect($user_id)
 	return $db->setQuery(
 		'SELECT * ' .
 		'FROM network_indirect ' .
-		'WHERE id = ' . $db->quote($user_id)
+		'WHERE user_id = ' . $db->quote($user_id)
 	)->loadObject();
 }
+
+/**
+ * @param $user_id
+ *
+ * @return mixed|null
+ *
+ * @since version
+ */
+function user_passup_binary($user_id)
+{
+	$db = db();
+
+	return $db->setQuery(
+		'SELECT * ' .
+		'FROM network_passup_binary ' .
+		'WHERE user_id = ' . $db->quote($user_id)
+	)->loadObject();
+}
+
 
 /**
  *
@@ -1958,6 +1977,7 @@ function affiliates($account_type, $user_id): string
 	$slb = settings('leadership');
 	$slp = settings('leadership_passive');
 	$sul = settings('unilevel');
+	$spb = settings('passup_binary');
 
 	$user_harvest_associate = user_harvest($user_id, 'associate');
 	$user_harvest_basic = user_harvest($user_id, 'basic');
@@ -1996,7 +2016,7 @@ function affiliates($account_type, $user_id): string
 	// unilevel
 	if (
 			/*$account_type !== 'starter'
-																																																																					   &&*/ (
+																																																																										 &&*/ (
 			$sp->unilevel
 			&& $sul->{$account_type . '_unilevel_level'} > 0
 			&& !empty(user_unilevel($user_id))
@@ -2012,18 +2032,18 @@ function affiliates($account_type, $user_id): string
 	}
 
 	//binary
-	if (
-			/*$account_type !== 'starter'
-																																																																					   &&*/ ($sp->binary_pair || $sp->redundant_binary)
-	) {
-		$str .= $first ? '<li class="uk-nav-divider"></li>' : '';
-		$first = !$first ? 1 : $first;
+	// if (
+	// 		/*$account_type !== 'starter'
+	// 																																																																				   &&*/ ($sp->binary_pair || $sp->redundant_binary)
+	// ) {
+	$str .= $first ? '<li class="uk-nav-divider"></li>' : '';
+	$first = !$first ? 1 : $first;
 
-		$str .= '<li class="uk-nav-header">' . $sp->binary_pair_name . '</li>';
+	$str .= '<li class="uk-nav-header">' . $sp->binary_pair_name . '</li>';
 
-		$str .= '<li><a href="' . sef(21) . '">Genealogy</a></li>';
-		$str .= '<li><a href="' . sef(14) . '">Binary</a></li>';
-	}
+	$str .= '<li><a href="' . sef(21) . '">Genealogy</a></li>';
+	$str .= '<li><a href="' . sef(14) . '">Binary</a></li>';
+	// }
 
 	// leadership binary
 	if (
@@ -2039,6 +2059,16 @@ function affiliates($account_type, $user_id): string
 
 		$str .= '<li><a href="' . sef(25) . '">Genealogy</a></li>';
 		$str .= '<li><a href="' . sef(37) . '">Profit Summary</a></li>';
+	}
+
+	// passsup binary
+	if ($sp->passup_binary && user_passup_binary($user_id)) {
+		$first = !$first ? 1 : $first;
+
+		$str .= '<li class="uk-nav-header">' . $sp->passup_binary_name . '</li>';
+
+		$str .= '<li><a href="' . sef(150) . '">Genealogy</a></li>';
+		$str .= '<li><a href="' . sef(149) . '">Profit Summary</a></li>';
 	}
 
 	// leadership passive

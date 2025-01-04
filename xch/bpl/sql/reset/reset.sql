@@ -735,7 +735,7 @@ CREATE TABLE IF NOT EXISTS `network_income` (
 DROP TABLE IF EXISTS `network_indirect`;
 
 CREATE TABLE IF NOT EXISTS `network_indirect` (
-    `id` int(11) NOT NULL,
+    `id` int(11) NOT NULL AUTO_INCREMENT,
     `user_id` int(11) NOT NULL,
     `bonus_indirect` double NOT NULL DEFAULT '0',
     `bonus_indirect_now` double NOT NULL DEFAULT '0',
@@ -768,7 +768,7 @@ INSERT INTO `network_indirect` (`id`, `user_id`) VALUES (1, 1);
 DROP TABLE IF EXISTS `network_echelon`;
 
 CREATE TABLE IF NOT EXISTS `network_echelon` (
-    `id` int NOT NULL,
+    `id` int NOT NULL AUTO_INCREMENT,
     `user_id` int NOT NULL,
     `bonus_echelon` double NOT NULL DEFAULT '0',
     `bonus_echelon_now` double NOT NULL DEFAULT '0',
@@ -1951,7 +1951,7 @@ CREATE TABLE IF NOT EXISTS `network_p2p_item_transactions` (
 DROP TABLE IF EXISTS network_passup_binary;
 
 CREATE TABLE IF NOT EXISTS `network_passup_binary` (
-  `id` int NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
   `bonus_passup_binary` double NOT NULL DEFAULT '0',
   `bonus_passup_binary_now` double NOT NULL DEFAULT '0',

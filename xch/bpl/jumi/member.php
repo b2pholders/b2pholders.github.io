@@ -24,18 +24,18 @@ use function BPL\Mods\Account_Summary\row_username;
 use function BPL\Mods\Account_Summary\row_account_type;
 
 //use function BPL\Mods\Account_Summary\row_balance;
-use function BPL\Mods\Account_Summary\row_efund;
+// use function BPL\Mods\Account_Summary\row_efund;
 use function BPL\Mods\Account_Summary\row_points;
 use function BPL\Mods\Account_Summary\row_daily_incentive;
 use function BPL\Mods\Account_Summary\row_merchant;
 
 use function BPL\Mods\Income\income_marketing;
 
-use function BPL\Ajax\Ajaxer\Time_Remaining_To_Activate\main as ajax_time_remaining_to_activate;
+// use function BPL\Ajax\Ajaxer\Time_Remaining_To_Activate\main as ajax_time_remaining_to_activate;
 use function BPL\Ajax\Ajaxer\Table_Fixed_Daily\main as ajax_table_fixed_daily;
 use function BPL\Mods\Table_Daily_Interest\main as table_daily;
 
-use function BPL\Mods\Time_Remaining_To_Activate\main as time_remaining_to_activate;
+// use function BPL\Mods\Time_Remaining_To_Activate\main as time_remaining_to_activate;
 
 //use function BPL\Mods\Account_Summary\row_referral_link;
 //use function BPL\Mods\Account_Summary\row_username;
@@ -773,12 +773,19 @@ function member($user_id): string
 		//		}
 	}
 
+	$str .= tableStyle();
+
 	$str .= '<div class="card">';
 	$str .= '<div class="card-header">Dashboard</div>';
 	$str .= '<div class="table-responsive">';
 	$str .= '<table class="category table table-striped table-bordered table-hover" style="width: 100%;">';
 
 	$str .= core($user_id);
+
+	$str .= '</table>';
+	$str .= '</div></div>';
+
+	$str .= table_binary_summary($user_id);
 
 	$str .= user_info(user($user_id));
 
@@ -834,6 +841,7 @@ function core($user_id): string
 	$str = row_direct_referral($user_id);
 	$str .= row_indirect_referral($user_id);
 	$str .= row_binary($user_id);
+	$str .= row_passup_binary($user_id);
 	$str .= row_leadership_binary($user_id);
 	$str .= row_leadership_passive($user_id);
 	$str .= row_matrix($user_id);
@@ -851,12 +859,6 @@ function core($user_id): string
 	$str .= row_balance($user_id);
 	//	$str .= row_savings($user_id);
 //	$str .= row_loans($user_id);
-	$str .= '</table>';
-	$str .= '</div></div>';
-
-	$str .= table_binary_summary($user_id);
-
-	$str .= tableStyle();
 
 	return $str;
 }
@@ -1348,6 +1350,37 @@ function row_binary($user_id): string
  *
  * @since version
  */
+function row_passup_binary($user_id): string
+{
+	$settings_plans = settings('plans');
+
+	$str = '';
+
+	if (
+		$settings_plans->passup_binary &&
+		$settings_plans->binary_pair &&
+		binary($user_id)
+	) {
+		$str .= '<tr>
+	        <td><a href="javascript:void(0)">' .
+			$settings_plans->passup_binary_name . '</a>:</td>
+	        <td>' . number_format(user($user_id)->passup_binary_bonus, 8) .
+			' ' . settings('ancillaries')->currency .
+			'</td>
+	        </tr>';
+	}
+
+	return $str;
+}
+
+/**
+ *
+ * @param $user_id
+ *
+ * @return string
+ *
+ * @since version
+ */
 function row_leadership_binary($user_id): string
 {
 	$settings_plans = settings('plans');
@@ -1712,7 +1745,7 @@ function row_savings($user_id): string
 'balance' : 'payout_transfer'*/ 'share_fund';
 
 	/*$reactivate = $user->status_global === 'active' ? '' :
-																																																										 '<a style="float:right" href="' . sef(130) . '">Reactivate Account</a>';*/
+																																																											'<a style="float:right" href="' . sef(130) . '">Reactivate Account</a>';*/
 
 	return '<tr>
 	        <td><a href="javascript:void(0)">' . $sa->share_fund_name . '</a>:</td>
@@ -1741,7 +1774,7 @@ function row_loans($user_id): string
 'balance' : 'payout_transfer'*/ 'loans';
 
 	/*$reactivate = $user->status_global === 'active' ? '' :
-																																																										 '<a style="float:right" href="' . sef(130) . '">Reactivate Account</a>';*/
+																																																											'<a style="float:right" href="' . sef(130) . '">Reactivate Account</a>';*/
 
 	return '<tr>
 	        <td><a href="javascript:void(0)">Loans</a>:</td>

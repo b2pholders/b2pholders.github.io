@@ -42,12 +42,12 @@ function generateNetworkTree(int $id_user, string $plan): string
 	return json_encode(buildTreeData($head, $plan));
 }
 
-function buildTreeData(object $user): array
+function buildTreeData(object $user, string $plan): array
 {
 	// Step 1: Build the parent node
 	$data = [
 		'username' => $user->username,
-		'details' => buildUserDetails($user)
+		'details' => buildUserDetails($user, $plan)
 	];
 
 	// Step 2: Get and process direct children
@@ -55,7 +55,7 @@ function buildTreeData(object $user): array
 
 	if ($children) {
 		$data['children'] = array_map(
-			fn($child) => buildTreeData($child),
+			fn($child) => buildTreeData($child, $plan),
 			$children
 		);
 	}
@@ -85,7 +85,7 @@ function getDownlines(int $userId): array
 	);
 }
 
-function buildUserDetails(object $user): array
+function buildUserDetails(object $user, string $plan): array
 {
 	$balance = number_format($user->payout_transfer, 2);
 
@@ -96,11 +96,16 @@ function buildUserDetails(object $user): array
 	$details = [
 		'username' => $user->username,
 		'account' => settings('entry')->{$user->account_type . '_package_name'},
-		'balance' => $balance,
-		'income_cycle' => number_format($user->income_cycle, 2),
-		'position' => $user->position,
-		'status' => ucfirst($user->status)
+		'balance' => $balance
 	];
+
+	$planAttributes = getPlanAttributes($user);
+
+	if (isset($planAttributes[$plan])) {
+		foreach ($planAttributes[$plan] as $field => $value) {
+			$details[$field] = $value;
+		}
+	}
 
 	return $details;
 }
@@ -115,4 +120,19 @@ function userBinary($id_user)
 		'WHERE u.id = :user_id',
 		['user_id' => $id_user]
 	);
+}
+
+function getPlanAttributes($user): array
+{
+	return [
+		'binary_pair' => [
+			'income_cycle' => number_format($user->income_cycle, 2),
+			'position' => $user->position,
+			'status' => ucfirst($user->status)
+		],
+		'passup_binary' => [
+			'position' => $user->position,
+			'passup_binary_bonus' => number_format($user->passup_binary_bonus, 2)
+		]
+	];
 }

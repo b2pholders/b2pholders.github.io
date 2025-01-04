@@ -16,6 +16,7 @@ require_once 'bpl/leadership_passive.php';
 
 // test disbale
 require_once 'bpl/unilevel.php';
+require_once 'bpl/passup_binary.php';
 //require_once 'bpl/harvest.php';
 //require_once 'bpl/royalty_bonus.php';
 //require_once 'bpl/passup_bonus.php';
@@ -35,7 +36,7 @@ use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Session\Session;
 
-use function BPL\Direct_Referral\main as direct_referral;
+// use function BPL\Direct_Referral\main as direct_referral;
 use function BPL\Indirect_Referral\main as indirect_referral;
 use function BPL\Passup_Bonus\main as passup;
 use function BPL\Leadership_Passive\insert_leadership_passive;
@@ -50,6 +51,8 @@ use function BPL\Leadership_Binary\main as leadership_binary;
 
 //use function BPL\Harvest\main as harvest;
 use function BPL\Unilevel\insert_unilevel;
+use function BPL\Passup_Binary\insert_passup_binary;
+use function BPL\Passup_Binary\main as passup_binary;
 
 //use function BPL\Mods\Binary\Core\user_binary;
 //use function BPL\Royalty_Bonus\main as royalty_bonus;
@@ -1297,6 +1300,66 @@ function process_unilevel($user_id, $type, $date, $prov)
 	}
 }
 
+function process_passup_binary($user_id, $type, $date, $prov)
+{
+	$settings_plans = settings('plans');
+
+	if (
+		$settings_plans->passup_binary &&
+		$settings_plans->binary_pair &&
+		has_binary($user_id)
+	) {
+		$user = user($user_id);
+
+		$username = $user->username;
+		$sponsor = user($user->sponsor_id)->username;
+
+		insert_passup_binary($user_id, $type, $username, $sponsor, $date, $prov);
+	}
+
+	if (has_passup_binary($user_id)) {
+		passup_binary();
+	}
+}
+
+/**
+ * @param $user_id
+ *
+ * @return mixed|null
+ *
+ * @since version
+ */
+function has_binary($user_id)
+{
+	$db = db();
+
+	return $db->setQuery(
+		'SELECT * ' .
+		'FROM network_binary ' .
+		'WHERE user_id = ' .
+		$db->quote($user_id)
+	)->loadObject();
+}
+
+/**
+ * @param $user_id
+ *
+ * @return mixed|null
+ *
+ * @since version
+ */
+function has_passup_binary($user_id)
+{
+	$db = db();
+
+	return $db->setQuery(
+		'SELECT * ' .
+		'FROM network_passup_binary ' .
+		'WHERE user_id = ' .
+		$db->quote($user_id)
+	)->loadObject();
+}
+
 /**
  * @param $prov
  *
@@ -1458,6 +1521,8 @@ function process_plans($user_id, $type, $username, $sponsor, $date, $prov)
 //	process_royalty($user_id);
 //	process_passup($user_id);
 //	process_elite_reward($user_id);
+
+	process_passup_binary($user_id, $type, $date, $prov);
 
 	process_echelon_bonus($user_id, $type);
 

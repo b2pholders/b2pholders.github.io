@@ -418,41 +418,43 @@ function is_cd($account_type): bool
  */
 function total($user_id, $compound = false): array
 {
-	$user_binary = user_binary($user_id);
-
-	$d_id = $user_binary->downline_right_id;
-
-	if ($d_id) {
-		$c_id = $user_binary->downline_left_id;
-	}
-
 	$cumulative_percentage = 1;
 
 	$total_income = 0;
 	$c_users = [];
 
-	while ($c_id) {
-		$c_user = user_binary($c_id);
+	$user = user_binary($user_id);
 
-		$c_account_type = $c_user->account_type;
-		$c_username = $c_user->username;
+	$d_id = $user->downline_right_id;
 
-		$c_compensation = getCompensation($c_account_type);
-		$c_percentage = getPercentage($c_account_type);
+	if ($d_id) {
+		$d_user = user_binary($d_id);
 
-		if ($compound) {
-			$cumulative_percentage *= $c_percentage;
-		} else {
-			$cumulative_percentage = $c_percentage;
+		$c_id = $d_user->downline_left_id;
+
+		while ($c_id) {
+			$c_user = user_binary($c_id);
+
+			$c_account_type = $c_user->account_type;
+			$c_username = $c_user->username;
+
+			$c_compensation = getCompensation($c_account_type);
+			$c_percentage = getPercentage($c_account_type);
+
+			if ($compound) {
+				$cumulative_percentage *= $c_percentage;
+			} else {
+				$cumulative_percentage = $c_percentage;
+			}
+
+			$c_income = $c_compensation * $cumulative_percentage;
+
+			$c_users[$c_username] = $c_income;
+
+			$total_income += $c_income;
+
+			$c_id = $c_user->downline_left_id;
 		}
-
-		$c_income = $c_compensation * $cumulative_percentage;
-
-		$c_users[$c_username] = $c_income;
-
-		$total_income += $c_income;
-
-		$user_binary = user_binary($c_id);
 	}
 
 	return [
@@ -472,7 +474,9 @@ function getPercentage($account_type)
 {
 	$spb = settings('passup_binary');
 
-	return $spb->{$account_type . '_percent'} ?? 0;
+	$percent = doubleval($spb->{$account_type . '_percent'}) / 100;
+
+	return $percent ?? 0;
 }
 
 function user_binary($user_id)
@@ -536,39 +540,35 @@ function view($user_id): string
 
 		$members = $total['members'];
 
-		$ctr = 1;
+		if (count($members) > 0) {
+			foreach ($members as $member => $income) {
 
-		foreach ($members as $member => $income) {
+				$str .= '<tr>';
 
+				$str .= '<td>';
+				$str .= '<div style="text-align: center">' . $member . '</div>';
+				$str .= '</td>';
+
+				$str .= '<td>';
+				$str .= '<div style="text-align: center">' . number_format($income, 8) . '</div>';
+				$str .= '</td>';
+
+				$entry = $se->{$head_account_type . '_entry'};
+
+				$percent = $entry > 0 ? ($income / $entry) * 100 : 0;
+
+				$str .= '<td>';
+				$str .= '<div style="text-align: center">' . number_format($percent, 2) . '</div>';
+				$str .= '</td>';
+
+				$str .= '</tr>';
+			}
+		} else {
 			$str .= '<tr>';
-
-			$str .= '<td>';
-			$str .= '<div style="text-align: center" ' .
-				($ctr === 1 ? 'style="color: red"' : '') . '>' .
-				($ctr === 1 ? ('(' . $member . ')') : $member) . '</div>';
+			$str .= '<td colspan="3">';
+			$str .= '<div style="text-align: center">No members yet.</div>';
 			$str .= '</td>';
-
-			$str .= '<td>';
-			$str .= '<div style="text-align: center" ' .
-				($ctr === 1 ? 'style="color: red"' : '') . '>' .
-				($ctr === 1 ? ('(' . number_format($income, 8) . ')') :
-					number_format($income, 8)) . '</div>';
-			$str .= '</td>';
-
-			$entry = $se->{$head_account_type . '_entry'};
-
-			$percent = $entry > 0 ? ($income / $entry) * 100 : 0;
-
-			$str .= '<td>';
-			$str .= '<div style="text-align: center" ' .
-				($ctr === 1 ? 'style="color: red"' : '') . '>' .
-				($ctr === 1 ? ('(' . number_format($percent, 2) . ')') :
-					number_format($percent, 2)) . '</div>';
-			$str .= '</td>';
-
 			$str .= '</tr>';
-
-			$ctr++;
 		}
 
 		$str .= '<tr>';
@@ -581,10 +581,8 @@ function view($user_id): string
 		$str .= '<td>';
 		$str .= '<div style="text-align: center">' . number_format($total['bonus'], 8) . '</div>';
 		$str .= '</td>';
-		$str .= '<td>';
-		$str .= '<div style="text-align: center">N/A</div>';
-		$str .= '</td>';
 		$str .= '</tr>';
+
 		$str .= '</tbody>';
 		$str .= '</table>';
 	}
