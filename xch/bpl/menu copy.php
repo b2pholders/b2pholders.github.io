@@ -1666,24 +1666,7 @@ function hamburger(): string
  */
 function menu_styles(): string
 {
-	return <<<CSS
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-	<style>
-		/* Make the entire page transparent */
-		body {
-				background: transparent !important;
-				margin: 0;
-				padding: 0;
-		}
-
-		/* Ensure the table and pagination are visible */
-		.container {
-			background: white; /* Add a white background to the table and pagination */
-			padding: 20px;
-			border-radius: 8px;
-			box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Optional: Add a shadow for better visibility */
-		}
-
+	return '<style>
 	    /* Existing styles for the hamburger button */
 		.hamburger-button {
 		    position: fixed;
@@ -1719,7 +1702,6 @@ function menu_styles(): string
 		}
 	
 	    .sidebar {
-			font-sizes: 14px; /* Adjust the font size as needed */
 		    width: 250px;
 		    background: #26669e;
 		    position: fixed;
@@ -1737,16 +1719,7 @@ function menu_styles(): string
 		.sidebar.active {
 		    transform: translateX(0); /* Show the sidebar when active */
 		}
-
-		.uk-button {			
-			font-size: 1.5rem;			
-		}
-
-		.uk-dropdown {
-			font-size: 1.5rem;
-		}
-	</style>
-	CSS;
+	</style>';
 }
 
 /**
@@ -1757,10 +1730,7 @@ function menu_styles(): string
  */
 function menu_scripts(): string
 {
-	return <<<JS
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-	<script>
+	return '<script>
 	    document.addEventListener("DOMContentLoaded", function() {
 		    const sidebar = document.getElementById("menu");
 		    const hamburger = document.getElementById("hamburgerButton");
@@ -1785,8 +1755,7 @@ function menu_scripts(): string
 		        e.stopPropagation();
 		    });
 		});
-	</script>
-	JS;
+	</script>';
 }
 
 /**
@@ -2047,7 +2016,7 @@ function affiliates($account_type, $user_id): string
 	// unilevel
 	if (
 			/*$account_type !== 'starter'
-																																																																																																							  &&*/ (
+																																																																										 &&*/ (
 			$sp->unilevel
 			&& $sul->{$account_type . '_unilevel_level'} > 0
 			&& !empty(user_unilevel($user_id))

@@ -515,7 +515,7 @@ function view($user_id): string
 	$currency = $sa->currency;
 
 	// Pagination logic
-	$limit = 1; // Number of rows per page
+	$limit = 10; // Number of rows per page
 	$page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
 	$offset = ($page - 1) * $limit;
 
@@ -528,27 +528,8 @@ function view($user_id): string
 	// Paginate members
 	$paginated_members = array_slice($members, $offset, $limit, true);
 
-	$html = <<<CSS
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-		<style>
-			/* Make the entire page transparent */
-			body {
-				background: transparent !important;
-				margin: 0;
-				padding: 0;
-			}
-			/* Ensure the table and pagination are visible */
-			.container {
-				background: white; /* Add a white background to the table and pagination */
-				padding: 20px;
-				border-radius: 8px;
-				box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Optional: Add a shadow for better visibility */
-			}
-		</style>
-	CSS;
-
 	// Start building the HTML using heredoc
-	$html .= <<<HTML
+	$html = <<<HTML
     <div class="container mt-4">
         <h3>{$sp->passup_binary_name}</h3>
         <div class="table-responsive">
