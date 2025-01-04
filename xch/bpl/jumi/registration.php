@@ -85,33 +85,27 @@ main();
 function main()
 {
 	$admintype = session_get('admintype');
-	$user_id   = session_get('user_id');
+	$user_id = session_get('user_id');
 
 	$str = menu();
 
 	session_set('edit', false);
 
-	if (input_get('username') === '')
-	{
+	if (input_get('username') === '') {
 		$usertype = session_get('usertype');
 
 		$sid = input_get('s');
 
 		$s_username = session_get('s_username');
-		$s_email    = session_get('s_email');
+		$s_email = session_get('s_email');
 		$s_password = session_get('s_password');
-		$s_sponsor  = session_get('s_sponsor');
+		$s_sponsor = session_get('s_sponsor');
 
-		try
-		{
+		try {
 			$str .= view_form($user_id, $usertype, $admintype, $sid, $s_username, $s_password, $s_sponsor, $s_email);
+		} catch (Exception $e) {
 		}
-		catch (Exception $e)
-		{
-		}
-	}
-	else
-	{
+	} else {
 		echo display_loader();
 
 		$username = input_get('username');
@@ -123,7 +117,7 @@ function main()
 
 		$sponsor = input_get('sponsor');
 
-		$upline   = input_get('upline');
+		$upline = input_get('upline');
 		$position = input_get('position');
 
 		$email = input_get('email', '', 'RAW');
@@ -217,8 +211,8 @@ function view_logo(): string
 
 	$str = '<div style="background-color: white; text-align: center; padding: 5px">' .
 		(!1 ? $logo1 : $logo2) . /*('<a href="../">
-            <img src="' . $img . '" class="img-responsive" style="padding: 5px; margin-left: 33px" alt="">
-        </a>') .*/
+<img src="' . $img . '" class="img-responsive" style="padding: 5px; margin-left: 33px" alt="">
+</a>') .*/
 		'</div>';
 
 	$str .= identicon_js();
@@ -260,9 +254,7 @@ function view_form($user_id, $usertype, $admintype, $sid, $s_username, $s_passwo
     <p style="text-align:center;">All fields marked * are required.';
 	$str .= (!$usertype ? '<span style="float: right; font-size: x-large; font-weight: bold"><a href="' . sef(43) . '">Sign In</a></span>' : '');
 	$str .= '</p>';
-	$str .= '<form name="regForm" method="post" enctype="multipart/form-data" 
-         onsubmit="submit.disabled = true; return true;" 
-         onsubmit="return validateForm()" style="max-width: 600px; margin: 0 auto; background: #f9f9f9; padding: 20px; border-radius: 10px;">
+	$str .= '<form name="regForm" method="post" enctype="multipart/form-data" onsubmit="submit.disabled = true; return validateForm()">
         <table class="category table table-striped table-bordered table-hover" style="width: 100%;">
             <tr>
                 <td><label for="username">Username: *</label></td>
@@ -327,8 +319,10 @@ function view_form($user_id, $usertype, $admintype, $sid, $s_username, $s_passwo
 
 	$sp = settings('plans');
 
-	if (($sp->binary_pair || $sp->redundant_binary) &&
-		settings('ancillaries')->payment_mode === 'CODE') {
+	if (
+		($sp->binary_pair || $sp->redundant_binary) &&
+		settings('ancillaries')->payment_mode === 'CODE'
+	) {
 		$str .= '<tr>
                 <td><label for="upline">Upline Username: *</label></td>
                 <td><input type="text"
@@ -363,7 +357,7 @@ function view_form($user_id, $usertype, $admintype, $sid, $s_username, $s_passwo
             <td><input type="text" name="date" value="' . /*. date('Y - m - d G:i', $s_date == '' ? 0 : $s_date) .*/ '" 
                        id="date" size="40" style="width:100%;"></td></tr>' : '');
 
-$str .= '<tr>
+	$str .= '<tr>
             <td colspan="2">
                 <div style="float: left">
                     <label><input id="terms" type="checkbox" style="margin-top: -3px"> 
@@ -382,7 +376,7 @@ $str .= '<tr>
     ' . HTMLHelper::_('form.token') . '
     </form>';
 
-$str .= '<div>';
+	$str .= '<div>';
 
 
 	$str .= terms();
@@ -421,15 +415,13 @@ function validate_input(
 	$prov,
 	$admintype,
 	$edit
-)
-{
-//	$settings_plans = settings('plans');
+) {
+	//	$settings_plans = settings('plans');
 //	$settings_ancillaries = settings('ancillaries');
 
 	$payment_mode = settings('ancillaries')->payment_mode;
 
-	if ($edit && $admintype === 'Super')
-	{
+	if ($edit && $admintype === 'Super') {
 		$date = input_get('date', '', 'RAW');
 	}
 
@@ -437,7 +429,7 @@ function validate_input(
 
 	$user_sponsor = user_username($sponsor);
 
-//	$upline_id         = 0;
+	//	$upline_id         = 0;
 //	$downline_left_id  = 0;
 //	$downline_right_id = 0;
 //
@@ -455,84 +447,71 @@ function validate_input(
 //		}
 //	}
 
-	if ($username === '')
-	{
+	if ($username === '') {
 		$err = 'Please specify your Username.<br>';
 		$app->redirect(Uri::root(true) . '/' . sef(65), $err, 'error');
 	}
 
-	if ($password1 === '')
-	{
+	if ($password1 === '') {
 		$err = 'Please specify your Password.<br>';
 		$app->redirect(Uri::root(true) . '/' . sef(65), $err, 'error');
 	}
 
-	if ($password2 === '')
-	{
+	if ($password2 === '') {
 		$err = 'Please specify your Password confirmation.<br>';
 		$app->redirect(Uri::root(true) . '/' . sef(65), $err, 'error');
 	}
 
-	if ($sponsor === '')
-	{
+	if ($sponsor === '') {
 		$err = 'Please specify your Sponsor Username.<br>';
 		$app->redirect(Uri::root(true) . '/' . sef(65), $err, 'error');
 	}
 
-	if ($edit && !isset($date))
-	{
+	if ($edit && !isset($date)) {
 		$err = 'Please specify your Registration Date.<br>';
 		$app->redirect(Uri::root(true) . '/' . sef(65), $err, 'error');
 	}
 
-	if (count(user_username_unblock($username)))
-	{
+	if (count(user_username_unblock($username))) {
 		$err = 'Username already taken.<br>';
 		$app->redirect(Uri::root(true) . '/' . sef(65), $err, 'error');
 	}
 
-	if ($payment_mode === 'CODE' && $code === '')
-	{
+	if ($payment_mode === 'CODE' && $code === '') {
 		$err = 'Please specify your Registration Code.<br>';
 		$app->redirect(Uri::root(true) . '/' . sef(65), $err, 'error');
 	}
 
-	if ($payment_mode === 'CODE')
-	{
-		if ($code === '')
-		{
+	if ($payment_mode === 'CODE') {
+		if ($code === '') {
 			$err = 'Please specify your Registration Code.<br>';
 			$app->redirect(Uri::root(true) . '/' . sef(65), $err, 'error');
 		}
 
-		if (empty(has_code($code)))
-		{
+		if (empty(has_code($code))) {
 			$err = 'Code Invalid.<br>';
 			$app->redirect(Uri::root(true) . '/' . sef(65), $err, 'error');
 		}
 
-		if (count(has_code_used($code)))
-		{
+		if (count(has_code_used($code))) {
 			$err = 'Code Invalid.<br>';
 			$app->redirect(Uri::root(true) . '/' . sef(65), $err, 'error');
 		}
 	}
 
-	if (empty($user_sponsor) || (empty(user_username_active($sponsor))))
-	{
+	if (empty($user_sponsor) || (empty(user_username_active($sponsor)))) {
 		$err = 'Invalid Sponsor Username!<br>';
 		$app->redirect(Uri::root(true) . '/' . sef(65), $err, 'error');
 	}
 
-	if ($password1 !== $password2)
-	{
+	if ($password1 !== $password2) {
 		$err = 'Your Passwords do not match!<br>';
 		$app->redirect(Uri::root(true) . '/' . sef(65), $err, 'error');
 	}
 
 	validate_binary($upline, $position, $account_type_new, $prov);
 
-//	if ($settings_plans->binary_pair)
+	//	if ($settings_plans->binary_pair)
 //	{
 //		binary_validate($user_id, $upline, $position);
 //	}
@@ -585,13 +564,12 @@ function process_form(
 	$position,
 	$email,
 	$admintype
-)
-{
+) {
 	$db = db();
 
 	$app = application();
 
-//	has_internet(/*false*/) or $app->redirect(Uri::root(true) .
+	//	has_internet(/*false*/) or $app->redirect(Uri::root(true) .
 //		'/' . sef(65), 'Abnormal Network Connection!', 'error');
 
 	Session::checkToken() or $app->redirect(Uri::root(true) .
@@ -612,7 +590,7 @@ function process_form(
 	$code_type = code_type($code);
 
 	$code_type_arr = explode('_', $code_type);
-	$is_cd         = in_array('cd', $code_type_arr, true);
+	$is_cd = in_array('cd', $code_type_arr, true);
 
 	$code_type = $code_type_arr[0];
 
@@ -630,7 +608,7 @@ function process_form(
 		$edit
 	);
 
-//	validate_input(
+	//	validate_input(
 //		$username,
 //		$password1,
 //		$password2,
@@ -646,36 +624,32 @@ function process_form(
 
 	$success = false;
 
-	try
-	{
+	try {
 		$db->transactionStart();
 
-		if (insert_user($username, $password1, $sponsor, $email, $admintype, $edit))
-		{
+		if (insert_user($username, $password1, $sponsor, $email, $admintype, $edit)) {
 			$insert_id = $db->insertid();
 
 			insert_points($insert_id);
 
 			// if codes
 			/* */
-			if (settings('ancillaries')->payment_mode === 'CODE')
-			{
+			if (settings('ancillaries')->payment_mode === 'CODE') {
 				$sp = settings('plans');
 
 				update_codes($insert_id, $code);
 
 				$has_binary = $sp->binary_pair || $sp->redundant_binary;
 
-//			$app->redirect(Uri::root(true) . '/' . sef(65), 'Test hehehe', 'error');
+				//			$app->redirect(Uri::root(true) . '/' . sef(65), 'Test hehehe', 'error');
 
-				if ($has_binary)
-				{
+				if ($has_binary) {
 					binary_validated($insert_id, $username, $sponsor, $upline, $position, $code_type);
 				}
 
 				$settings_entry = settings('entry');
 
-//				if ($code_type !== null)
+				//				if ($code_type !== null)
 //				{
 				$code_type_mod = $settings_entry->{$code_type . '_package_name'};
 
@@ -687,32 +661,29 @@ function process_form(
 				$body .= 'Sponsor Username: ' . $sponsor;
 				$body .= '<br>';
 
-				if ($has_binary)
-				{
+				if ($has_binary) {
 					$body .= ('Upline: ' . $upline);
 					$body .= '<br>';
 					$body .= ('Position: ' . $position);
 					$body .= '<br>';
 				}
 
-				if ($code_type !== null)
-				{
+				if ($code_type !== null) {
 					$body .= isset($code_type_mod) ? ('Account Type: ' . ucfirst($code_type_mod)) : '';
 				}
 
 				$message_admin = 'A new member has Signed Up Successfully!<br><hr>' . $body;
-				$message_user  = 'Congratulations, you have been signed up successfully!.<br><hr>' . $body;
+				$message_user = 'Congratulations, you have been signed up successfully!.<br><hr>' . $body;
 
 				update_user_account_type($insert_id, $code_type);
 
 				$entry = settings('entry')->{$code_type . '_entry'};
-//				$points = settings('entry')->{$code_type . '_points'};
+				//				$points = settings('entry')->{$code_type . '_points'};
 
-//				update_user_points($insert_id, $points);
+				//				update_user_points($insert_id, $points);
 
 				// commission deduction
-				if ($is_cd)
-				{
+				if ($is_cd) {
 					insert_cd($insert_id, $entry);
 				}
 
@@ -724,8 +695,7 @@ function process_form(
 
 				send_mail($message_admin, 'A New Member has Signed Up Successfully!');
 
-				if ($email !== '')
-				{
+				if ($email !== '') {
 					send_mail($message_user, 'Sign up Confirmation', [$email]);
 				}
 
@@ -736,28 +706,22 @@ function process_form(
 
 		}
 		/* */
-	}
-	catch (Exception $e)
-	{
+	} catch (Exception $e) {
 		$db->transactionRollback();
 		ExceptionHandler::render($e);
 	}
 
-	if ($success)
-	{
+	if ($success) {
 		$app->redirect(Uri::root(true) . '/' . sef(65), $username .
 			' has been registered successfully!', 'success');
-	}
-	else
-	{
+	} else {
 		$app->redirect(Uri::root(true) . '/' . sef(65), 'Something went wrong!', 'error');
 	}
 }
 
 function validate_binary($upline, $position, string $account_type_new = 'starter', string $prov = 'code')
 {
-	if (settings('plans')->binary_pair)
-	{
+	if (settings('plans')->binary_pair) {
 		$app = application();
 
 		$user_upline = username_upline($upline);
@@ -768,37 +732,34 @@ function validate_binary($upline, $position, string $account_type_new = 'starter
 
 		$sef = $register ? 65 : 10;
 
-		if ($upline === '')
-		{
+		if ($upline === '') {
 			$err = 'Please specify your Upline.<br>';
 			$app->redirect(Uri::root(true) . '/' . sef($sef), $err, 'error');
 		}
 
 		$user_upline = username_upline($upline);
 
-		if (empty($user_upline))
-		{
+		if (empty($user_upline)) {
 			$err = 'Invalid Upline!<br>';
 			$app->redirect(Uri::root(true) . '/' . sef($sef), $err, 'error');
 		}
 
-		if (count(binary_downlines($upline_id)) >= 2)
-		{
+		if (count(binary_downlines($upline_id)) >= 2) {
 			$err = 'Invalid Upline Username!<br>';
 			$app->redirect(Uri::root(true) . '/' . sef($sef), $err, 'error');
 		}
 
 		$username_paid = user_username_paid($upline);
 
-		if (empty($username_paid))
-		{
+		if (empty($username_paid)) {
 			$err = 'Invalid Upline!<br>';
 			$app->redirect(Uri::root(true) . '/' . sef($sef), $err, 'error');
 		}
 
-		if (has_position($upline_id, $position) ||
-			(!empty($username_paid) && !empty(user_binary_active($username_paid->id, $position))))
-		{
+		if (
+			has_position($upline_id, $position) ||
+			(!empty($username_paid) && !empty(user_binary_active($username_paid->id, $position)))
+		) {
 			$err = 'Invalid Position!<br>';
 			$app->redirect(Uri::root(true) . '/' . sef($sef), $err, 'error');
 		}
@@ -918,8 +879,7 @@ function insert_user($username, $password, $sponsor, $email, $admintype, $edit)
 
 	$user_sponsor = user_username($sponsor);
 
-	if (!empty($user_sponsor))
-	{
+	if (!empty($user_sponsor)) {
 		$sponsor_id = $user_sponsor[0]->id;
 	}
 
@@ -934,12 +894,9 @@ function insert_user($username, $password, $sponsor, $email, $admintype, $edit)
 
 	$date_registered = ($edit && isset($date) ? $db->quote($date) : $db->quote(time()));
 
-	if ($payment_mode === 'CODE')
-	{
+	if ($payment_mode === 'CODE') {
 		$date_activated = $date_registered;
-	}
-	else
-	{
+	} else {
 		$date_activated = ($edit && (int) $date !== 0 ? $db->quote($date) : $db->quote(0));
 	}
 
@@ -952,10 +909,9 @@ function insert_user($username, $password, $sponsor, $email, $admintype, $edit)
 		$db->quote($email)
 	];
 
-	if ($payment_mode === 'ECASH')
-	{
+	if ($payment_mode === 'ECASH') {
 		$columns_user_insert[] = 'account_type';
-		$values_user_insert[]  = $db->quote('starter');
+		$values_user_insert[] = $db->quote('starter');
 	}
 
 	return insert(
@@ -1007,8 +963,7 @@ function code_type($code): string
 
 	$code_user = code_user($code);
 
-	if ($code_user)
-	{
+	if ($code_user) {
 		$code_type = $code_user[0]->type;
 	}
 
@@ -1030,7 +985,7 @@ function code_user($code)
 		'SELECT * ' .
 		'FROM network_codes ' .
 		'WHERE code = ' . $db->quote($code)/* .
-		' AND user_id = ' . $db->quote($insert_id)*/
+' AND user_id = ' . $db->quote($insert_id)*/
 	)->loadObjectList();
 }
 
@@ -1061,8 +1016,7 @@ function update_user_account_type($insert_id, $code_type)
  */
 function update_user_points($insert_id, $points)
 {
-	if ($points > 0)
-	{
+	if ($points > 0) {
 		$db = db();
 
 		update(
@@ -1116,31 +1070,28 @@ function log_registration_activity($user_id, $insert_id, $code_type, $username, 
 	$settings_plans = settings('plans');
 
 	// sponsor
-	$sponsor_id   = '';
+	$sponsor_id = '';
 	$sponsor_name = '';
 
 	$user_sponsor = user_username($sponsor);
 
-	if (!empty($user_sponsor))
-	{
-		$sponsor_id   = $user_sponsor[0]->id;
+	if (!empty($user_sponsor)) {
+		$sponsor_id = $user_sponsor[0]->id;
 		$sponsor_name = $user_sponsor[0]->username;
 	}
 
 	$upline_id = 0;
 
-	if ($settings_plans->binary_pair)
-	{
+	if ($settings_plans->binary_pair) {
 		$user_upline = username_upline($upline);
 
-		if (!empty($user_upline))
-		{
+		if (!empty($user_upline)) {
 			$upline_id = $user_upline->u_id;
 		}
 	}
 
 	$not_free = settings('plans')->binary_pair/* && !empty(user_plan($user_id, 'binary')) &&
-		settings('ancillaries')->payment_mode === 'CODE'*/
+settings('ancillaries')->payment_mode === 'CODE'*/
 	;
 
 	$code_type_mod = settings('entry')->{$code_type . '_package_name'};
@@ -1154,13 +1105,12 @@ function log_registration_activity($user_id, $insert_id, $code_type, $username, 
 	$field = [
 		'user_id',
 		'sponsor_id',
-//		'upline_id',
+		//		'upline_id',
 		'activity',
 		'activity_date'
 	];
 
-	if ($not_free)
-	{
+	if ($not_free) {
 		$field[] = 'upline_id';
 	}
 
@@ -1171,8 +1121,7 @@ function log_registration_activity($user_id, $insert_id, $code_type, $username, 
 		$db->quote(time())
 	];
 
-	if ($not_free)
-	{
+	if ($not_free) {
 		$value[] = $db->quote($upline_id);
 	}
 
@@ -1196,14 +1145,13 @@ function log_registration_transactions($insert_id, $code_type, $username, $spons
 	$entry = settings('entry')->{$code_type . '_entry'};
 
 	// sponsor
-	$sponsor_id   = '';
+	$sponsor_id = '';
 	$sponsor_name = '';
 
 	$user_sponsor = user_username($sponsor);
 
-	if (!empty($user_sponsor))
-	{
-		$sponsor_id   = $user_sponsor[0]->id;
+	if (!empty($user_sponsor)) {
+		$sponsor_id = $user_sponsor[0]->id;
 		$sponsor_name = $user_sponsor[0]->username;
 	}
 
@@ -1283,14 +1231,14 @@ function logs_registration($user_id, $insert_id, $code_type, $username, $sponsor
 {
 	log_registration_activity($user_id, $insert_id, $code_type, $username, $sponsor, $upline, $position);
 
-//	$not_free = settings('plans')->binary_pair && !empty(user_plan($user_id, 'binary')) &&
+	//	$not_free = settings('plans')->binary_pair && !empty(user_plan($user_id, 'binary')) &&
 //		settings('ancillaries')->payment_mode === 'CODE';
 
-//	if ($not_free)
+	//	if ($not_free)
 //	{
 	log_registration_transactions($insert_id, $code_type, $username, $sponsor);
 	log_income_admin($insert_id, $code_type);
-//	}
+	//	}
 }
 
 /**
@@ -1341,11 +1289,11 @@ function process_plans($insert_id, $code_type, $is_cd, $username, $sponsor, $dat
 {
 	process_direct_referral($insert_id, $code_type, $is_cd, $username, $sponsor, $date);
 	process_indirect_referral($insert_id, $code_type, $is_cd, $username, $sponsor, $date);
-//	process_passup($insert_id, $code_type, $username, $sponsor);
+	//	process_passup($insert_id, $code_type, $username, $sponsor);
 	process_binary($insert_id, $is_cd);
 	process_leadership_binary($insert_id, $code_type, $is_cd, $sponsor, $date);
 	process_unilevel($insert_id, $code_type, $is_cd, $username, $sponsor, $date);
-//	process_harvest();
+	//	process_harvest();
 //	process_royalty($insert_id);
 //	process_elite($insert_id);
 
@@ -1372,15 +1320,15 @@ function process_direct_referral($insert_id, $code_type, $is_cd, $username, $spo
 
 	$user_sponsor = user_username($sponsor);
 
-	if (!empty($user_sponsor))
-	{
+	if (!empty($user_sponsor)) {
 		$sponsor_account_type = $user_sponsor[0]->account_type;
 	}
 
-	if ($sponsor_account_type !== 'starter' &&
+	if (
+		$sponsor_account_type !== 'starter' &&
 		(settings('plans')->direct_referral || $Settings_plans->binary_pair) &&
-		settings('ancillaries')->referral_mode === 'standard')
-	{
+		settings('ancillaries')->referral_mode === 'standard'
+	) {
 		direct_referral($insert_id, $code_type, $is_cd, $username, $sponsor, $date);
 	}
 }
@@ -1400,9 +1348,8 @@ function process_indirect_referral($insert_id, $code_type, $is_cd, $username, $s
 	if (
 		settings('indirect_referral')->{$code_type . '_indirect_referral_level'}
 		&& settings('plans')->indirect_referral
-//		&& !$is_cd
-	)
-	{
+		//		&& !$is_cd
+	) {
 		insert_indirect($insert_id);
 
 		logs_indirect_referral($insert_id, $code_type, $username, $sponsor, $date);
@@ -1445,8 +1392,7 @@ function logs_indirect_referral($insert_id, $code_type, $username, $sponsor, $da
 
 	$user_sponsor = user_username($sponsor);
 
-	if (!empty($user_sponsor))
-	{
+	if (!empty($user_sponsor)) {
 		$sponsor_id = $user_sponsor[0]->id;
 	}
 
@@ -1480,9 +1426,8 @@ function logs_indirect_referral($insert_id, $code_type, $username, $sponsor, $da
  */
 function process_binary($insert_id, $is_cd)
 {
-	if (settings('plans')->binary_pair)
-	{
-//		$flushout = settings('binary')->hedge === 'flushout';
+	if (settings('plans')->binary_pair) {
+		//		$flushout = settings('binary')->hedge === 'flushout';
 
 		binary_package($insert_id, 'code', $is_cd);
 	}
@@ -1502,9 +1447,8 @@ function process_leadership_binary($insert_id, $code_type, $is_cd, $sponsor, $da
 	if (
 		settings('leadership')->{$code_type . '_leadership_level'}
 		&& settings('plans')->leadership_binary
-//		&& !$is_cd
-	)
-	{
+		//		&& !$is_cd
+	) {
 		insert_leadership_binary($insert_id);
 
 		logs_leadership_binary($insert_id, $code_type, $sponsor, $date);
@@ -1521,7 +1465,8 @@ function process_leadership_binary($insert_id, $code_type, $is_cd, $sponsor, $da
  */
 function insert_leadership_binary($insert_id)
 {
-	insert('network_leadership',
+	insert(
+		'network_leadership',
 		['user_id'],
 		[db()->quote($insert_id)]
 	);
@@ -1545,8 +1490,7 @@ function logs_leadership_binary($insert_id, $code_type, $sponsor, $date)
 
 	$user_sponsor = user_username($sponsor);
 
-	if (!empty($user_sponsor))
-	{
+	if (!empty($user_sponsor)) {
 		$sponsor_id = $user_sponsor[0]->id;
 	}
 
@@ -1584,9 +1528,10 @@ function logs_leadership_binary($insert_id, $code_type, $sponsor, $date)
  */
 function process_compound_daily($insert_id, $code_type, $username, $sponsor, $date)
 {
-	if (settings('investment')->{$code_type . '_principal'} &&
-		settings('plans')->etrade)
-	{
+	if (
+		settings('investment')->{$code_type . '_principal'} &&
+		settings('plans')->etrade
+	) {
 		insert_compound($insert_id, $code_type);
 
 		logs_compound_daily($insert_id, $code_type, $username, $sponsor, $date);
@@ -1646,8 +1591,7 @@ function logs_compound_daily($insert_id, $code_type, $username, $sponsor, $date)
 
 	$user_sponsor = user_username($sponsor);
 
-	if (!empty($user_sponsor))
-	{
+	if (!empty($user_sponsor)) {
 		$sponsor_id = $user_sponsor[0]->id;
 	}
 
@@ -1685,9 +1629,10 @@ function logs_compound_daily($insert_id, $code_type, $username, $sponsor, $date)
  */
 function process_fixed_daily($insert_id, $code_type, $username, $sponsor, $date)
 {
-	if (settings('investment')->{$code_type . '_fixed_daily_principal'} &&
-		settings('plans')->fixed_daily)
-	{
+	if (
+		settings('investment')->{$code_type . '_fixed_daily_principal'} &&
+		settings('plans')->fixed_daily
+	) {
 		insert_fixed_daily($insert_id, $code_type);
 
 		logs_fixed_daily($insert_id, $code_type, $username, $sponsor, $date);
@@ -1743,8 +1688,7 @@ function logs_fixed_daily($insert_id, $code_type, $username, $sponsor, $date)
 
 	$user_sponsor = user_username($sponsor);
 
-	if (!empty($user_sponsor))
-	{
+	if (!empty($user_sponsor)) {
 		$sponsor_id = $user_sponsor[0]->id;
 	}
 
@@ -1784,12 +1728,13 @@ function logs_fixed_daily($insert_id, $code_type, $username, $sponsor, $date)
  */
 function process_leadership_passive($insert_id, $code_type, $username, $sponsor_id, $date)
 {
-	if (settings('plans')->leadership_passive &&
-		settings('leadership_passive')->{$code_type . '_leadership_passive_level'})
-	{
+	if (
+		settings('plans')->leadership_passive &&
+		settings('leadership_passive')->{$code_type . '_leadership_passive_level'}
+	) {
 		insert_leadership_passive($insert_id, $code_type, $username, $sponsor_id, $date);
 
-//		logs_leadership_passive($insert_id, $code_type, $username, $sponsor, $date);
+		//		logs_leadership_passive($insert_id, $code_type, $username, $sponsor, $date);
 	}
 }
 
@@ -1808,9 +1753,8 @@ function process_unilevel($insert_id, $code_type, $is_cd, $username, $sponsor, $
 	if (
 		settings('plans')->unilevel
 		&& settings('unilevel')->{$code_type . '_unilevel_level'}
-//		&& !$is_cd
-	)
-	{
+		//		&& !$is_cd
+	) {
 		insert_unilevel($insert_id);
 
 		logs_unilevel($insert_id, $code_type, $username, $sponsor, $date);
@@ -1851,8 +1795,7 @@ function logs_unilevel($insert_id, $code_type, $username, $sponsor, $date)
 
 	$user_sponsor = user_username($sponsor);
 
-	if (!empty($user_sponsor))
-	{
+	if (!empty($user_sponsor)) {
 		$sponsor_id = $user_sponsor[0]->id;
 	}
 
@@ -1887,8 +1830,7 @@ function process_harvest()
 {
 	$settings_plans = settings('plans');
 
-	if ($settings_plans->harvest)
-	{
+	if ($settings_plans->harvest) {
 		harvest();
 
 		return null;
@@ -1905,8 +1847,7 @@ function process_royalty($insert_id)
 {
 	$settings_plans = settings('plans');
 
-	if ($settings_plans->royalty)
-	{
+	if ($settings_plans->royalty) {
 		royalty_bonus($insert_id, 0);
 	}
 }
@@ -1922,8 +1863,7 @@ function process_royalty($insert_id)
  */
 function process_passup($insert_id, $code_type, $entry_name, $sponsor)
 {
-	if (settings('plans')->passup)
-	{
+	if (settings('plans')->passup) {
 		passup($insert_id, $code_type, $entry_name, user_username($sponsor)->id);
 	}
 }
@@ -1938,8 +1878,7 @@ function process_elite($insert_id)
 {
 	$settings_plans = settings('plans');
 
-	if ($settings_plans->elite_reward)
-	{
+	if ($settings_plans->elite_reward) {
 		elite_bonus($insert_id, 0);
 	}
 }
@@ -1998,17 +1937,14 @@ function js(): string
  */
 function sponsor(): string
 {
-	$sid     = input_get('s');
+	$sid = input_get('s');
 	$user_id = session_get('user_id');
 
 	$sponsor = '';
 
-	if ($sid !== '')
-	{
+	if ($sid !== '') {
 		$sponsor = $sid;
-	}
-	elseif ($user_id !== '')
-	{
+	} elseif ($user_id !== '') {
 		$sponsor = user($user_id)->username ?? '';
 	}
 
@@ -2174,8 +2110,7 @@ function input_get_date($admintype, $edit): string
 {
 	$date = time();
 
-	if ($edit && $admintype === 'Super')
-	{
+	if ($edit && $admintype === 'Super') {
 		$date = input_get('date', 0, 'RAW');
 	}
 
@@ -2193,8 +2128,7 @@ function session_set_date($admintype, $edit)
 {
 	$date = input_get_date($admintype, $edit);
 
-	if ($edit && $admintype === 'Super' && (int) $date !== 0)
-	{
+	if ($edit && $admintype === 'Super' && (int) $date !== 0) {
 		session_set('s_date', $date);
 	}
 }

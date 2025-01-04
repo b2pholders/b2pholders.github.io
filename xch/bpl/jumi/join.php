@@ -174,8 +174,20 @@ function view_form(): string
 	$edit = session_get('edit');
 	$sponsor = sponsor();
 
-	$margin_style = $usertype === '' ? ' style="margin-top: -100px;"' : '';
-	$logo = $usertype === '' ? view_logo() : '';
+	$form = '';
+
+	$margin_style = ' style="margin-top: -100px;"';
+	$logo = '';
+
+	if ($usertype === '') {
+		$form .= <<<CSS
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+		CSS;
+
+		$margin_style = '';
+
+		$logo = view_logo();
+	}
 
 	$sponsor_field = '';
 	if ($settings_plans->direct_referral || $settings_plans->echelon) {
@@ -185,10 +197,12 @@ function view_form(): string
             <div class="form-group">
                 <label for="sponsor">Sponsor Username: *</label>
                 <div class="input-group">
-                    <input type="text" name="sponsor" id="sponsor" value="$sponsor_value" required$readonly>
-                    <button type="button" onClick="checkInput('sponsor')" class="uk-button uk-button-primary">Check Availability</button>
+                    <input type="text" name="sponsor" id="sponsor" class="form-control" value="$sponsor_value" placeholder="Enter Sponsor Username Here.." required$readonly>
+                    <span class="input-group-btn">
+                        <button type="button" onClick="checkInput('sponsor')" class="btn btn-default" style="height: 38px;">Check Availability</button>
+                    </span>
                 </div>
-                <div id="sponsorDiv" class="validation-message"></div>
+                <div id="sponsorDiv" class="help-block validation-message"></div>
             </div>
         HTML;
 	}
@@ -198,7 +212,7 @@ function view_form(): string
 		$date_field = <<<HTML
             <div class="form-group">
                 <label for="date">Date Registered:</label>
-                <input type="text" name="date" id="date" size="40">
+                <input type="text" name="date" id="date" class="form-control" size="40">
             </div>
         HTML;
 	}
@@ -207,51 +221,65 @@ function view_form(): string
 
 	$formToken = HTMLHelper::_('form.token');
 
-	$form = formCss();
+	// Include the form CSS and JS
+	$form .= formCss();
 
+	// Form HTML with updated style
 	$form .= <<<HTML
         <div class="registration-form"$margin_style>
             $logo
             <h1>Register</h1>
             <p>Please fill up all fields marked *</p>
             <form name="regForm" method="post" enctype="multipart/form-data" onsubmit="submit.disabled = true; return validateForm()">
+                <!-- Username Field -->
                 <div class="form-group">
                     <label for="username">Username: *</label>
                     <div class="input-group">
-                        <input type="text" name="username" id="username" value="$s_username" required>
-                        <button type="button" onClick="checkInput('username')" class="uk-button uk-button-primary">Check Availability</button>
+                        <input type="text" name="username" id="username" class="form-control" value="$s_username" placeholder="Enter Username Here.." required>
+                        <span class="input-group-btn">
+                            <button type="button" onClick="checkInput('username')" class="btn btn-default" style="height: 38px;">Check Availability</button>
+                        </span>
                     </div>
-                    <div id="usernameDiv" class="validation-message"></div>
+                    <div id="usernameDiv" class="help-block validation-message"></div>
                 </div>
 
+                <!-- Email Field -->
                 <div class="form-group">
-                    <label for="email">Email:</label>
-                    <input type="email" name="email" id="email" value="$s_email">
+                    <label for="email">Email: *</label>
+                    <input type="email" name="email" id="email" class="form-control" value="$s_email" placeholder="Enter Email Here.." required>
                 </div>
 
+                <!-- Password Fields -->
                 <div class="form-group">
                     <label for="password1">Password: *</label>
-                    <input type="password" name="password1" id="password1" value="$s_password" required>
+                    <input type="password" name="password1" id="password1" class="form-control" value="$s_password" placeholder="Enter Password Here.." required>
                 </div>
 
                 <div class="form-group">
                     <label for="password2">Confirm Password: *</label>
-                    <input type="password" name="password2" id="password2" value="$s_password" required>
+                    <input type="password" name="password2" id="password2" class="form-control" value="$s_password" placeholder="Confirm Password Here.." required>
                 </div>
 
+                <!-- Sponsor Field -->
                 $sponsor_field
+
+                <!-- Date Field (for admin) -->
                 $date_field
 
+                <!-- Terms and Conditions -->
                 <div class="form-group terms">
-                    <label>
-                        <input type="checkbox" id="terms" required>
+                    <label style="display: flex; align-items: center;">
+                        <input type="checkbox" id="terms" required>&nbsp;
                         I Agree to the <a href="javascript:void(0)" data-uk-modal="{target:'#modal-1'}">Terms & Conditions</a>
                     </label>
                 </div>
 
+                <!-- Submit Button and Login Link -->
                 <div class="form-group actions">
-                    <button type="submit" id="register" class="uk-button uk-button-primary">Register</button>
-                    $login_link
+                    <button type="submit" id="register" class="btn btn-primary">Register</button>
+                    <div style="text-align: center; margin-top: 10px;">
+                        $login_link
+                    </div>
                 </div>
                 $formToken
             </form>
@@ -267,89 +295,97 @@ function view_form(): string
 	return $form;
 }
 
-function formCss()
+function formCss(): string
 {
 	return <<<CSS
-		<style>
-			.registration-form {
-				max-width: 600px;
-				margin: 0 auto;
-				padding: 20px;
-			}
+        <style>
+            /* Make the page transparent */
+            body {
+                background-color: transparent;
+            }
 
-			.form-group {
-				margin-bottom: 15px;
-			}
+            /* Card-like styling for the registration form */
+            .registration-form {
+                background-color: white; /* White background */
+                max-width: 600px; /* Reduced width */
+                margin: 50px auto; /* Center the form with some top margin */
+                padding: 20px; /* Add padding */
+                border-radius: 8px; /* Rounded corners */
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            }
 
-			label {
-				display: block;
-				margin-bottom: 5px;
-				font-weight: bold;
-			}
+            /* Custom styling for the input group */
+            .input-group {
+                width: 100%;
+            }
 
-			input[type="text"],
-			input[type="email"],
-			input[type="password"] {
-				width: 100%;
-				padding: 10px;
-				margin-bottom: 10px;
-				border: 1px solid #ccc;
-				border-radius: 4px;
-			}
+            .input-group .form-control {
+                border-radius: 4px 0 0 4px;
+                height: 38px; /* Ensure input height matches button height */
+            }
 
-			.input-group {
-				display: flex;
-				gap: 10px;
-			}
+            .input-group-btn .btn {
+                border-radius: 0 4px 4px 0;
+                border-left: 0;
+                height: 38px; /* Ensure button height matches input height */
+            }
 
-			.input-group input {
-				flex: 1;
-			}
+            .input-group-btn .btn-default {
+                background-color: #f8f9fa;
+                border-color: #ccc;
+            }
 
-			.input-group button {
-				padding: 10px 15px;
-				border: none;
-				border-radius: 4px;
-				cursor: pointer;
-			}
+            .input-group-btn .btn-default:hover {
+                background-color: #e9ecef;
+            }
 
-			.validation-message {
-				color: red;
-				font-size: 0.9em;
-				margin-top: 5px;
-			}
+            /* Custom styling for the validation messages */
+            .help-block.validation-message {
+                color: #a94442; /* Red color for error messages */
+                font-size: 12px;
+            }
 
-			.terms {
-				margin: 20px 0;
-			}
+            /* Center the form heading */
+            .registration-form h1 {
+                text-align: center;
+                margin-bottom: 20px;
+            }
 
-			.actions {
-				display: flex;
-				justify-content: space-between;
-				align-items: center;
-			}
+            /* Style the terms and conditions link */
+            .registration-form .terms a {
+                color: #007bff; /* Bootstrap primary color */
+                text-decoration: none;
+            }
 
-			.login-link {
-				font-weight: bold;
-				text-decoration: none;
-			}
+            .registration-form .terms a:hover {
+                text-decoration: underline;
+            }
 
-			@media (max-width: 480px) {
-				.input-group {
-					flex-direction: column;
-				}
+            /* Style the submit button */
+            .registration-form .actions .btn-primary {
+                width: 100%;
+                margin-top: 10px;
+            }
 
-				.input-group button {
-					width: 100%;
-				}
+            /* Center the login link */
+            .registration-form .actions {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
 
-				.actions {
-					flex-direction: column;
-					gap: 10px;
-				}
-			}
-		</style>
-	CSS;
+            .registration-form .actions .login-link {
+                margin-top: 10px; /* Add spacing between the button and the link */
+                text-align: center;
+                color: #007bff; /* Bootstrap primary color */
+                text-decoration: none;
+            }
+
+            .registration-form .actions .login-link:hover {
+                text-decoration: underline;
+            }
+        </style>
+    CSS;
 }
 
 /**

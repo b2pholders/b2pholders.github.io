@@ -515,7 +515,7 @@ function view($user_id): string
 	$currency = $sa->currency;
 
 	// Pagination logic
-	$limit = 10; // Number of rows per page
+	$limit = 5; // Number of rows per page
 	$page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
 	$offset = ($page - 1) * $limit;
 
