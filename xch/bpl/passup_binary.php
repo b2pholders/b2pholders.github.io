@@ -501,10 +501,12 @@ function user_binary($user_id)
  */
 function view($user_id): string
 {
+	$sef = sef(149);
+	$qs = qs();
+
 	$sa = settings('ancillaries');
 	$sp = settings('plans');
 	$se = settings('entry');
-	$spb = settings('passup_binary');
 
 	$user = user($user_id);
 
@@ -512,80 +514,124 @@ function view($user_id): string
 
 	$currency = $sa->currency;
 
-	$str = '';
+	// Pagination logic
+	$limit = 1; // Number of rows per page
+	$page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+	$offset = ($page - 1) * $limit;
 
-	if ($head_account_type !== 'starter') {
-		$str .= '<h3>' . $sp->passup_binary_name . '</h3>';
-		$str .= '<table class="category table table-striped table-bordered table-hover">';
-		$str .= '<thead>';
-		$str .= '<tr>';
+	// Fetch total rows
+	$total = total($user_id);
+	$members = $total['members'];
+	$total_rows = count($members);
+	$total_pages = ceil($total_rows / $limit);
 
-		$str .= '<th>';
-		$str .= '<div style="text-align: center"><h4>Member</h4></div>';
-		$str .= '</th>';
+	// Paginate members
+	$paginated_members = array_slice($members, $offset, $limit, true);
 
-		$str .= '<th>';
-		$str .= '<div style="text-align: center"><h4>Profit (' . $currency . ')</h4></div>';
-		$str .= '</th>';
-
-		$str .= '<th>';
-		$str .= '<div style="text-align: center"><h4>Allocation (%)</h4></div>';
-		$str .= '</th>';
-
-		$str .= '</tr>';
-		$str .= '</thead>';
-		$str .= '<tbody>';
-
-		$total = total($user_id);
-
-		$members = $total['members'];
-
-		if (count($members) > 0) {
-			foreach ($members as $member => $income) {
-
-				$str .= '<tr>';
-
-				$str .= '<td>';
-				$str .= '<div style="text-align: center">' . $member . '</div>';
-				$str .= '</td>';
-
-				$str .= '<td>';
-				$str .= '<div style="text-align: center">' . number_format($income, 8) . '</div>';
-				$str .= '</td>';
-
-				$entry = $se->{$head_account_type . '_entry'};
-
-				$percent = $entry > 0 ? ($income / $entry) * 100 : 0;
-
-				$str .= '<td>';
-				$str .= '<div style="text-align: center">' . number_format($percent, 2) . '</div>';
-				$str .= '</td>';
-
-				$str .= '</tr>';
+	$html = <<<CSS
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+		<style>
+			/* Make the entire page transparent */
+			body {
+				background: transparent !important;
+				margin: 0;
+				padding: 0;
 			}
-		} else {
-			$str .= '<tr>';
-			$str .= '<td colspan="3">';
-			$str .= '<div style="text-align: center">No members yet.</div>';
-			$str .= '</td>';
-			$str .= '</tr>';
+			/* Ensure the table and pagination are visible */
+			.container {
+				background: white; /* Add a white background to the table and pagination */
+				padding: 20px;
+				border-radius: 8px;
+				box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Optional: Add a shadow for better visibility */
+			}
+		</style>
+	CSS;
+
+	// Start building the HTML using heredoc
+	$html .= <<<HTML
+    <div class="container mt-4">
+        <h3>{$sp->passup_binary_name}</h3>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+                <thead class="thead-light">
+                    <tr>
+                        <th style="text-align: center;"><h4>Member</h4></th>
+                        <th style="text-align: center;"><h4>Profit ({$currency})</h4></th>
+                        <th style="text-align: center;"><h4>Allocation (%)</h4></th>
+                    </tr>
+                </thead>
+                <tbody>
+    HTML;
+
+	if (count($paginated_members) > 0) {
+		foreach ($paginated_members as $member => $income) {
+			$entry = $se->{$head_account_type . '_entry'};
+			$percent = $entry > 0 ? ($income / $entry) * 100 : 0;
+
+			$html .= <<<ROW
+            <tr>
+                <td style="text-align: center;">{$member}</td>
+                <td style="text-align: center;">{$income}</td>
+                <td style="text-align: center;">{$percent}</td>
+            </tr>
+            ROW;
 		}
-
-		$str .= '<tr>';
-		$str .= '<td>';
-		$str .= '<div style="text-align: center"><strong>Total</strong></div>';
-		$str .= '</td>';
-		$str .= '<td>';
-		$str .= '<div style="text-align: center">' . (count($members)) . '</div>';
-		$str .= '</td>';
-		$str .= '<td>';
-		$str .= '<div style="text-align: center">' . number_format($total['bonus'], 8) . '</div>';
-		$str .= '</td>';
-		$str .= '</tr>';
-
-		$str .= '</tbody>';
-		$str .= '</table>';
+	} else {
+		$html .= <<<NO_DATA
+        <tr>
+            <td colspan="3" style="text-align: center;">No members yet.</td>
+        </tr>
+        NO_DATA;
 	}
 
-	return $str;
+	// Add the total row
+	$html .= <<<TOTAL
+            <tr>
+                <td style="text-align: center;"><strong>Total</strong></td>
+                <td style="text-align: center;">{$total_rows}</td>
+                <td style="text-align: center;">{$total['bonus']}</td>
+            </tr>
+        </tbody>
+    </table>
+    </div>
+    TOTAL;
+
+	// Pagination links (Bootstrap 3 styling)
+	$html .= <<<PAGINATION
+    <nav aria-label="Page navigation">
+        <ul class="pagination">
+    PAGINATION;
+
+	// Previous button
+	if ($page > 1) {
+		$prev_page = $page - 1;
+		$html .= <<<PREV
+        <li><a href="{$sef}{$qs}page={$prev_page}" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
+        PREV;
+	}
+
+	// Page numbers
+	for ($i = 1; $i <= $total_pages; $i++) {
+		$active = ($page == $i) ? 'active' : '';
+		$html .= <<<PAGE
+        <li class="{$active}"><a href="{$sef}{$qs}page={$i}">{$i}</a></li>
+        PAGE;
+	}
+
+	// Next button
+	if ($page < $total_pages) {
+		$next_page = $page + 1;
+		$html .= <<<NEXT
+        <li><a href="{$sef}{$qs}page={$next_page}" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>
+        NEXT;
+	}
+
+	// Close pagination and container
+	$html .= <<<CLOSE
+            </ul>
+        </nav>
+    </div>
+    CLOSE;
+
+	return $html;
 }
