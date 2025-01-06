@@ -7,7 +7,7 @@ require_once 'bpl/ajax/ajaxer/fast_track.php';
 require_once 'bpl/mods/time_remaining.php';
 require_once 'bpl/ajax/ajaxer/table_fast_track.php';
 require_once 'bpl/mods/time_remaining.php';
-require_once 'bpl/mods/table_daily_interest.php';
+// require_once 'bpl/mods/table_daily_interest.php';
 require_once 'bpl/mods/helpers.php';
 
 use Exception;
@@ -19,18 +19,19 @@ use function BPL\Ajax\Ajaxer\Fast_Track_Input\main as fast_track_input;
 use function BPL\Ajax\Ajaxer\Fast_Track\main as ajax_fast_track;
 use function BPL\Ajax\Ajaxer\Table_Fast_Track\main as ajax_table_fast_track;
 use function BPL\Mods\Time_Remaining\main as time_remaining;
-use function BPL\Mods\Table_Daily_Interest\tbody;
+// use function BPL\Mods\Table_Daily_Interest\tbody;
 
 use function BPL\Mods\Url_SEF\qs;
 use function BPL\Mods\Url_SEF\sef;
 
 use function BPL\Mods\Helpers\session_get;
-use function BPL\Mods\Helpers\input_get;
+// use function BPL\Mods\Helpers\input_get;
 use function BPL\Mods\Helpers\page_validate;
 use function BPL\Mods\Helpers\menu;
 use function BPL\Mods\Helpers\db;
 use function BPL\Mods\Helpers\settings;
 use function BPL\Mods\Helpers\user;
+use function BPL\Mods\Helpers\pgn8;
 
 main();
 
@@ -42,13 +43,13 @@ main();
 function main()
 {
     $user_id = session_get('user_id');
-    $page = substr(input_get('page'), 0, 3);
+    // $page = substr(input_get('page'), 0, 3);
 
     page_validate();
 
     $str = menu();
 
-    $str .= fast_track($user_id, $page);
+    $str .= fast_track($user_id);
 
     echo $str;
 }
@@ -95,13 +96,12 @@ function user_fast_track_limit($user_id, $limit_from, $limit_to)
 
 /**
  * @param $user_id
- * @param $page
  *
  * @return string
  *
  * @since version
  */
-function fast_track($user_id, $page): string
+function fast_track($user_id): string
 {
     $sa = settings('ancillaries');
     $se = settings('entry');
@@ -296,11 +296,13 @@ function fast_track($user_id, $page): string
         JS;
 
 
-        $str .= '<div class="table-responsive" id="table_fast_track">' . table_fast_track($user_id, $page) . '</div>';
+        /* $str .= '<div class="table-responsive" id="table_fast_track">' . table_fast_track($user_id, $page) . '</div>'; */
+
+        $str .= table_fast_track($user_id);
 
         $str .= fast_track_input($user_id);
         $str .= ajax_fast_track($user_id);
-        $str .= ajax_table_fast_track($user_id);
+        /* $str .= ajax_table_fast_track($user_id); */
     }
 
     return $str;
@@ -308,25 +310,13 @@ function fast_track($user_id, $page): string
 
 /**
  * @param        $user_id
- * @param        $page
- * @param int $limit_to
  *
  * @return string
  *
  * @since version
  */
-function table_fast_track($user_id, $page, int $limit_to = 3): string
+function table_fast_track($user_id): string
 {
-    $page = ($page !== '') ? $page : 0;
-
-    $limit_from = $limit_to * $page;
-
-    $total = count(user_fast_track($user_id));
-
-    $last_page = ($total - $total % $limit_to) / $limit_to;
-
-    //	$currency = settings('ancillaries')->currency;
-
     $settings_investment = settings('investment');
 
     $account_type = user($user_id)->account_type;
@@ -334,67 +324,74 @@ function table_fast_track($user_id, $page, int $limit_to = 3): string
     $interval = $settings_investment->{$account_type . '_fast_track_interval'};
     $maturity = $settings_investment->{$account_type . '_fast_track_maturity'};
 
-    $results = user_fast_track_limit($user_id, $limit_from, $limit_to);
-
     $str = '';
 
-    if (!empty($results)) {
-        $str .= '<div class="uk-panel uk-panel-box tm-panel-line">';
+    $fast_tracks = user_fast_track($user_id);
 
-        if ($total > ($limit_from + $limit_to)) {
-            if ((int) $page !== (int) $last_page) {
-                $str .= '<span style="float: right"><a href="' . sef(19) . qs() . 'page=' . ($last_page) .
-                    '" class="uk-button uk-button-primary">Oldest</a></span>';
-            }
+    $pagination = pgn8($fast_tracks, sef(19), qs());
 
-            $str .= '<span style="float: right"><a href="' . sef(19) . qs() . 'page=' . ($page + 1) .
-                '" class="uk-button uk-button-success">Previous</a></span>';
-        }
+    $offset = $pagination['offset'];
+    $limit = $pagination['limit'];
+    $nav_pg = $pagination['html'];
 
-        if ($page > 0 && $page) {
-            $str .= '<span style="float: right"><a href="' . sef(19) . qs() . 'page=' . ($page - 1) .
-                '" class="uk-button uk-button-primary">Next</a></span>';
+    $paginated_fast_tracks = array_slice($fast_tracks, $offset, $limit, true);
 
-            if ((int) $page !== 1) {
-                $str .= '<span style="float: right"><a href="' . sef(19) . qs() . 'page=' . (1) .
-                    '" class="uk-button uk-button-success">Latest</a></span>';
-            }
-        }
+    if (!empty($paginated_fast_tracks)) {
+        $str .= <<<HTML
+        <div class="card-container">
+            <div class="table-responsive" style="background: white">
+                <table class="table table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                            <th style="text-align: center;"><h4>Initial</h4></th>
+                            <th style="text-align: center;"><h4>Accumulated</h4></th>
+                            <th style="text-align: center;"><h4>Running Days</h4></th>
+                            <th style="text-align: center;"><h4>Maturity Days ({$maturity})</h4></th>
+                            <th style="text-align: center;"><h4>Status</h4></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        HTML;
 
-        //		$str .= '<span style="float: left"><a href="' . sef(20) . '" class="uk-button uk-button-success">Deposit</a></span>';
+        foreach ($paginated_fast_tracks as $fs) {
+            $start = new DateTime('@' . $fs->date_entry);
+            $end = new DateInterval('P' . $maturity . 'D');
 
-        $str .= '<table class="category table table-striped table-bordered table-hover">' .
-            '<thead>
+            $start->add($end);
+
+            $starting_value = number_format($fs->principal, 2);
+            $current_value = number_format($fs->value_last, 2);
+            $maturity_date = $start->format('F d, Y');
+            $status = time_remaining($fs->day, $fs->processing, $interval, $maturity);
+
+            $str .= <<<ROW
                 <tr>
-                    <th>Initial</th>
-                    <th>Accumulated</th>
-                    <th>Running Days</th>
-                    <th>Maturity Days (' . $maturity . ')</th>
-                    <th>Status</th>     
+                    <td style="text-align: center;">{$starting_value}</td>
+                    <td style="text-align: center;">{$current_value}</td>
+                    <td style="text-align: center;">{$fs->day}</td>
+                    <td style="text-align: center;">{$maturity_date}</td>
+                    <td style="text-align: center;">{$status}</td>
                 </tr>
-            </thead>
-            <tbody>';
-
-        foreach ($results as $result) {
-            try {
-                $start = new DateTime('@' . $result->date_entry);
-                $end = new DateInterval('P' . $maturity . 'D');
-
-                $start->add($end);
-
-                $starting_value = number_format($result->principal, 2);
-                $current_value = number_format($result->value_last, 2);
-                $maturity_date = $start->format('F d, Y');
-                $status = time_remaining($result->day, $result->processing, $interval, $maturity);
-
-                $str .= tbody($starting_value, $current_value, $result->day, $maturity_date, $status);
-            } catch (Exception $e) {
-            }
+            ROW;
         }
 
-        $str .= '</tbody>
+        $str .= <<<TRANSPARENT_ROW
+            <tr style="visibility: hidden;">
+                <td colspan="5"></td>
+            </tr>
+        TRANSPARENT_ROW;
+
+        $str .= <<<END
+            </tbody>
         </table>
-    </div>';
+        </div>
+        END;
+
+        $str .= $nav_pg;
+
+        $str .= <<<CLOSE
+            </div>
+        CLOSE;
     }
 
     return $str;
