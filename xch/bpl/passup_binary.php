@@ -17,6 +17,7 @@ use function BPL\Mods\Url_SEF\qs;
 use function BPL\Mods\Helpers\db;
 use function BPL\Mods\Helpers\user;
 use function BPL\Mods\Helpers\settings;
+use function BPL\Mods\Helpers\pgn8;
 
 /**
  *
@@ -514,26 +515,24 @@ function view($user_id): string
 
 	$currency = $sa->currency;
 
-	// Pagination logic
-	$limit = 5; // Number of rows per page
-	$page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
-	$offset = ($page - 1) * $limit;
-
-	// Fetch total rows
 	$total = total($user_id);
 	$members = $total['members'];
 	$total_rows = count($members);
-	$total_pages = ceil($total_rows / $limit);
+
+	$pagination = pgn8($members, $sef, $qs);
+
+	$offset = $pagination['offset'];
+	$limit = $pagination['limit'];
+	$nav_pg = $pagination['html'];
 
 	// Paginate members
 	$paginated_members = array_slice($members, $offset, $limit, true);
 
-	// Start building the HTML using heredoc
 	$html = <<<HTML
     <div class="container mt-4">
         <h3>{$sp->passup_binary_name}</h3>
         <div class="table-responsive">
-            <table class="table table-bordered table-hover">
+            <table class="table table-hover">
                 <thead class="thead-light">
                     <tr>
                         <th style="text-align: center;"><h4>Member</h4></th>
@@ -544,10 +543,13 @@ function view($user_id): string
                 <tbody>
     HTML;
 
+	$total_percent = 0;
+
 	if (count($paginated_members) > 0) {
 		foreach ($paginated_members as $member => $income) {
 			$entry = $se->{$head_account_type . '_entry'};
 			$percent = $entry > 0 ? ($income / $entry) * 100 : 0;
+			$total_percent += $percent;
 
 			$html .= <<<ROW
             <tr>
@@ -565,54 +567,33 @@ function view($user_id): string
         NO_DATA;
 	}
 
-	// Add the total row
+	// Add a transparent row to detach the TOTAL section
+	$html .= <<<TRANSPARENT_ROW
+		<tr style="visibility: hidden;">
+			<td colspan="3"></td>
+		</tr>
+	TRANSPARENT_ROW;
+
 	$html .= <<<TOTAL
-            <tr>
-                <td style="text-align: center;"><strong>Total</strong></td>
-                <td style="text-align: center;">{$total_rows}</td>
-                <td style="text-align: center;">{$total['bonus']}</td>
-            </tr>
-        </tbody>
-    </table>
-    </div>
-    TOTAL;
+		<tr>
+			<td style="text-align: center; position: relative;">
+				<strong style="float:left;">Total:</strong>
+				<span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">{$total_rows}</span>
+			</td>
+			<td style="text-align: center;">{$total['bonus']}</td>
+			<td style="text-align: center;">{$total_percent}</td>
+		</tr>
+		</tbody>
+	</table>
+	</div>
+	TOTAL;
 
-	// Pagination links (Bootstrap 3 styling)
-	$html .= <<<PAGINATION
-    <nav aria-label="Page navigation">
-        <ul class="pagination">
-    PAGINATION;
+	// pagination navs
+	$html .= $nav_pg;
 
-	// Previous button
-	if ($page > 1) {
-		$prev_page = $page - 1;
-		$html .= <<<PREV
-        <li><a href="{$sef}{$qs}page={$prev_page}" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
-        PREV;
-	}
-
-	// Page numbers
-	for ($i = 1; $i <= $total_pages; $i++) {
-		$active = ($page == $i) ? 'active' : '';
-		$html .= <<<PAGE
-        <li class="{$active}"><a href="{$sef}{$qs}page={$i}">{$i}</a></li>
-        PAGE;
-	}
-
-	// Next button
-	if ($page < $total_pages) {
-		$next_page = $page + 1;
-		$html .= <<<NEXT
-        <li><a href="{$sef}{$qs}page={$next_page}" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>
-        NEXT;
-	}
-
-	// Close pagination and container
 	$html .= <<<CLOSE
-            </ul>
-        </nav>
-    </div>
-    CLOSE;
+		</div>
+	CLOSE;
 
 	return $html;
 }

@@ -176,7 +176,7 @@ function view_form(): string
 
 	$form = '';
 
-	$margin_style = ' style="margin-top: -100px;"';
+	$margin_style = '';
 	$logo = '';
 
 	if ($usertype === '') {
@@ -184,7 +184,7 @@ function view_form(): string
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
 		CSS;
 
-		$margin_style = '';
+		$margin_style = ' style="margin-top: -10px;"';
 
 		$logo = view_logo();
 	}
@@ -199,7 +199,7 @@ function view_form(): string
                 <div class="input-group">
                     <input type="text" name="sponsor" id="sponsor" class="form-control" value="$sponsor_value" placeholder="Enter Sponsor Username Here.." required$readonly>
                     <span class="input-group-btn">
-                        <button type="button" onClick="checkInput('sponsor')" class="btn btn-default" style="height: 38px;">Check Availability</button>
+                        <button type="button" onClick="checkInput('sponsor')" class="btn btn-default" style="height: 38px;">Check Validity</button>
                     </span>
                 </div>
                 <div id="sponsorDiv" class="help-block validation-message"></div>

@@ -136,6 +136,78 @@ function fast_track($user_id, $page): string
         $str .= !0 ? '' : '<span style="float: right; font-size: x-large; font-weight: bold"><span style="float: right">
 	        <a href="' . sef(20) . '" class="uk-button uk-button-primary">Wallet</a></span></span>';
 
+        // $str .= '<div class="table-responsive">';
+        // $str .= '<table class="category table table-bordered table-hover">';
+
+        // // shares and notifications
+        // $str .= '<tr>
+        //             <td rowspan="3" style="text-align: center; width: 33%; vertical-align: middle">
+        //                 <strong style="font-size: x-large"><span style="color: #006600">Shares:</span> <span
+        //                             class="fast_track_value_last">' . number_format(
+        //     $value_last,
+        //     2
+        // ) . '</span>' . ' ' . /*$currency .*/
+        //     '</strong>
+        //             </td>
+        //             <td colspan="2" style="text-align: center; vertical-align: middle" height="21px">
+        //                 <div style="text-align: center">
+        //                 	<span style="font-size: medium;
+        //                 color: #006600;
+        //                 text-align: center;
+        //                 vertical-align: middle;"
+        //                       class="success_fast_track"></span>
+        //                     <span style="font-size: medium;
+        //                 color: red;
+        //                 text-align: center;
+        //                 vertical-align: middle;"
+        //                           class="error_fast_track"></span>
+        //                     <span style="font-size: medium;
+        //                 color: orangered;
+        //                 text-align: center;
+        //                 vertical-align: middle;"
+        //                           class="debug_fast_track"></span>
+        //                 </div>
+        //             </td>
+        //         </tr>';
+
+        // // input and current values
+        // $str .= '<tr>
+        //             <td style="text-align: center; vertical-align: middle">
+        //                 <div>
+        //                     <strong><label>
+        //                             <input type="text"
+        //                                    id="fast_track_input"
+        //                                    style="font-size: x-large;
+        //                                       text-align: center;
+        //                                       vertical-align: middle;">
+        //                         </label></strong>
+        //                     <br>
+        //                     <strong><label>
+        //                             <input type="button"
+        //                                    value="' . $sp->fast_track_name . '"
+        //                                    class="uk-button uk-button-primary"
+        //                                    id="fast_track"
+        //                                    style="font-size: large;
+        //                                text-align: center;
+        //                                vertical-align: middle;">
+        //                         </label></strong>
+        //                 </div>
+        //             </td>
+        //             <td style="text-align: center; vertical-align: middle" id="digital-trading">
+        //                 <strong style="font-size: xx-large; color: #006600"><strong style="font-size: x-large">
+        //                         Value: <span style="color: #444444"
+        //                                      class="fast_track_principal">' . number_format(
+        //     $user->fast_track_principal,
+        //     2
+        // ) . ' ' . /*$currency .*/
+        //     '</span></strong>
+        //                 </strong>
+        //             </td>
+        //         </tr>';
+
+        // $str .= '</table>';
+        // $str .= '</div>';
+
         $shares = number_format($value_last, 2);
         $value = number_format($user->fast_track_principal, 2);
 
@@ -366,10 +438,10 @@ function table_fast_track($user_id, $page, int $limit_to = 3): string
         $str .= '<table class="category table table-striped table-bordered table-hover">' .
             '<thead>
                 <tr>
-                    <th>Initial</th>
-                    <th>Accumulated</th>
-                    <th>Running Days</th>
-                    <th>Maturity Days (' . $maturity . ')</th>
+                    <th>Contract</th>
+                    <th>Reward</th>
+                    <th>Days</th>
+                    <th>Maturity (' . $maturity . ' Days)</th>
                     <th>Status</th>     
                 </tr>
             </thead>

@@ -57,6 +57,26 @@ function fixed_daily($user_id): string
 
 	$str = '';
 
+	// if ($user->account_type !== 'starter') {
+	// 	$str .= '<h2>' . $settings_entry->{$user->account_type .
+	// 		'_package_name'} . ' ' . $settings_plans->fixed_daily_name .
+	// 		'<span style="float: right; font-size: x-large; font-weight: bold"><span style="float: right">
+	//         <a href="' . sef(18) .
+	// 		'" class="uk-button uk-button-primary">Wallet</a></span></span></h2>
+	// 		<div class="table-responsive">
+	// 			<table class="category table table-bordered table-hover">
+	// 				<tr>
+	// 					<td rowspan="3" style="text-align: center; width: 33%; vertical-align: middle">
+	// 						<div class="table-responsive" id="table_fixed_daily">' .
+	// 		table_fixed_daily($user_id) . '</div>
+	// 					</td>
+	// 				</tr>
+	// 			</table>
+	// 		</div>';
+
+	// 	$str .= ajax_table_fixed_daily($user_id);
+	// }
+
 	$str .= <<<CSS
 		<style>
 			.card-container {

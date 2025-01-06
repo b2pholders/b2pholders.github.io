@@ -1667,7 +1667,7 @@ function hamburger(): string
 function menu_styles(): string
 {
 	return <<<CSS
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+	<link rel="stylesheet" href="bpl/plugins/bootstrap3/bootstrap.min.css">
 	<style>
 		/* Make the entire page transparent */
 		body {
@@ -1758,8 +1758,8 @@ function menu_styles(): string
 function menu_scripts(): string
 {
 	return <<<JS
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+	<script src="bpl/plugins/bootstrap3/jquery.min.js"></script>
+	<script src="bpl/plugins/bootstrap3/bootstrap.min.js"></script>
 	<script>
 	    document.addEventListener("DOMContentLoaded", function() {
 		    const sidebar = document.getElementById("menu");
@@ -2047,7 +2047,7 @@ function affiliates($account_type, $user_id): string
 	// unilevel
 	if (
 			/*$account_type !== 'starter'
-																																																																																																							  &&*/ (
+																																																																																																									   &&*/ (
 			$sp->unilevel
 			&& $sul->{$account_type . '_unilevel_level'} > 0
 			&& !empty(user_unilevel($user_id))

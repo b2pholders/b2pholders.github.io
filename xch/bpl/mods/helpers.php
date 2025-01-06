@@ -103,6 +103,75 @@ function paginate($p, $src, $sef, $rows, string $q = 'pg'): string
 }
 
 /**
+ * Generates pagination details and HTML for a given dataset.
+ *
+ * @param array $data The dataset to paginate.
+ * @param string $baseUrl The base URL for pagination links (e.g., 'index.php?').
+ * @param string $queryString Additional query string parameters, including '&' (e.g., '&sort=asc').
+ * @param int $limit Number of items per page (default: 5).
+ * @return array Returns an array containing the limit, offset, and pagination HTML.
+ */
+function pgn8($data, $baseUrl, $queryString, $limit = 5)
+{
+	// Get the current page number from the query string, default to 1
+	$currentPage = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+	$currentPage = max(1, $currentPage); // Ensure page is at least 1
+
+	// Calculate pagination details
+	$totalRows = count($data);
+	$totalPages = max(1, ceil($totalRows / $limit)); // Ensure at least 1 page
+	$offset = ($currentPage - 1) * $limit;
+
+	// Generate pagination HTML
+	$paginationHtml = '<nav aria-label="Page navigation"><ul class="pagination">';
+
+	// Previous button
+	if ($currentPage > 1) {
+		$prevPage = $currentPage - 1;
+		$paginationHtml .= sprintf(
+			'<li><a href="%s%spage=%d" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>',
+			$baseUrl,
+			$queryString,
+			$prevPage
+		);
+	}
+
+	// Page numbers
+	for ($i = 1; $i <= $totalPages; $i++) {
+		$activeClass = ($currentPage == $i) ? 'active' : '';
+		$paginationHtml .= sprintf(
+			'<li class="%s"><a href="%s%spage=%d">%d</a></li>',
+			$activeClass,
+			$baseUrl,
+			$queryString,
+			$i,
+			$i
+		);
+	}
+
+	// Next button
+	if ($currentPage < $totalPages) {
+		$nextPage = $currentPage + 1;
+		$paginationHtml .= sprintf(
+			'<li><a href="%s%spage=%d" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>',
+			$baseUrl,
+			$queryString,
+			$nextPage
+		);
+	}
+
+	// Close pagination HTML
+	$paginationHtml .= '</ul></nav>';
+
+	// Return pagination details
+	return [
+		'limit' => $limit,
+		'offset' => $offset,
+		'html' => $paginationHtml,
+	];
+}
+
+/**
  *
  *
  * @since version
