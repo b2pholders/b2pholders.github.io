@@ -55,56 +55,7 @@ function fixed_daily($user_id): string
 
 	$user = user($user_id);
 
-	$str = '';
-
-	$str .= <<<CSS
-		<style>
-			.card-container {
-				display: flex;
-				flex-wrap: wrap;
-				gap: 10px;
-				padding: 10px;
-			}
-
-			.card {
-				flex: 1 1 calc(50% - 20px); /* Two cards per row on mobile */
-				box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-				border-radius: 8px;
-				overflow: hidden;
-				background-color: #fff;
-				transition: transform 0.2s;
-			}
-
-			.card:hover {
-				transform: translateY(-5px);
-			}
-
-			.card-header {
-				padding: 10px;
-				background-color: #f8f9fa;
-				font-weight: bold;
-				border-bottom: 1px solid #ddd;
-			}
-
-			.card-content {
-				padding: 10px;
-				font-size: 14px;
-			}
-
-			/* Responsive adjustments */
-			@media (min-width: 768px) {
-				.card {
-					flex: 1 1 calc(33.333% - 20px); /* Three cards per row on tablets */
-				}
-			}
-
-			@media (min-width: 1024px) {
-				.card {
-					flex: 1 1 calc(20% - 20px); /* Five cards per row on desktops */
-				}
-			}
-		</style>
-	CSS;
+	$str = css_tbl_fixed_daily();
 
 	$account_type = $user->account_type;
 
@@ -136,9 +87,9 @@ function fixed_daily($user_id): string
 	$type_day = '';
 
 	if ($remaining > $maturity && $user_fixed_daily->processing) {
-		$type_day = 'Processing Days:';
+		$type_day = 'Days for Processing: ';
 	} elseif ($remain_maturity > 0) {
-		$type_day = 'Remaining Days:';
+		$type_day = 'Days Remaining: ';
 	}
 
 	$str .= <<<HTML
@@ -157,12 +108,12 @@ function fixed_daily($user_id): string
 				<div class="card-content">$user_fixed_daily->day</div>
 			</div>
 			<div class="card">
-				<div class="card-header">Maturity Days (300)</div>
-				<div class="card-content">Date: $maturity_date</div>
+				<div class="card-header">Maturity Date ($maturity days)</div>
+				<div class="card-content">$maturity_date</div>
 			</div>
 			<div class="card">
 				<div class="card-header">Status</div>
-				<div class="card-content" style="color: green;">$type_day $status</div>
+				<div class="card-content" style="color: green;">{$type_day}$status</div>
 			</div>
 		</div>
 	HTML;
@@ -219,4 +170,58 @@ function table_fixed_daily($user_id): string
 		$maturity,
 		$interval
 	);
+}
+
+function css_tbl_fixed_daily()
+{
+	$str = <<<CSS
+		<style>
+			.card-container {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 10px;
+				padding: 10px;
+			}
+
+			.card {
+				flex: 1 1 calc(50% - 20px); /* Two cards per row on mobile */
+				box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+				border-radius: 8px;
+				overflow: hidden;
+				background-color: #fff;
+				transition: transform 0.2s;
+			}
+
+			.card:hover {
+				transform: translateY(-5px);
+			}
+
+			.card-header {
+				padding: 10px;
+				background-color: #f8f9fa;
+				font-weight: bold;
+				border-bottom: 1px solid #ddd;
+			}
+
+			.card-content {
+				padding: 10px;
+				font-size: 14px;
+			}
+
+			/* Responsive adjustments */
+			@media (min-width: 768px) {
+				.card {
+					flex: 1 1 calc(33.333% - 20px); /* Three cards per row on tablets */
+				}
+			}
+
+			@media (min-width: 1024px) {
+				.card {
+					flex: 1 1 calc(20% - 20px); /* Five cards per row on desktops */
+				}
+			}
+		</style>
+	CSS;
+
+	return $str;
 }

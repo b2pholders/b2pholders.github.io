@@ -108,14 +108,15 @@ function paginate($p, $src, $sef, $rows, string $q = 'pg'): string
  * @param array $data The dataset to paginate.
  * @param string $baseUrl The base URL for pagination links (e.g., 'index.php?').
  * @param string $queryString Additional query string parameters, including '&' (e.g., '&sort=asc').
+ * @param int $page Current page (default: 1).
  * @param int $limit Number of items per page (default: 5).
  * @return array Returns an array containing the limit, offset, and pagination HTML.
  */
-function pgn8($data, $baseUrl, $queryString, $limit = 5)
+function pgn8($data, $baseUrl, $queryString, $page = 1, $limit = 5)
 {
 	// Get the current page number from the query string, default to 1
-	$currentPage = isset($_GET['page']) ? (int) $_GET['page'] : 1;
-	$currentPage = max(1, $currentPage); // Ensure page is at least 1
+	// $currentPage = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+	$currentPage = max(1, $page); // Ensure page is at least 1
 
 	// Calculate pagination details
 	$totalRows = count($data);
@@ -292,27 +293,6 @@ function settings($type)
 	)->loadObject();
 }
 
-// /**
-//  *
-//  * @return CMSApplication|object
-//  *
-//  * @since version
-//  */
-// function application()
-// {
-// 	$app = null;
-
-// 	try
-// 	{
-// 		$app = Factory::getApplication();
-// 	}
-// 	catch (Exception $e)
-// 	{
-// 	}
-
-// 	return !is_null($app) ? $app : (object) [];
-// }
-
 /**
  * Get the Joomla application instance.
  *
@@ -380,7 +360,7 @@ function session_get($name, string $default = '')
 /**
  * @param           $name
  * @param   string  $default
- * @param   null    $filter
+ * @param   mixed    $filter
  *
  * @return string
  *

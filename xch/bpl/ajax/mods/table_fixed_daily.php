@@ -46,52 +46,19 @@ function main($user_id)
 {
 	$output = '';
 
-	//	$currency = settings('ancillaries')->currency;
-
 	$efund_name = settings('ancillaries')->efund_name;
-
-	// $settings_entry = settings('entry');
 
 	$settings_investment = settings('investment');
 
 	$user = user($user_id);
 
 	$account_type = $user->account_type;
-	// $date_activated = $user->date_activated;
 
-	//	$entry    = $settings_entry->{$account_type . '_entry'};
 	$principal = $settings_investment->{$account_type . '_fixed_daily_principal'};
 	$interval = $settings_investment->{$account_type . '_fixed_daily_interval'};
 	$maturity = $settings_investment->{$account_type . '_fixed_daily_maturity'};
 
 	$user_fixed_daily = user_fixed_daily($user_id);
-
-	// $value_last = $user_fixed_daily->value_last;
-	// $day        = $user_fixed_daily->day;
-	// $processing = $user_fixed_daily->processing;
-
-	// $output .= '<div class="uk-panel uk-panel-box tm-panel-line">';
-	// $output .= '<table class="category table table-striped table-bordered table-hover">
-	//         <thead>
-	//             <tr>
-	//                 <th>IMO</th>
-	//                 <th>CTO</th>
-	//                 <th>Running Days</th>
-	//                 <th>Maturity (' . $maturity . ' Days)</th>
-	//                 <th>Status</th>     
-	//             </tr>
-	//         </thead>
-	//         <tbody>';
-	// $output .= '<tr>';
-	// $output .= '<td>' . number_format($principal, 8) . ' ' . $efund_name . '</td>
-	//             <td>' . number_format($value_last, 8) . ' ' . $efund_name . '</td>
-	//             <td>' . $day . '</td>
-	//             <td>' . date('F d, Y', ($date_activated + $maturity * 86400)) . '</td>
-	//             <td>' . time_remaining($day, $processing, $interval, $maturity) . '</td>
-	//         </tr>';
-	// $output .= '</tbody>
-	//     </table>
-	// </div>';
 
 	$starting_value = number_format($principal, 8);
 	$current_value = number_format($user_fixed_daily->value_last, 8);
@@ -104,9 +71,9 @@ function main($user_id)
 	$type_day = '';
 
 	if ($remaining > $maturity && $user_fixed_daily->processing) {
-		$type_day = 'Processing Days:';
+		$type_day = 'Days for Processing: ';
 	} elseif ($remain_maturity > 0) {
-		$type_day = 'Remaining Days:';
+		$type_day = 'Days Remaining: ';
 	}
 
 	$output .= <<<HTML
@@ -123,12 +90,12 @@ function main($user_id)
 			<div class="card-content">$user_fixed_daily->day</div>
 		</div>
 		<div class="card">
-			<div class="card-header">Maturity Days (300)</div>
-			<div class="card-content">Date: $maturity_date</div>
+			<div class="card-header">Maturity Date ($maturity days)</div>
+			<div class="card-content">$maturity_date</div>
 		</div>
 		<div class="card">
 			<div class="card-header">Status</div>
-			<div class="card-content" style="color: green;">$type_day $status</div>
+			<div class="card-content" style="color: green;">{$type_day}$status</div>
 		</div>
 	HTML;
 

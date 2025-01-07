@@ -2,8 +2,6 @@
 
 namespace BPL\Ajax\Mods\Table_Fast_Track;
 
-use Exception;
-
 use DateTime;
 use DateInterval;
 
@@ -13,9 +11,10 @@ use function BPL\Mods\Time_Remaining\main as time_remaining;
 
 use function BPL\Mods\Local\Helpers\settings;
 use function BPL\Mods\Local\Helpers\user;
+use function BPL\Mods\Local\Helpers\pgn8Ajax;
 
 $user_id = filter_input(INPUT_POST, 'user_id', FILTER_VALIDATE_INT);
-$page    = filter_input(INPUT_POST, 'page', FILTER_VALIDATE_INT);
+$page = filter_input(INPUT_POST, 'page', FILTER_VALIDATE_INT);
 
 main($user_id, $page);
 
@@ -31,28 +30,8 @@ function user_fast_track_local($user_id)
 	return fetch_all(
 		'SELECT * ' .
 		'FROM network_fast_track ' .
-		'WHERE user_id = :user_id',
-		['user_id' => $user_id]
-	);
-}
-
-/**
- * @param $user_id
- * @param $limit_from
- * @param $limit_to
- *
- * @return array|false
- *
- * @since version
- */
-function user_fast_track_limit_local($user_id, $limit_from, $limit_to)
-{
-	return fetch_all(
-		'SELECT * ' .
-		'FROM network_fast_track ' .
 		'WHERE user_id = :user_id ' .
-		'ORDER BY fast_track_id DESC ' .
-		'LIMIT ' . $limit_from . ', ' . $limit_to,
+		'ORDER BY fast_track_id DESC',
 		['user_id' => $user_id]
 	);
 }
@@ -66,99 +45,92 @@ function user_fast_track_limit_local($user_id, $limit_from, $limit_to)
  */
 function main($user_id, $page)
 {
-	$limit_to   = 3;
-	$limit_from = $limit_to * $page;
-
-	$efund_name = settings('ancillaries')->efund_name;
-
-	$total = count(user_fast_track_local($user_id));
-
-	$last_page = ($total - $total % $limit_to) / $limit_to;
-
-//	$currency = settings('ancillaries')->currency;
+	$user_fast_tracks = user_fast_track_local($user_id);
 
 	$si = settings('investment');
 
 	$account_type = user($user_id)->account_type;
 
+	$interval = $si->{$account_type . '_fast_track_interval'};
 	$maturity = $si->{$account_type . '_fast_track_maturity'};
 
-	$results = user_fast_track_limit_local($user_id, $limit_from, $limit_to);
+	$pagination = pgn8Ajax($user_fast_tracks, $page);
+
+	$offset = $pagination['offset'];
+	$limit = $pagination['limit'];
+	$nav_pg = $pagination['html'];
+
+	$paginated_fast_tracks = array_slice($user_fast_tracks, $offset, $limit, true);
 
 	$str = '';
 
-	if (!empty($results))
-	{
-		$str .= '<div class="uk-panel uk-panel-box tm-panel-line">';
+	if (!empty($paginated_fast_tracks)) {
+		$str .= <<<HTML
+        <div class="card-container">
+            <div class="table-responsive" style="background: white">
+                <table class="table table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                            <th style="text-align: center;"><h4>Initial</h4></th>
+                            <th style="text-align: center;"><h4>Accumulated</h4></th>
+                            <th style="text-align: center;"><h4>Running Days</h4></th>
+                            <th style="text-align: center;"><h4>Maturity Date ($maturity days)</h4></th>
+                            <th style="text-align: center;"><h4>Status</h4></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        HTML;
 
-		if ($total > ($limit_from + $limit_to))
-		{
-			if ((int) $page !== (int) $last_page)
-			{
-				$str .= '<span style="float: right"><input type="button" value="Oldest" onclick="paginate_fast_track(' .
-					($last_page) . ')" ' . 'class="uk-button uk-button-primary"></span>';
+		foreach ($paginated_fast_tracks as $fs) {
+			$start = new DateTime('@' . $fs->date_entry);
+			$end = new DateInterval('P' . $maturity . 'D');
+
+			$start->add($end);
+
+			$starting_value = number_format($fs->principal, 2);
+			$current_value = number_format($fs->value_last, 2);
+			$maturity_date = $start->format('F d, Y');
+			$status = time_remaining($fs->day, $fs->processing, $interval, $maturity);
+
+			$remaining = ($fs->processing + $maturity - $fs->day) * $interval;
+			$remain_maturity = ($maturity - $fs->day) * $interval;
+
+			$type_day = '';
+
+			if ($remaining > $maturity && $fs->processing) {
+				$type_day = 'Days for Processing: ';
+			} elseif ($remain_maturity > 0) {
+				$type_day = 'Days Remaining: ';
 			}
 
-			$str .= '<span style="float: right"><input type="button" value="Previous" onclick="paginate_fast_track(' .
-				($page + 1) . ')" ' . 'class="uk-button uk-button-success"></span>';
-		}
-
-		if ($page > 0 && $page)
-		{
-			$str .= '<span style="float: right"><input type="button" value="Next" onclick="paginate_fast_track(' .
-				($page - 1) . ')" ' . 'class="uk-button uk-button-success"></span>';
-
-			if ((int) $page !== 1)
-			{
-				$str .= '<span style="float: right"><input type="button" value="Latest" onclick="paginate_fast_track(' .
-					(1) . ')" ' . 'class="uk-button uk-button-primary"></span>';
-			}
-		}
-
-		$str .= '<table class="category table table-striped table-bordered table-hover">
-            <thead>
+			$str .= <<<HTML
                 <tr>
-                    <th>Contract</th>
-                    <th>Reward</th>
-                    <th>Days</th>
-                    <th>Maturity (' . $maturity . ' Days)</th>
-                    <th>Status</th>     
+                    <td style="text-align: center;">{$starting_value}</td>
+                    <td style="text-align: center;">{$current_value}</td>
+                    <td style="text-align: center;">{$fs->day}</td>
+                    <td style="text-align: center;">{$maturity_date}</td>
+                    <td style="text-align: center;">{$type_day}{$status}</td>
                 </tr>
-            </thead>
-            <tbody>';
-
-		foreach ($results as $result)
-		{
-			try
-			{
-				$start = new DateTime('@' . $result->date_entry);
-				$end   = new DateInterval('P' . $maturity . 'D');
-
-				$start->add($end);
-
-				$str .= '
-	            <tr>';
-				$str .= '
-	                <td>' . number_format($result->principal, 2) . ' ' . /*$efund_name .*/ '</td>
-	                <td>' . number_format($result->value_last, 2) . ' ' . /*$efund_name .*/ '</td>
-	                <td>' . $result->day . '</td>
-	                <td>' . $start->format('F d, Y') . '</td>
-	                <td>' . time_remaining(
-						$result->day,
-						$result->processing,
-						$si->{$account_type . '_fast_track_interval'},
-						$maturity
-					) . '</td>
-	            </tr>';
-			}
-			catch (Exception $e)
-			{
-			}
+            HTML;
 		}
 
-		$str .= '</tbody>
-	        </table>
-	    </div>';
+		$str .= <<<HTML
+            <tr style="visibility: hidden;">
+                <td colspan="5"></td>
+            </tr>
+        HTML;
+
+		$str .= <<<HTML
+            </tbody>
+        </table>
+        </div>
+        HTML;
+
+		$str .= $nav_pg;
+
+		$str .= <<<HTML
+            </div>
+        HTML;
 	}
 
 	echo $str;

@@ -3,6 +3,7 @@
 namespace BPL\Mods\Local\Helpers;
 
 require_once 'query_local.php';
+require_once 'url_sef_local.php';
 
 use Exception;
 
@@ -66,12 +67,9 @@ function users()
  */
 function echo_json($arr)
 {
-	try
-	{
+	try {
 		echo json_encode($arr, JSON_THROW_ON_ERROR);
-	}
-	catch (Exception $e)
-	{
+	} catch (Exception $e) {
 		// handle exception
 	}
 
@@ -117,7 +115,7 @@ function page_reload(): string
  */
 function validate_token_request($user_id, $amount, $price, array $return)
 {
-	$settings_trading     = settings('trading');
+	$settings_trading = settings('trading');
 	$settings_ancillaries = settings('ancillaries');
 
 	$token_name = $settings_trading->token_name;
@@ -127,36 +125,32 @@ function validate_token_request($user_id, $amount, $price, array $return)
 	$account_type = $user->account_type;
 
 	$subtotal_buy = $amount * $price;
-	$charge_buy   = $subtotal_buy * $settings_trading->vlt_buy_charge / 100;
-	$total_buy    = $subtotal_buy + $charge_buy;
+	$charge_buy = $subtotal_buy * $settings_trading->vlt_buy_charge / 100;
+	$total_buy = $subtotal_buy + $charge_buy;
 
-	$minimum_buy     = $settings_trading->{$account_type . '_minimum_buy'};
-	$maximum_buy     = $settings_trading->{$account_type . '_maximum_buy'};
+	$minimum_buy = $settings_trading->{$account_type . '_minimum_buy'};
+	$maximum_buy = $settings_trading->{$account_type . '_maximum_buy'};
 	$minimum_bal_usd = $settings_ancillaries->{$account_type . '_min_bal_usd'};
 
-	if (!is_numeric($amount))
-	{
+	if (!is_numeric($amount)) {
 		$return['error'] = 'Enter valid quantity!';
 
 		echo_json($return);
 	}
 
-	if ($amount > $maximum_buy)
-	{
+	if ($amount > $maximum_buy) {
 		$return['error'] = 'Buy not more than ' . number_format($maximum_buy, 8) . ' ' . $token_name . '!';
 
 		echo_json($return);
 	}
 
-	if ($amount < $minimum_buy)
-	{
+	if ($amount < $minimum_buy) {
 		$return['error'] = 'Buy at least ' . number_format($minimum_buy, 8) . ' ' . $token_name . '!';
 
 		echo_json($return);
 	}
 
-	if ((token()->balance - $amount) < $settings_trading->vlt_min_stock)
-	{
+	if ((token()->balance - $amount) < $settings_trading->vlt_min_stock) {
 		$return['error'] = 'No Available ' . $token_name . ' Yet!';
 
 		echo_json($return);
@@ -177,19 +171,15 @@ function validate_token_request($user_id, $amount, $price, array $return)
  */
 function validate_funds($total_buy, $user, $minimum_bal_usd, $settings_ancillaries, array $return): void
 {
-	if ($total_buy > 0)
-	{
-		if (($user->payout_transfer - $total_buy) < $minimum_bal_usd)
-		{
+	if ($total_buy > 0) {
+		if (($user->payout_transfer - $total_buy) < $minimum_bal_usd) {
 			$return['error'] = 'Maintain at least ' .
 				number_format($minimum_bal_usd + $total_buy, 2) .
 				' ' . $settings_ancillaries->currency . '!';
 
 			echo_json($return);
 		}
-	}
-	else
-	{
+	} else {
 		$return['error'] = 'Transaction could not proceed!';
 
 		echo_json($return);
@@ -207,7 +197,7 @@ function validate_funds($total_buy, $user, $minimum_bal_usd, $settings_ancillari
  */
 function validate_token_trade_buy($user_id, $amount, $price, array $return)
 {
-	$settings_trading     = settings('trading');
+	$settings_trading = settings('trading');
 	$settings_ancillaries = settings('ancillaries');
 
 	$token_name = $settings_trading->token_name;
@@ -216,57 +206,49 @@ function validate_token_trade_buy($user_id, $amount, $price, array $return)
 
 	$account_type = $user->account_type;
 
-	$minimum_buy     = $settings_trading->{$account_type . '_minimum_buy'};
-	$maximum_buy     = $settings_trading->{$account_type . '_maximum_buy'};
+	$minimum_buy = $settings_trading->{$account_type . '_minimum_buy'};
+	$maximum_buy = $settings_trading->{$account_type . '_maximum_buy'};
 	$minimum_bal_usd = $settings_ancillaries->{$account_type . '_min_bal_usd'};
 
-	if (!is_numeric($amount))
-	{
+	if (!is_numeric($amount)) {
 		$return['error_amount_buy_trade'] = 'Enter valid amount!';
 
 		echo_json($return);
 	}
 
-	if ($amount < $minimum_buy)
-	{
+	if ($amount < $minimum_buy) {
 		$return['error_amount_buy_trade'] = 'Buy at least ' .
 			number_format($minimum_buy, 8) . ' ' . $token_name . '!';
 
 		echo_json($return);
 	}
 
-	if ($amount > $maximum_buy)
-	{
+	if ($amount > $maximum_buy) {
 		$return['error_amount_buy_trade'] = 'Buy not more than ' .
 			number_format($maximum_buy, 8) . ' ' . $token_name . '!';
 
 		echo_json($return);
 	}
 
-	if (!is_numeric($price) || !$price)
-	{
+	if (!is_numeric($price) || !$price) {
 		$return['error_price_buy_trade'] = 'Enter valid price!';
 
 		echo_json($return);
 	}
 
 	$subtotal_buy_trade = $amount * $price;
-	$charge_buy_trade   = $subtotal_buy_trade * $settings_trading->trade_buy_charge / 100;
-	$total_buy_trade    = $subtotal_buy_trade + $charge_buy_trade;
+	$charge_buy_trade = $subtotal_buy_trade * $settings_trading->trade_buy_charge / 100;
+	$total_buy_trade = $subtotal_buy_trade + $charge_buy_trade;
 
-	if ($total_buy_trade > 0)
-	{
-		if (($user->payout_transfer - $total_buy_trade) < $minimum_bal_usd)
-		{
+	if ($total_buy_trade > 0) {
+		if (($user->payout_transfer - $total_buy_trade) < $minimum_bal_usd) {
 			$return['error_buy_trade'] = 'Maintain at least ' .
 				number_format($minimum_bal_usd + $total_buy_trade, 2) .
 				' ' . $settings_ancillaries->currency . '!';
 
 			echo_json($return);
 		}
-	}
-	else
-	{
+	} else {
 		$return['error_buy_trade'] = 'Transaction could not proceed!';
 
 		echo_json($return);
@@ -289,7 +271,7 @@ function directs_valid($user_id)
 		' AND sponsor_id = :sponsor_id',
 		[
 			'account_type' => 'starter',
-			'sponsor_id'   => $user_id
+			'sponsor_id' => $user_id
 		]
 	);
 }
@@ -315,54 +297,48 @@ function validate_fast_track($input, $user_id, array $return)
 
 	$min_bal_usd = $sa->{$account_type . '_min_bal_usd'};
 
-	$min_input        = $si->{$account_type . '_fast_track_minimum'};
-	$max_input        = $si->{$account_type . '_fast_track_maximum'};
-	$max_principal    = $si->{$account_type . '_fast_track_principal_maximum'};
+	$min_input = $si->{$account_type . '_fast_track_minimum'};
+	$max_input = $si->{$account_type . '_fast_track_maximum'};
+	$max_principal = $si->{$account_type . '_fast_track_principal_maximum'};
 	$required_directs = $si->{$account_type . '_fast_track_required_directs'};
 
 	$actual_directs = directs_valid($user_id);
 
-	if ($required_directs && $actual_directs < $required_directs)
-	{
+	if ($required_directs && $actual_directs < $required_directs) {
 		$return['error_fast_track'] = 'Sponsor at least ' . $required_directs .
 			($required_directs > 1 ? ' directs!' : ' direct!');
 
 		echo_json($return);
 	}
 
-	if (!is_numeric($input))
-	{
+	if (!is_numeric($input)) {
 		$return['error_fast_track'] = 'Enter valid amount!';
 
 		echo_json($return);
 	}
 
-	if ($input < $min_input)
-	{
+	if ($input < $min_input) {
 		$return['error_fast_track'] = 'Enter at least ' .
 			number_format($min_input, 2) . ' ' . $currency . '!';
 
 		echo_json($return);
 	}
 
-	if ($input > $max_input)
-	{
+	if ($input > $max_input) {
 		$return['error_fast_track'] = 'Enter not more than ' .
 			number_format($max_input, 2) . ' ' . $currency . '!';
 
 		echo_json($return);
 	}
 
-	if ($user->fast_track_principal > $max_principal)
-	{
+	if ($user->fast_track_principal > $max_principal) {
 		$return['error_fast_track'] = 'Maximum ' . settings('plans')->fast_track_name . ' Deposit is ' .
 			number_format($max_principal, 2) . ' ' . $currency . '!';
 
 		echo_json($return);
 	}
 
-	if (($user->payout_transfer /*$user->points*/ - $input) < $min_bal_usd)
-	{
+	if (($user->payout_transfer /*$user->points*/ - $input) < $min_bal_usd) {
 		$return['error_fast_track'] = 'Maintain at least ' .
 			bcadd($min_bal_usd, $input, 2) . ' ' . $currency . '!';
 
@@ -381,7 +357,7 @@ function validate_fast_track($input, $user_id, array $return)
  */
 function validate_top_up($user_id, $input, $principal, array $return)
 {
-	$settings_investment  = settings('investment');
+	$settings_investment = settings('investment');
 	$settings_ancillaries = settings('ancillaries');
 
 	$currency = $settings_ancillaries->currency;
@@ -390,44 +366,39 @@ function validate_top_up($user_id, $input, $principal, array $return)
 
 	$account_type = $user->account_type;
 
-	$top_up_minimum           = $settings_investment->{$account_type . '_top_up_minimum'};
-	$top_up_maximum           = $settings_investment->{$account_type . '_top_up_maximum'};
+	$top_up_minimum = $settings_investment->{$account_type . '_top_up_minimum'};
+	$top_up_maximum = $settings_investment->{$account_type . '_top_up_maximum'};
 	$top_up_principal_maximum = $settings_investment->{$account_type . '_top_up_principal_maximum'};
-	$minimum_bal_usd          = $settings_ancillaries->{$account_type . '_min_bal_usd'};
+	$minimum_bal_usd = $settings_ancillaries->{$account_type . '_min_bal_usd'};
 
-	if (!is_numeric($input))
-	{
+	if (!is_numeric($input)) {
 		$return['error_top_up'] = 'Enter valid amount!';
 
 		echo_json($return);
 	}
 
-	if ($input < $top_up_minimum)
-	{
+	if ($input < $top_up_minimum) {
 		$return['error_top_up'] = 'Enter at least ' .
 			number_format($top_up_minimum, 2) . ' ' . $currency . '!';
 
 		echo_json($return);
 	}
 
-	if ($input > $top_up_maximum)
-	{
+	if ($input > $top_up_maximum) {
 		$return['error_top_up'] = 'Enter not more than ' .
 			number_format($top_up_maximum, 2) . ' ' . $currency . '!';
 
 		echo_json($return);
 	}
 
-	if ($principal > $top_up_principal_maximum)
-	{
+	if ($principal > $top_up_principal_maximum) {
 		$return['error_top_up'] = 'Maximum ' . settings('plans')->top_up_name . ' Deposit is ' .
 			number_format($top_up_principal_maximum, 2) . ' ' . $currency . '!';
 
 		echo_json($return);
 	}
 
-	if (($user->payout_transfer - $input) < $minimum_bal_usd)
-	{
+	if (($user->payout_transfer - $input) < $minimum_bal_usd) {
 		$return['error_top_up'] = 'Maintain at least ' .
 			bcadd($minimum_bal_usd, $input, 2) . ' ' . $currency . '!';
 
@@ -447,23 +418,17 @@ function token_trade_sell($user_id, $amount, $total)
 {
 	$dbh = DB::connect();
 
-	try
-	{
+	try {
 		$dbh->beginTransaction();
 
 		update_user_token_trade_sell($user_id, $total, $amount);
 		update_token_trade_sell($amount, $total);
 
 		$dbh->commit();
-	}
-	catch (Exception $e)
-	{
-		try
-		{
+	} catch (Exception $e) {
+		try {
 			$dbh->rollback();
-		}
-		catch (Exception $e2)
-		{
+		} catch (Exception $e2) {
 		}
 	}
 }
@@ -472,23 +437,17 @@ function token_trade_buy($user_id, $amount, $total)
 {
 	$dbh = DB::connect();
 
-	try
-	{
+	try {
 		$dbh->beginTransaction();
 
 		update_user_token_trade_buy($user_id, $total, $amount);
 		update_token_trade_buy($amount, $total);
 
 		$dbh->commit();
-	}
-	catch (Exception $e)
-	{
-		try
-		{
+	} catch (Exception $e) {
+		try {
 			$dbh->rollback();
-		}
-		catch (Exception $e2)
-		{
+		} catch (Exception $e2) {
 		}
 	}
 }
@@ -511,9 +470,9 @@ function update_user_token_trade_sell($user_id, $fund, $token)
 		'balance_fmc = :balance_fmc ' .
 		'WHERE id = :id',
 		[
-			'balance'     => ($user->payout_transfer + $fund),
+			'balance' => ($user->payout_transfer + $fund),
 			'balance_fmc' => ($user->balance_fmc - $token),
-			'id'          => $user_id
+			'id' => $user_id
 		]
 	);
 }
@@ -528,9 +487,9 @@ function update_user_token_trade_buy($user_id, $fund, $token)
 		'balance_fmc = :balance_fmc ' .
 		'WHERE id = :id',
 		[
-			'balance'     => ($user->payout_transfer - $fund),
+			'balance' => ($user->payout_transfer - $fund),
 			'balance_fmc' => ($user->balance_fmc + $token),
-			'id'          => $user_id
+			'id' => $user_id
 		]
 	);
 }
@@ -551,7 +510,7 @@ function update_token_trade_sell($balance_token, $purchase_token)
 		'SET balance = :balance, ' .
 		'purchase_fmc = :purchase_fmc',
 		[
-			'balance'      => ($token->balance + $balance_token),
+			'balance' => ($token->balance + $balance_token),
 			'purchase_fmc' => ($token->purchase_fmc + $purchase_token)
 		]
 	);
@@ -566,8 +525,62 @@ function update_token_trade_buy($balance_token, $purchase_token)
 		'SET balance = :balance, ' .
 		'purchase_fmc = :purchase_fmc',
 		[
-			'balance'      => ($token->balance - $balance_token),
+			'balance' => ($token->balance - $balance_token),
 			'purchase_fmc' => ($token->purchase_fmc - $purchase_token)
 		]
 	);
+}
+
+function pgn8Ajax($data, $page = 1, $limit = 5)
+{
+	// Get the current page number from the query string, default to 1
+	// $currentPage = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+	$currentPage = max(1, $page); // Ensure page is at least 1
+
+	// Calculate pagination details
+	$totalRows = count($data);
+	$totalPages = max(1, ceil($totalRows / $limit)); // Ensure at least 1 page
+	$offset = ($currentPage - 1) * $limit;
+
+	// Generate pagination HTML
+	$paginationHtml = '<nav aria-label="Page navigation"><ul class="pagination">';
+
+	// Previous button
+	if ($currentPage > 1) {
+		$prevPage = $currentPage - 1;
+		$paginationHtml .= sprintf(
+			'<li><a href="javascript:void(0);" onclick="loadPage(%d)" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>',
+			$prevPage
+		);
+	}
+
+	// Page numbers
+	for ($i = 1; $i <= $totalPages; $i++) {
+		$activeClass = ($currentPage == $i) ? 'active' : '';
+		$paginationHtml .= sprintf(
+			'<li class="%s"><a href="javascript:void(0);" onclick="loadPage(%d)">%d</a></li>',
+			$activeClass,
+			$i,
+			$i
+		);
+	}
+
+	// Next button
+	if ($currentPage < $totalPages) {
+		$nextPage = $currentPage + 1;
+		$paginationHtml .= sprintf(
+			'<li><a href="javascript:void(0);" onclick="loadPage(%d)" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>',
+			$nextPage
+		);
+	}
+
+	// Close pagination HTML
+	$paginationHtml .= '</ul></nav>';
+
+	// Return pagination details
+	return [
+		'limit' => $limit,
+		'offset' => $offset,
+		'html' => $paginationHtml,
+	];
 }

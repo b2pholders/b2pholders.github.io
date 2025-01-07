@@ -10,7 +10,7 @@ require_once 'bpl/mods/time_remaining.php';
 // require_once 'bpl/mods/table_daily_interest.php';
 require_once 'bpl/mods/helpers.php';
 
-use Exception;
+// use Exception;
 
 use DateTime;
 use DateInterval;
@@ -68,31 +68,32 @@ function user_fast_track($user_id)
     return $db->setQuery(
         'SELECT * ' .
         'FROM network_fast_track ' .
-        'WHERE user_id = ' . $db->quote($user_id)
-    )->loadObjectList();
-}
-
-/**
- * @param $user_id
- * @param $limit_from
- * @param $limit_to
- *
- * @return array|mixed
- *
- * @since version
- */
-function user_fast_track_limit($user_id, $limit_from, $limit_to)
-{
-    $db = db();
-
-    return $db->setQuery(
-        'SELECT * ' .
-        'FROM network_fast_track ' .
         'WHERE user_id = ' . $db->quote($user_id) .
-        ' ORDER BY fast_track_id DESC ' .
-        'LIMIT ' . $limit_from . ', ' . $limit_to
+        ' ORDER BY fast_track_id DESC'
     )->loadObjectList();
 }
+
+// /**
+//  * @param $user_id
+//  * @param $limit_from
+//  * @param $limit_to
+//  *
+//  * @return array|mixed
+//  *
+//  * @since version
+//  */
+// function user_fast_track_limit($user_id, $limit_from, $limit_to)
+// {
+//     $db = db();
+
+//     return $db->setQuery(
+//         'SELECT * ' .
+//         'FROM network_fast_track ' .
+//         'WHERE user_id = ' . $db->quote($user_id) .
+//         ' ORDER BY fast_track_id DESC ' .
+//         'LIMIT ' . $limit_from . ', ' . $limit_to
+//     )->loadObjectList();
+// }
 
 /**
  * @param $user_id
@@ -103,6 +104,8 @@ function user_fast_track_limit($user_id, $limit_from, $limit_to)
  */
 function fast_track($user_id): string
 {
+    $currentPage = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+
     $sa = settings('ancillaries');
     $se = settings('entry');
     $sp = settings('plans');
@@ -119,7 +122,8 @@ function fast_track($user_id): string
 
     $currency = settings('ancillaries')->currency;
 
-    $str = '';
+    $str = css_tbl_fast_track();
+    $str .= js_table_fast_track();
 
     if ($user->account_type !== 'starter') {
         $package_name = $se->{$user->account_type . '_package_name'};
@@ -174,135 +178,11 @@ function fast_track($user_id): string
             </div>
         HTML;
 
-        $str .= <<<CSS
-            <style>
-                /* Card Container */
-                .card-container {
-                    display: flex;
-                    flex-wrap: wrap;
-                    gap: 15px;
-                    padding: 15px;
-                    justify-content: center;
-                }
-
-                /* Card Styling */
-                .card {
-                    flex: 1 1 calc(33.333% - 30px); /* Three cards per row on desktop */
-                    background-color: #fff;
-                    border-radius: 8px;
-                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-                    padding: 15px;
-                    text-align: center;
-                    transition: transform 0.2s;
-                }
-
-                .card:hover {
-                    transform: translateY(-5px);
-                }
-
-                .card-header {
-                    font-size: 18px;
-                    font-weight: bold;
-                    margin-bottom: 10px;
-                    color: #006600;
-                }
-
-                .card-content {
-                    font-size: 16px;
-                }
-
-                /* Input Field */
-                .input-field {
-                    width: 100%;
-                    padding: 10px;
-                    font-size: 16px;
-                    border: 1px solid #ddd;
-                    border-radius: 4px;
-                    margin-bottom: 10px;
-                }
-
-                /* Button */
-                .btn-primary {
-                    width: 100%;
-                    padding: 10px;
-                    font-size: 16px;
-                    background-color: #006600;
-                    color: #fff;
-                    border: none;
-                    border-radius: 4px;
-                    cursor: pointer;
-                }
-
-                .btn-primary:disabled {
-                    background-color: #ccc;
-                    cursor: not-allowed;
-                }
-
-                /* Notification Container */
-                .notification-container {
-                    margin-top: 20px;
-                    padding: 15px;
-                }
-
-                .notification {
-                    padding: 10px;
-                    margin-bottom: 10px;
-                    border-radius: 4px;
-                    display: none; /* Hidden by default */
-                }
-
-                .success_fast_track {
-                    background-color: #d4edda;
-                    color: #155724;
-                }
-
-                .error_fast_track {
-                    background-color: #f8d7da;
-                    color: #721c24;
-                }
-
-                .debug_fast_track {
-                    background-color: #fff3cd;
-                    color: #856404;
-                }
-
-                /* Responsive Design */
-                @media (max-width: 768px) {
-                    .card {
-                        flex: 1 1 calc(50% - 30px); /* Two cards per row on tablets */
-                    }
-                }
-
-                @media (max-width: 480px) {
-                    .card {
-                        flex: 1 1 100%; /* One card per row on mobile */
-                    }
-                }
-            </style>
-        CSS;
-
-        $str .= <<<JS
-            <script>                
-                function showNotification(type, message) {
-                    const notification = document.querySelector(`.\${type}`);
-                    notification.textContent = message;
-                    notification.style.display = 'block';
-                    
-                    setTimeout(() => {
-                        notification.style.display = 'none';
-                    }, 5000);
-                }                
-            </script>
-        JS;
-
-
-        /* $str .= '<div class="table-responsive" id="table_fast_track">' . table_fast_track($user_id, $page) . '</div>'; */
-
-        $str .= table_fast_track($user_id);
+        $str .= '<div id="table_fast_track">' . table_fast_track($user_id, $currentPage) . '</div>';
 
         $str .= fast_track_input($user_id);
         $str .= ajax_fast_track($user_id);
-        /* $str .= ajax_table_fast_track($user_id); */
+        $str .= ajax_table_fast_track($user_id);
     }
 
     return $str;
@@ -310,12 +190,13 @@ function fast_track($user_id): string
 
 /**
  * @param        $user_id
+ * @param        $page
  *
  * @return string
  *
  * @since version
  */
-function table_fast_track($user_id): string
+function table_fast_track($user_id, $page): string
 {
     $settings_investment = settings('investment');
 
@@ -328,7 +209,7 @@ function table_fast_track($user_id): string
 
     $fast_tracks = user_fast_track($user_id);
 
-    $pagination = pgn8($fast_tracks, sef(19), qs());
+    $pagination = pgn8($fast_tracks, sef(19), qs(), $page);
 
     $offset = $pagination['offset'];
     $limit = $pagination['limit'];
@@ -346,7 +227,7 @@ function table_fast_track($user_id): string
                             <th style="text-align: center;"><h4>Initial</h4></th>
                             <th style="text-align: center;"><h4>Accumulated</h4></th>
                             <th style="text-align: center;"><h4>Running Days</h4></th>
-                            <th style="text-align: center;"><h4>Maturity Days ({$maturity})</h4></th>
+                            <th style="text-align: center;"><h4>Maturity Date ($maturity days)</h4></th>
                             <th style="text-align: center;"><h4>Status</h4></th>
                         </tr>
                     </thead>
@@ -364,35 +245,177 @@ function table_fast_track($user_id): string
             $maturity_date = $start->format('F d, Y');
             $status = time_remaining($fs->day, $fs->processing, $interval, $maturity);
 
-            $str .= <<<ROW
+            $remaining = ($fs->processing + $maturity - $fs->day) * $interval;
+            $remain_maturity = ($maturity - $fs->day) * $interval;
+
+            $type_day = '';
+
+            if ($remaining > $maturity && $fs->processing) {
+                $type_day = 'Days for Processing: ';
+            } elseif ($remain_maturity > 0) {
+                $type_day = 'Days Remaining: ';
+            }
+
+            $str .= <<<HTML
                 <tr>
                     <td style="text-align: center;">{$starting_value}</td>
                     <td style="text-align: center;">{$current_value}</td>
                     <td style="text-align: center;">{$fs->day}</td>
                     <td style="text-align: center;">{$maturity_date}</td>
-                    <td style="text-align: center;">{$status}</td>
+                    <td style="text-align: center;">{$type_day}{$status}</td>
                 </tr>
-            ROW;
+            HTML;
         }
 
-        $str .= <<<TRANSPARENT_ROW
+        $str .= <<<HTML
             <tr style="visibility: hidden;">
                 <td colspan="5"></td>
             </tr>
-        TRANSPARENT_ROW;
+        HTML;
 
-        $str .= <<<END
+        $str .= <<<HTML
             </tbody>
         </table>
         </div>
-        END;
+        HTML;
 
         $str .= $nav_pg;
 
-        $str .= <<<CLOSE
+        $str .= <<<HTML
             </div>
-        CLOSE;
+        HTML;
     }
+
+    return $str;
+}
+
+function css_tbl_fast_track()
+{
+    $str = <<<CSS
+        <style>
+            /* Card Container */
+            .card-container {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 15px;
+                padding: 15px;
+                justify-content: center;
+            }
+
+            /* Card Styling */
+            .card {
+                flex: 1 1 calc(33.333% - 30px); /* Three cards per row on desktop */
+                background-color: #fff;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                padding: 15px;
+                text-align: center;
+                transition: transform 0.2s;
+            }
+
+            .card:hover {
+                transform: translateY(-5px);
+            }
+
+            .card-header {
+                font-size: 18px;
+                font-weight: bold;
+                margin-bottom: 10px;
+                color: #006600;
+            }
+
+            .card-content {
+                font-size: 16px;
+            }
+
+            /* Input Field */
+            .input-field {
+                width: 100%;
+                padding: 10px;
+                font-size: 16px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                margin-bottom: 10px;
+            }
+
+            /* Button */
+            .btn-primary {
+                width: 100%;
+                padding: 10px;
+                font-size: 16px;
+                background-color: #006600;
+                color: #fff;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+
+            .btn-primary:disabled {
+                background-color: #ccc;
+                cursor: not-allowed;
+            }
+
+            /* Notification Container */
+            .notification-container {
+                margin-top: 20px;
+                padding: 15px;
+            }
+
+            .notification {
+                padding: 10px;
+                margin-bottom: 10px;
+                border-radius: 4px;
+                display: none; /* Hidden by default */
+            }
+
+            .success_fast_track {
+                background-color: #d4edda;
+                color: #155724;
+            }
+
+            .error_fast_track {
+                background-color: #f8d7da;
+                color: #721c24;
+            }
+
+            .debug_fast_track {
+                background-color: #fff3cd;
+                color: #856404;
+            }
+
+            /* Responsive Design */
+            @media (max-width: 768px) {
+                .card {
+                    flex: 1 1 calc(50% - 30px); /* Two cards per row on tablets */
+                }
+            }
+
+            @media (max-width: 480px) {
+                .card {
+                    flex: 1 1 100%; /* One card per row on mobile */
+                }
+            }
+        </style>
+    CSS;
+
+    return $str;
+}
+
+function js_table_fast_track()
+{
+    $str = <<<JS
+        <script>                
+            function showNotification(type, message) {
+                const notification = document.querySelector(`.\${type}`);
+                notification.textContent = message;
+                notification.style.display = 'block';
+                
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 5000);
+            }                
+        </script>
+    JS;
 
     return $str;
 }
