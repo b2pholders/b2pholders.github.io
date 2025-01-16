@@ -1,14 +1,14 @@
 <?php
 
-namespace BPL\Jumi\Fixed_Daily_Deposit;
+namespace BPL\Jumi\Fixed_Daily_Token_Deposit;
 
 require_once 'bpl/mods/query.php';
 require_once 'bpl/mods/helpers.php';
 
-use Exception;
+// use Exception;
 
 use Joomla\CMS\Uri\Uri;
-use Joomla\CMS\Exception\ExceptionHandler;
+// use Joomla\CMS\Exception\ExceptionHandler;
 
 use function BPL\Mods\Database\Query\insert;
 use function BPL\Mods\Database\Query\update;
@@ -37,13 +37,14 @@ function main()
 {
 	$user_id = session_get('user_id');
 	$amount = input_get('amount_fdp');
+
 	session_set('fdp', $amount);
 
 	page_validate();
 
 	$str = menu();
 
-	$str .= '<h1>' . settings('plans')->fixed_daily_name . ' Wallet</h1>';
+	$str .= '<h1>' . settings('plans')->fixed_daily_token_name . ' Wallet</h1>';
 
 	if ($amount !== '') {
 		process_form($user_id, $amount);
@@ -63,7 +64,11 @@ function main()
  */
 function validate_input($user_id, $amount)
 {
+	$sef = sef(18);
+
 	$app = application();
+
+	$token = 'B2P';
 
 	$si = settings('investment');
 
@@ -71,48 +76,48 @@ function validate_input($user_id, $amount)
 
 	$account_type = $user->account_type;
 
-	$fixed_daily_principal = $si->{$account_type . '_fixed_daily_principal'};
-	$fixed_daily_principal_cut = $si->{$account_type . '_fixed_daily_principal_cut'} / 100;
+	// $fixed_daily_token_principal = $si->{$account_type . '_fixed_daily_token_principal'};
+	$fixed_daily_token_principal_cut = $si->{$account_type . '_fixed_daily_token_principal_cut'} / 100;
 	//	$fixed_daily_interest      = $settings_investment->{$account_type . '_fixed_daily_interest'} / 100;
 //	$fixed_daily_harvest       = $settings_investment->{$account_type . '_fixed_daily_harvest'};
-	$fixed_daily_maturity = $si->{$account_type . '_fixed_daily_maturity'};
+	$fixed_daily_token_maturity = $si->{$account_type . '_fixed_daily_token_maturity'};
 	//	$fixed_daily_donation      = $settings_investment->{$account_type . '_fixed_daily_donation'} / 100;
 
-	$fixed_daily_principal_cut = $fixed_daily_principal_cut ?: 1;
+	$fixed_daily_token_principal_cut = $fixed_daily_token_principal_cut ?: 1;
 
-	$principal = $fixed_daily_principal * $fixed_daily_principal_cut;
+	// $principal = $fixed_daily_token_principal * $fixed_daily_token_principal_cut;
 	//	$maturity_principal = $principal * ($fixed_daily_maturity * $fixed_daily_interest + 1);
 
 	//	$minimum_deposit    = ($maturity_principal / $fixed_daily_maturity) *
 //		$fixed_daily_harvest * (1 - $fixed_daily_donation);
 
-	$fixed_daily_minimum_deposit = $si->{$account_type . '_fixed_daily_minimum_deposit'};
+	$fixed_daily_token_minimum_deposit = $si->{$account_type . '_fixed_daily_token_minimum_deposit'};
 
-	if ($amount > $user->fixed_daily_balance) {
+	if ($amount > $user->fixed_daily_token_balance) {
 		$app->redirect(
-			Uri::root(true) . '/' . sef(18),
-			'Exceeds ' . settings('plans')->fixed_daily_name .
+			Uri::root(true) . '/' . $sef,
+			'Exceeds ' . settings('plans')->fixed_daily_token_name .
 			' Balance!',
 			'error'
 		);
 	}
 
-	if (user_fixed_daily($user_id)->day < $fixed_daily_maturity && $amount < $fixed_daily_minimum_deposit) {
+	if (user_fixed_daily_token($user_id)->day < $fixed_daily_token_maturity && $amount < $fixed_daily_token_minimum_deposit) {
 		$app->redirect(
-			Uri::root(true) . '/' . sef(18),
-			'Convert at least ' . number_format($fixed_daily_minimum_deposit, 2) .
-			' ' . settings('ancillaries')->currency . '!',
+			Uri::root(true) . '/' . $sef,
+			'Enter at least ' . number_format($fixed_daily_token_minimum_deposit, 8) .
+			' ' . /* settings('ancillaries')->currency */ $token . '!',
 			'error'
 		);
 	}
 
 	if (
-		((double) $user->fixed_daily_deposit_today + (double) $amount) > $si->{
-			$user->account_type . '_fixed_daily_maximum_deposit'}
+		((double) $user->fixed_daily_token_deposit_today + (double) $amount) > $si->{
+			$user->account_type . '_fixed_daily_token_maximum_deposit'}
 	) {
 		$app->redirect(
-			Uri::root(true) . '/' . sef(18) . qs() . 'uid=' . $user_id,
-			'Exceeded Maximum Conversion!',
+			Uri::root(true) . '/' . $sef . qs() . 'uid=' . $user_id,
+			'Exceeded Maximum Withdrawal!',
 			'error'
 		);
 	}
@@ -312,13 +317,13 @@ function activity($user_id, $amount)
  * @return mixed|null
  * @since version
  */
-function user_fixed_daily($user_id)
+function user_fixed_daily_token($user_id)
 {
 	$db = db();
 
 	return $db->setQuery(
 		'SELECT * ' .
-		'FROM network_fixed_daily ' .
+		'FROM network_fixed_daily_token ' .
 		'WHERE user_id = ' . $db->quote($user_id)
 	)->loadObject();
 }
@@ -332,21 +337,23 @@ function user_fixed_daily($user_id)
  */
 function view_form($user_id): string
 {
-	$currency = settings('ancillaries')->currency;
+	// $currency = settings('ancillaries')->currency;
 
-	$sa = settings('ancillaries');
+	// $sa = settings('ancillaries');
+
+	// $currency = $sa->currency;
 
 	$user = user($user_id);
 
-	return '<form method="post">
+	$str = '<form method="post">
 	    <table class="category table table-striped table-bordered table-hover">
 	        <tr>
-	            <td><strong>' . settings('plans')->fixed_daily_name . ' Balance: ' .
-		number_format($user->fixed_daily_balance, 8) . ' ' . $currency . ' </strong>
-	                <strong style="float: right">
-	                    ' . $sa->efund_name . ' Balance: ' .
-		number_format($user->payout_transfer, 8) . ' ' . $currency . '</strong>
-	            </td>
+	            <td><strong>' . settings('plans')->fixed_daily_token_name . ' Balance: ' .
+		number_format($user->fixed_daily_token_balance, 8) . ' ' . /* $currency */ 'B2P' . ' </strong>';
+	// $str .= '<strong style="float: right">
+	//                     ' . $sa->efund_name . ' Balance: ' .
+	// 	number_format($user->payout_transfer, 8) . ' ' . /* $currency */ 'B2P' . '</strong>';
+	$str .= '</td>
 	        </tr>
 	        <tr>
 	            <td>
@@ -358,11 +365,13 @@ function view_form($user_id): string
 	                           required>
 	                    <input class="uk-button uk-button-medium"
 	                           name="submit"
-	                           value="Convert" style="margin-bottom: 10px"
+	                           value="Withdraw" style="margin-bottom: 10px"
 	                           type="submit">
 	                </div>
 	            </td>
 	        </tr>
 	    </table>
 	</form>';
+
+	return $str;
 }

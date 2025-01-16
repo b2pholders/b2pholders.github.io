@@ -630,7 +630,7 @@ function wallet_member($account_type): string
  *
  * @since version
  */
-function token_admin($admintype): string
+function fixed_daily_token_admin($admintype): string
 {
 	$settings_plans = settings('plans');
 
@@ -1608,7 +1608,7 @@ function admin($admintype, $account_type, $user_id, $username): string
 	//	$str .= share_fund_admin($admintype);
 //	$str .= loan_admin($admintype);
 	$str .= wallet_admin($admintype);
-	$str .= token_admin($admintype);
+	$str .= fixed_daily_token_admin($admintype);
 	$str .= shop_admin($account_type);
 	$str .= purchases_admin($account_type);
 	$str .= settings_adjust($admintype);
@@ -2016,7 +2016,7 @@ function affiliates($account_type, $user_id): string
 	// unilevel
 	if (
 			/*$account_type !== 'starter'
-																																																																										 &&*/ (
+																																																																												  &&*/ (
 			$sp->unilevel
 			&& $sul->{$account_type . '_unilevel_level'} > 0
 			&& !empty(user_unilevel($user_id))

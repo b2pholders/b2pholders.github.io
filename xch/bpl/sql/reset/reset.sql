@@ -523,6 +523,42 @@ VALUES (1, 0, 0, 0, 0, 0);
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `network_fixed_daily_token`
+--
+
+DROP TABLE IF EXISTS `network_fixed_daily_token`;
+
+CREATE TABLE IF NOT EXISTS `network_fixed_daily_token` (
+  `fixed_daily_token_id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL DEFAULT '0',
+  `time_last` int NOT NULL DEFAULT '0',
+  `value_last` double NOT NULL DEFAULT '0',
+  `day` int NOT NULL DEFAULT '0',
+  `processing` int NOT NULL DEFAULT '0',
+  `time_mature` int NOT NULL DEFAULT '0',
+  `date_last_cron` int NOT NULL DEFAULT '0',
+  `flushout_global` double NOT NULL DEFAULT '0',
+  PRIMARY KEY (`fixed_daily_token_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `network_fixed_daily_token`
+--
+
+INSERT INTO
+    `network_fixed_daily_token` (
+        `user_id`,
+        `time_last`,
+        `value_last`,
+        `day`,
+        `processing`,
+        `time_mature`
+    )
+VALUES (1, 0, 0, 0, 0, 0);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `network_fmc`
 --
 
@@ -1378,15 +1414,15 @@ CREATE TABLE IF NOT EXISTS `network_token_add` (
 DROP TABLE IF EXISTS `network_token_conversions`;
 
 CREATE TABLE IF NOT EXISTS `network_token_conversions` (
-    `conversion_id` int(11) NOT NULL AUTO_INCREMENT,
-    `transaction_id` int(11) NOT NULL,
-    `amount` double NOT NULL,
-    `conversion_date` int(11) NOT NULL,
-    `conversion_total` double NOT NULL,
-    `amount_tax` double NOT NULL,
-    `total_tax` double NOT NULL,
-    PRIMARY KEY (`conversion_id`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+  `conversion_id` int NOT NULL AUTO_INCREMENT,
+  `transaction_id` int NOT NULL DEFAULT '0',
+  `amount` double NOT NULL DEFAULT '0',
+  `price` double NOT NULL DEFAULT '0',
+  `method` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `conversion_date` int NOT NULL DEFAULT '0',
+  `conversion_total` double NOT NULL DEFAULT '0',
+  PRIMARY KEY (`conversion_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -1397,16 +1433,17 @@ CREATE TABLE IF NOT EXISTS `network_token_conversions` (
 DROP TABLE IF EXISTS `network_token_convert`;
 
 CREATE TABLE IF NOT EXISTS `network_token_convert` (
-    `convert_id` int(11) NOT NULL AUTO_INCREMENT,
-    `user_id` int(11) NOT NULL,
-    `amount` double NOT NULL,
-    `amount_final` double NOT NULL,
-    `deduction_total` double NOT NULL,
-    `date_converted` int(11) NOT NULL,
-    `date_completed` int(11) NOT NULL,
-    `method` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT '',
-    PRIMARY KEY (`convert_id`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+  `convert_id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL DEFAULT '0',
+  `amount` double NOT NULL DEFAULT '0',
+  `price` double NOT NULL DEFAULT '0',
+  `cut` double NOT NULL DEFAULT '0',
+  `mode` enum('sop','fdp','fdtp','ftk') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'fdtp',
+  `method` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `date_posted` int NOT NULL DEFAULT '0',
+  `date_approved` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`convert_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -1574,98 +1611,85 @@ INSERT INTO `network_unilevel` (`user_id`) VALUES (1);
 DROP TABLE IF EXISTS `network_users`;
 
 CREATE TABLE IF NOT EXISTS `network_users` (
-    `id` int NOT NULL AUTO_INCREMENT,
-    `sponsor_id` int NOT NULL DEFAULT '0',
-    `has_maintain` enum('0', '1') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
-    `elite` enum('0', '1') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
-    `balance` double NOT NULL DEFAULT '0',
-    `income_cycle_global` double NOT NULL DEFAULT '0',
-    `income_flushout` double NOT NULL DEFAULT '0',
-    `username` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-    `fullname` varchar(60) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-    `password` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-    `block` tinyint NOT NULL DEFAULT '0',
-    `usertype` enum('Member', 'Admin', 'manager') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Member',
-    `picture` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-    `date_registered` int NOT NULL DEFAULT '0',
-    `date_activated` int NOT NULL DEFAULT '0',
-    `email` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-    `contact` json DEFAULT NULL,
-    `beneficiary` json DEFAULT NULL,
-    `points` double NOT NULL DEFAULT '0',
-    `account_type` enum(
-        'chairman',
-        'executive',
-        'regular',
-        'associate',
-        'basic',
-        'starter'
-    ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'starter',
-    `rank` enum(
-        'affiliate',
-        'supervisor',
-        'manager',
-        'director'
-    ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'affiliate',
-    `rank_reward` double NOT NULL DEFAULT '0',
-    `elite_reward` double NOT NULL DEFAULT '0',
-    `bank` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-    `payment_method` json DEFAULT NULL,
-    `income_referral` double NOT NULL DEFAULT '0',
-    `income_referral_flushout` double NOT NULL DEFAULT '0',
-    `bonus_echelon` double NOT NULL DEFAULT '0',
-    `payout_total` double NOT NULL DEFAULT '0',
-    `address` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-    `payout_giftcheck` double NOT NULL DEFAULT '0',
-    `payout_transfer` double NOT NULL DEFAULT '0',
-    `unilevel` double NOT NULL DEFAULT '0',
-    `balance_fmc` double NOT NULL DEFAULT '0',
-    `p2p_wallet` json DEFAULT NULL,
-    `bonus_leadership` double NOT NULL DEFAULT '0',
-    `bonus_leadership_passive` double NOT NULL DEFAULT '0',
-    `bonus_indirect_referral` double NOT NULL DEFAULT '0',
-    `bonus_indirect_referral_points` double NOT NULL DEFAULT '0',
-    `bonus_indirect_referral_fmc` double NOT NULL DEFAULT '0',
-    `bonus_matrix` double NOT NULL DEFAULT '0',
-    `bonus_power` double NOT NULL DEFAULT '0',
-    `bonus_share` double NOT NULL DEFAULT '0',
-    `bonus_harvest` double NOT NULL DEFAULT '0',
-    `top_up_principal` double NOT NULL DEFAULT '0',
-    `top_up_interest` double NOT NULL DEFAULT '0',
-    `fast_track_principal` double NOT NULL DEFAULT '0',
-    `fast_track_interest` double NOT NULL DEFAULT '0',
-    `fixed_daily_interest` double NOT NULL DEFAULT '0',
-    `compound_daily_interest` double NOT NULL DEFAULT '0',
-    `donation` double NOT NULL DEFAULT '0',
-    `merchant_type` enum(
-        'chairman',
-        'executive',
-        'regular',
-        'associate',
-        'basic',
-        'starter'
-    ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'starter',
-    `bonus_merchant` double NOT NULL DEFAULT '0',
-    `coin_transfer` double NOT NULL DEFAULT '0',
-    `bonus_leadership_passive_balance` double NOT NULL DEFAULT '0',
-    `top_up_balance` double NOT NULL DEFAULT '0',
-    `fast_track_balance` double NOT NULL DEFAULT '0',
-    `fixed_daily_balance` double NOT NULL DEFAULT '0',
-    `compound_daily_balance` double NOT NULL DEFAULT '0',
-    `upline_support` double NOT NULL DEFAULT '0',
-    `passup_bonus` double NOT NULL DEFAULT '0',
-    `passup_binary_bonus` double NOT NULL DEFAULT '0',
-    `stockist_bonus` double NOT NULL DEFAULT '0',
-    `franchise_bonus` double NOT NULL DEFAULT '0',
-    `endowment_bonus` double NOT NULL DEFAULT '0',
-    `converted_today` double NOT NULL DEFAULT '0',
-    `requested_today` double NOT NULL DEFAULT '0',
-    `status_global` enum('active', 'inactive') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'active',
-    `savings` double NOT NULL DEFAULT '0',
-    `share_fund` double NOT NULL DEFAULT '0',
-    `loans` double NOT NULL DEFAULT '0',
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+  `id` int NOT NULL AUTO_INCREMENT,
+  `sponsor_id` int NOT NULL DEFAULT '0',
+  `has_maintain` enum('0','1') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
+  `elite` enum('0','1') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
+  `balance` double NOT NULL DEFAULT '0',
+  `income_cycle_global` double NOT NULL DEFAULT '0',
+  `income_flushout` double NOT NULL DEFAULT '0',
+  `username` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `fullname` varchar(60) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `password` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `block` tinyint NOT NULL DEFAULT '0',
+  `usertype` enum('Member','Admin','manager') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Member',
+  `picture` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `date_registered` int NOT NULL DEFAULT '0',
+  `date_activated` int NOT NULL DEFAULT '0',
+  `email` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `contact` json DEFAULT NULL,
+  `beneficiary` json DEFAULT NULL,
+  `points` double NOT NULL DEFAULT '0',
+  `account_type` enum('chairman','executive','regular','associate','basic','starter') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'starter',
+  `rank` enum('affiliate','supervisor','manager','director') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'affiliate',
+  `rank_reward` double NOT NULL DEFAULT '0',
+  `elite_reward` double NOT NULL DEFAULT '0',
+  `bank` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `payment_method` json DEFAULT NULL,
+  `income_referral` double NOT NULL DEFAULT '0',
+  `income_referral_flushout` double NOT NULL DEFAULT '0',
+  `bonus_echelon` double NOT NULL DEFAULT '0',
+  `payout_total` double NOT NULL DEFAULT '0',
+  `address` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `payout_giftcheck` double NOT NULL DEFAULT '0',
+  `payout_transfer` double NOT NULL DEFAULT '0',
+  `unilevel` double NOT NULL DEFAULT '0',
+  `balance_fmc` double NOT NULL DEFAULT '0',
+  `p2p_wallet` json DEFAULT NULL,
+  `bonus_leadership` double NOT NULL DEFAULT '0',
+  `bonus_leadership_passive` double NOT NULL DEFAULT '0',
+  `bonus_indirect_referral` double NOT NULL DEFAULT '0',
+  `bonus_indirect_referral_points` double NOT NULL DEFAULT '0',
+  `bonus_indirect_referral_fmc` double NOT NULL DEFAULT '0',
+  `bonus_matrix` double NOT NULL DEFAULT '0',
+  `bonus_power` double NOT NULL DEFAULT '0',
+  `bonus_share` double NOT NULL DEFAULT '0',
+  `bonus_harvest` double NOT NULL DEFAULT '0',
+  `top_up_principal` double NOT NULL DEFAULT '0',
+  `top_up_interest` double NOT NULL DEFAULT '0',
+  `fast_track_principal` double NOT NULL DEFAULT '0',
+  `fast_track_interest` double NOT NULL DEFAULT '0',
+  `fixed_daily_interest` double NOT NULL DEFAULT '0',
+  `fixed_daily_token_interest` double NOT NULL COMMENT 'Non-efund',
+  `compound_daily_interest` double NOT NULL DEFAULT '0',
+  `donation` double NOT NULL DEFAULT '0',
+  `fixed_daily_token_donation` double NOT NULL DEFAULT '0' COMMENT 'Non-efund',
+  `merchant_type` enum('chairman','executive','regular','associate','basic','starter') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'starter',
+  `bonus_merchant` double NOT NULL DEFAULT '0',
+  `coin_transfer` double NOT NULL DEFAULT '0',
+  `bonus_leadership_passive_balance` double NOT NULL DEFAULT '0',
+  `top_up_balance` double NOT NULL DEFAULT '0',
+  `fast_track_balance` double NOT NULL DEFAULT '0',
+  `fixed_daily_balance` double NOT NULL DEFAULT '0',
+  `fixed_daily_deposit_today` double NOT NULL DEFAULT '0',
+  `fixed_daily_token_balance` double NOT NULL DEFAULT '0' COMMENT 'Non-efund',
+  `fixed_daily_token_deposit_today` double NOT NULL DEFAULT '0' COMMENT 'Non-efund',
+  `compound_daily_balance` double NOT NULL DEFAULT '0',
+  `upline_support` double NOT NULL DEFAULT '0',
+  `passup_bonus` double NOT NULL DEFAULT '0',
+  `passup_binary_bonus` double NOT NULL DEFAULT '0',
+  `stockist_bonus` double NOT NULL DEFAULT '0',
+  `franchise_bonus` double NOT NULL DEFAULT '0',
+  `endowment_bonus` double NOT NULL DEFAULT '0',
+  `converted_today` double NOT NULL DEFAULT '0',
+  `converted_token_today` double NOT NULL DEFAULT '0',
+  `requested_today` double NOT NULL DEFAULT '0',
+  `status_global` enum('active','inactive') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'active',
+  `savings` double NOT NULL DEFAULT '0',
+  `share_fund` double NOT NULL DEFAULT '0',
+  `loans` double NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `network_users`

@@ -109,6 +109,8 @@ function main()
 	$upline = input_get('upline');
 	$position = input_get('position');
 
+	$pid = input_get('pid');
+
 	page_validate($usertype, $account_type);
 
 	$str = menu();
@@ -116,7 +118,7 @@ function main()
 	session_set('edit', false);
 
 	if ($type === '' || ($method === '' && settings('plans')->trading)) {
-		$str .= view_package($user_id);
+		$str .= view_package($user_id, $pid);
 	} else {
 		$final = input_get('final');
 		$edit = session_get('edit', false);
@@ -134,7 +136,7 @@ function main()
  *
  * @since version
  */
-function view_package($user_id): string
+function view_package($user_id, $pid = 1): string
 {
 	//	$sa = settings('ancillaries');
 
@@ -145,7 +147,7 @@ function view_package($user_id): string
 	$str .= '<tr>
                 <td><label for="type" style="text-align: right; font-weight: bold">Accounts:</label></td>
                 <td>';
-	$str .= account_select();
+	$str .= account_select($pid);
 	$str .= payment_select();
 	$str .= '<input type="submit" name="submit" value="Subscribe" class="uk-button uk-button-primary">';
 	//	$str .= '<span style="float: right;"><span style="color: green; font-weight: bold">
@@ -188,11 +190,11 @@ function row_balance_remaining($user_id): string
  *
  * @since version
  */
-function account_select(): string
+function account_select($pid): string
 {
 	$str = '<select name="type" id="type" style="float: left">
             	<option value="none" selected>Select Account</option>';
-	$str .= account_options();
+	$str .= account_options($pid);
 	$str .= '</select>';
 
 	return $str;
@@ -204,20 +206,20 @@ function account_select(): string
  *
  * @since version
  */
-function account_options(): string
+function account_options($pid): string
 {
-	$settings_entry = settings('entry');
+	$se = settings('entry');
 
-	$str = $settings_entry->chairman_entry > 0 ? '<option value="chairman">' .
-		$settings_entry->chairman_package_name . '</option>' : '';
-	$str .= $settings_entry->executive_entry > 0 ? '<option value="executive">' .
-		$settings_entry->executive_package_name . '</option>' : '';
-	$str .= $settings_entry->regular_entry > 0 ? '<option value="regular">' .
-		$settings_entry->regular_package_name . '</option>' : '';
-	$str .= $settings_entry->associate_entry > 0 ? '<option value="associate">' .
-		$settings_entry->associate_package_name . '</option>' : '';
-	$str .= $settings_entry->basic_entry > 0 ? '<option value="basic">' .
-		$settings_entry->basic_package_name . '</option>' : '';
+	$str = $se->chairman_entry > 0 ? '<option ' . ($pid === '5' ? 'selected' : '') . ' value="chairman">' .
+		$se->chairman_package_name . '</option>' : '';
+	$str .= $se->executive_entry > 0 ? '<option ' . ($pid === '4' ? 'selected' : '') . ' value="executive">' .
+		$se->executive_package_name . '</option>' : '';
+	$str .= $se->regular_entry > 0 ? '<option ' . ($pid === '3' ? 'selected' : '') . ' value="regular">' .
+		$se->regular_package_name . '</option>' : '';
+	$str .= $se->associate_entry > 0 ? '<option ' . ($pid === '2' ? 'selected' : '') . ' value="associate">' .
+		$se->associate_package_name . '</option>' : '';
+	$str .= $se->basic_entry > 0 ? '<option ' . ($pid === '1' ? 'selected' : '') . ' value="basic">' .
+		$se->basic_package_name . '</option>' : '';
 
 	return $str;
 
@@ -1257,6 +1259,81 @@ function logs_fixed_daily($user_id, $type)
 /**
  * @param $user_id
  * @param $type
+ *
+ * @since version
+ */
+function process_fixed_daily_token($user_id, $type)
+{
+	$db = db();
+
+	$settings_investment = settings('investment');
+
+	// fixed interest daily
+	if (
+		$settings_investment->{$type . '_fixed_daily_token_principal'} > 0 &&
+		empty(user_plan($user_id, 'fixed_daily_token'))
+	) {
+		$fixed_daily_token_insert = insert(
+			'network_fixed_daily_token',
+			[
+				'user_id',
+				'time_last',
+				'value_last',
+				'day',
+				'processing'
+			],
+			[
+				$db->quote($user_id),
+				0,
+				0,
+				0,
+				$db->quote($settings_investment->{$type . '_fixed_daily_token_processing'})
+			]
+		);
+
+		if ($fixed_daily_token_insert) {
+			logs_fixed_daily_token($user_id, $type);
+		}
+	}
+}
+
+/**
+ * @param $user_id
+ * @param $type
+ *
+ * @since version
+ */
+function logs_fixed_daily_token($user_id, $type)
+{
+	$db = db();
+
+	$settings_plans = settings('plans');
+
+	$user = user($user_id);
+
+	insert(
+		'network_activity',
+		[
+			'user_id',
+			'sponsor_id',
+			'activity',
+			'activity_date'
+		],
+		[
+			$db->quote($user_id),
+			$db->quote($user->sponsor_id),
+			$db->quote('<b>' . $settings_plans->fixed_daily_token_name . ' Entry: </b> <a href="' .
+				sef(44) . qs() . 'uid=' . $user_id . '">' . $user->username .
+				'</a> has entered into ' . $settings_plans->fixed_daily_token_name . ' upon ' .
+				ucfirst(settings('entry')->{$type . '_package_name'}) . ' activation.'),
+			$db->quote(time())
+		]
+	);
+}
+
+/**
+ * @param $user_id
+ * @param $type
  * @param $username
  * @param $sponsor
  * @param $date
@@ -1528,6 +1605,7 @@ function process_plans($user_id, $type, $username, $sponsor, $date, $prov)
 
 	process_compound_daily($user_id, $type);
 	process_fixed_daily($user_id, $type);
+	process_fixed_daily_token($user_id, $type);
 	process_leadership_passive($user_id, $type, $username, $sponsor, $date, $prov);
 }
 

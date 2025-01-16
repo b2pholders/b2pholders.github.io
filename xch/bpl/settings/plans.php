@@ -66,6 +66,9 @@ function input(): array
 	$inputs['fixed_daily']['name'] = input_get('fixed_daily_name', '', 'RAW');
 	$inputs['fixed_daily']['status'] = input_get('fixed_daily', 0);
 
+	$inputs['fixed_daily_token']['name'] = input_get('fixed_daily_token_name', '', 'RAW');
+	$inputs['fixed_daily_token']['status'] = input_get('fixed_daily_token', 0);
+
 	$inputs['trading']['name'] = input_get('trading_name', '', 'RAW');
 	$inputs['trading']['status'] = input_get('trading', 0);
 
@@ -289,6 +292,7 @@ function name_default(): array
 		'top_up_name' => 'Top Up',
 		'fast_track_name' => 'Fast Track',
 		'fixed_daily_name' => 'Fixed Daily',
+		'fixed_daily_token_name' => 'Fixed Daily Token',
 		'trading_name' => 'Trading',
 		'table_matrix_name' => 'Table Matrix',
 		'merchant_name' => 'Merchant',

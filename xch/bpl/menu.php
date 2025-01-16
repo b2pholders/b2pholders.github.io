@@ -630,29 +630,30 @@ function wallet_member($account_type): string
  *
  * @since version
  */
-function token_admin($admintype): string
+function fixed_daily_token_admin($admintype): string
 {
 	$settings_plans = settings('plans');
 
-	$token_name = settings('trading')->token_name;
+	// $token_name = settings('trading')->token_name;
 
 	$str = '';
 
 	// token operations: start
-	if ($settings_plans->trading) {
+	if ($settings_plans->fixed_daily_token) {
 		$str .= '<div class="uk-button-group" style="display: block; width: 100%; margin-bottom: 10px;">
-        <button class="uk-button" style="width: 80%;">' . strtoupper($token_name) . '</button>
+        <button class="uk-button" style="width: 80%;">' . $settings_plans->fixed_daily_token_name . '</button>
         <div class="" data-uk-dropdown="{mode:\'click\'}">
             <button class="uk-button"><i class="uk-icon-caret-down"></i></button>
             <div style="" class="uk-dropdown uk-dropdown-small">
                 <ul class="uk-nav uk-nav-dropdown">';
-		$str .= (($admintype === 'Super') ?
-			'<li><a href="' . sef(5) . '">Add ' . $token_name . '</a></li>' : '');
-		$str .= ('<li><a href="' . sef(102) . '">' . strtoupper($token_name) . ' Transfer</a></li>');
-		$str .= ('<li><a href="' . sef(98) . '">Convert</a></li>');
-		$str .= ('<li><a href="' . sef(99) . '">Completed</a></li>');
-		$str .= ('<li><a href="' . sef(100) . '">Pending</a></li>');
-		$str .= ('<li><a href="' . sef(101) . '">Logs</a></li>');
+		$str .= ('<li><a href="' . sef(151) . '">' . $settings_plans->fixed_daily_token_name . '</a></li>');
+		// $str .= (($admintype === 'Super') ?
+		// 	'<li><a href="' . sef(5) . '">Add ' . $token_name . '</a></li>' : '');
+		// $str .= ('<li><a href="' . sef(102) . '">' . strtoupper($token_name) . ' Transfer</a></li>');
+		$str .= ('<li><a href="' . sef(98) . '">Withdraw B2P</a></li>');
+		$str .= ('<li><a href="' . sef(99) . '">Completed B2P Withdrawals</a></li>');
+		$str .= ('<li><a href="' . sef(100) . '">Pending B2P Withdrawals</a></li>');
+		$str .= ('<li><a href="' . sef(101) . '">B2P Withdrawal Logs</a></li>');
 		$str .= '</ul>
             </div>
         </div>
@@ -664,38 +665,73 @@ function token_admin($admintype): string
 	return $str;
 }
 
-/**
- *
- * @param $account_type
- *
- * @return string
- *
- * @since version
- */
-function token_member($account_type): string
+function fixed_daily_token_member($admintype): string
 {
 	$settings_plans = settings('plans');
 
-	$token_name = settings('trading')->token_name;
+	// $token_name = settings('trading')->token_name;
 
-	// coin: start
-	return ($settings_plans->trading && $account_type !== 'starter' ?
-		'<div class="uk-button-group" style="display: block; width: 100%; margin-bottom: 10px;">
-            <button class="uk-button" style="width: 80%;">' . strtoupper($token_name) . '</button>
-            <div class="" data-uk-dropdown="{mode:\'click\'}">
-                <button class="uk-button"><i class="uk-icon-caret-down"></i></button>
-                <div style="" class="uk-dropdown uk-dropdown-small">
-                    <ul class="uk-nav uk-nav-dropdown">
-                        <li><a href="' . sef(102) . '">' . /*strtoupper($token_name) .*/ 'Transfer</a></li>
-                        <li><a href="' . sef(98) . '">' . /*strtoupper($token_name) .*/ 'Convert</a></li>
-                        <li><a href="' . sef(99) . '">' . /*strtoupper($token_name) .*/ 'Completed</a></li>
-                        <li><a href="' . sef(101) . '">' . /*strtoupper($token_name) .*/ 'Logs</a></li>
-                    </ul>
-                </div>
+	$str = '';
+
+	// token operations: start
+	if ($settings_plans->fixed_daily_token) {
+		$str .= '<div class="uk-button-group" style="display: block; width: 100%; margin-bottom: 10px;">
+        <button class="uk-button" style="width: 80%;">' . $settings_plans->fixed_daily_token_name . '</button>
+        <div class="" data-uk-dropdown="{mode:\'click\'}">
+            <button class="uk-button"><i class="uk-icon-caret-down"></i></button>
+            <div style="" class="uk-dropdown uk-dropdown-small">
+                <ul class="uk-nav uk-nav-dropdown">';
+		$str .= ('<li><a href="' . sef(151) . '">' . $settings_plans->fixed_daily_token_name . '</a></li>');
+		// $str .= (($admintype === 'Super') ?
+		// '<li><a href="' . sef(5) . '">Add ' . $token_name . '</a></li>' : '');
+		// $str .= ('<li><a href="' . sef(102) . '">' . strtoupper($token_name) . ' Transfer</a></li>');
+		$str .= ('<li><a href="' . sef(98) . '">Withdraw B2P</a></li>');
+		$str .= ('<li><a href="' . sef(99) . '">Completed B2P Withdrawals</a></li>');
+		// $str .= ('<li><a href="' . sef(100) . '">Pending B2P Withdrawals</a></li>');
+		$str .= ('<li><a href="' . sef(101) . '">B2P Withdrawal Logs</a></li>');
+		$str .= '</ul>
             </div>
-        </div>' : '');
-	// coin: end
+        </div>
+    </div>';
+	}
+
+	// token operations: end
+
+	return $str;
 }
+
+// /**
+//  *
+//  * @param $account_type
+//  *
+//  * @return string
+//  *
+//  * @since version
+//  */
+// function token_member($account_type): string
+// {
+// 	$settings_plans = settings('plans');
+
+// 	$token_name = settings('trading')->token_name;
+
+// 	// coin: start
+// 	return ($settings_plans->trading && $account_type !== 'starter' ?
+// 		'<div class="uk-button-group" style="display: block; width: 100%; margin-bottom: 10px;">
+//             <button class="uk-button" style="width: 80%;">' . strtoupper($token_name) . '</button>
+//             <div class="" data-uk-dropdown="{mode:\'click\'}">
+//                 <button class="uk-button"><i class="uk-icon-caret-down"></i></button>
+//                 <div style="" class="uk-dropdown uk-dropdown-small">
+//                     <ul class="uk-nav uk-nav-dropdown">
+//                         <li><a href="' . sef(102) . '">' . /*strtoupper($token_name) .*/ 'Transfer</a></li>
+//                         <li><a href="' . sef(98) . '">' . /*strtoupper($token_name) .*/ 'Convert</a></li>
+//                         <li><a href="' . sef(99) . '">' . /*strtoupper($token_name) .*/ 'Completed</a></li>
+//                         <li><a href="' . sef(101) . '">' . /*strtoupper($token_name) .*/ 'Logs</a></li>
+//                     </ul>
+//                 </div>
+//             </div>
+//         </div>' : '');
+// 	// coin: end
+// }
 
 /**
  *
@@ -1608,7 +1644,7 @@ function admin($admintype, $account_type, $user_id, $username): string
 	//	$str .= share_fund_admin($admintype);
 //	$str .= loan_admin($admintype);
 	$str .= wallet_admin($admintype);
-	$str .= token_admin($admintype);
+	$str .= fixed_daily_token_admin($admintype);
 	$str .= shop_admin($account_type);
 	$str .= purchases_admin($account_type);
 	$str .= settings_adjust($admintype);
@@ -1667,85 +1703,85 @@ function hamburger(): string
 function menu_styles(): string
 {
 	return <<<CSS
-	<link rel="stylesheet" href="bpl/plugins/bootstrap3/bootstrap.min.css">
-	<style>
-		/* Make the entire page transparent */
-		body {
-				background: transparent !important;
-				margin: 0;
-				padding: 0;
-		}
+		<link rel="stylesheet" href="bpl/plugins/bootstrap3/bootstrap.min.css">
+		<style>
+			/* Make the entire page transparent */
+			body {
+					background: transparent !important;
+					margin: 0;
+					padding: 0;
+			}
 
-		/* Ensure the table and pagination are visible */
-		.container {
-			background: white; /* Add a white background to the table and pagination */
-			padding: 20px;
-			border-radius: 8px;
-			box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Optional: Add a shadow for better visibility */
-		}
+			/* Ensure the table and pagination are visible */
+			.container {
+				background: white; /* Add a white background to the table and pagination */
+				padding: 20px;
+				border-radius: 8px;
+				box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Optional: Add a shadow for better visibility */
+			}
 
-	    /* Existing styles for the hamburger button */
-		.hamburger-button {
-		    position: fixed;
-		    top: 15px;
-		    right: 15px;
-		    background-color: #2f7997;
-		    border: none;
-		    font-size: 20px;
-		    color: white;
-		    cursor: pointer;
-		    padding: 8px 10px;
-		    border-radius: 5px;
-		    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-		    transition: background-color 0.3s ease, transform 0.3s ease;
-		}
-	
-		/* Hover effect */
-		.hamburger-button:hover {
-		    background-color: #26669e;
-		}
-	
-		/* Mobile mode styling */
-		@media (max-width: 768px) {
-		    .hamburger-button {
-		        top: 15px;
-		        left: 15px; /* Move to top-left corner in mobile mode */
-		        right: auto; /* Override the right position */
-		    }
+			/* Existing styles for the hamburger button */
+			.hamburger-button {
+				position: fixed;
+				top: 15px;
+				right: 15px;
+				background-color: #2f7997;
+				border: none;
+				font-size: 20px;
+				color: white;
+				cursor: pointer;
+				padding: 8px 10px;
+				border-radius: 5px;
+				box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+				transition: background-color 0.3s ease, transform 0.3s ease;
+			}
 		
-		    .hamburger-button.active {
-		        transform: translateX(250px); /* Move the button horizontally by the width of the sidebar */
-		    }
-		}
-	
-	    .sidebar {
-			font-sizes: 14px; /* Adjust the font size as needed */
-		    width: 250px;
-		    background: #26669e;
-		    position: fixed;
-		    top: 0;
-		    left: 0;
-		    height: 100%;
-		    overflow-y: auto;
-		    transition: transform 0.3s ease;
-		    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
-		    padding-top: 20px;
-		    z-index: 999;
-		    transform: translateX(-100%); /* Initially hide the sidebar */
-		}
-	
-		.sidebar.active {
-		    transform: translateX(0); /* Show the sidebar when active */
-		}
+			/* Hover effect */
+			.hamburger-button:hover {
+				background-color: #26669e;
+			}
+		
+			/* Mobile mode styling */
+			@media (max-width: 768px) {
+				.hamburger-button {
+					top: 15px;
+					left: 15px; /* Move to top-left corner in mobile mode */
+					right: auto; /* Override the right position */
+				}
+			
+				.hamburger-button.active {
+					transform: translateX(250px); /* Move the button horizontally by the width of the sidebar */
+				}
+			}
+		
+			.sidebar {
+				font-sizes: 14px; /* Adjust the font size as needed */
+				width: 250px;
+				background: #26669e;
+				position: fixed;
+				top: 0;
+				left: 0;
+				height: 100%;
+				overflow-y: auto;
+				transition: transform 0.3s ease;
+				box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+				padding-top: 20px;
+				z-index: 999;
+				transform: translateX(-100%); /* Initially hide the sidebar */
+			}
+		
+			.sidebar.active {
+				transform: translateX(0); /* Show the sidebar when active */
+			}
 
-		.uk-button {			
-			font-size: 1.5rem;			
-		}
+			.uk-button {			
+				font-size: 1.5rem;			
+			}
 
-		.uk-dropdown {
-			font-size: 1.5rem;
-		}
-	</style>
+			.uk-dropdown {
+				font-size: 1.5rem;
+			}
+		</style>
 	CSS;
 }
 
@@ -1758,34 +1794,34 @@ function menu_styles(): string
 function menu_scripts(): string
 {
 	return <<<JS
-	<script src="bpl/plugins/bootstrap3/jquery.min.js"></script>
-	<script src="bpl/plugins/bootstrap3/bootstrap.min.js"></script>
-	<script>
-	    document.addEventListener("DOMContentLoaded", function() {
-		    const sidebar = document.getElementById("menu");
-		    const hamburger = document.getElementById("hamburgerButton");
-		
-		    // Toggle sidebar and move hamburger button on click
-		    hamburger.addEventListener("click", function(e) {
-		        sidebar.classList.toggle("active");
-		        hamburger.classList.toggle("active"); // Add or remove the active class on the hamburger button
-		        e.stopPropagation(); // Prevent click from propagating to the document
-		    });
-		
-		    // Close sidebar and reset hamburger button position when clicking outside
-		    document.addEventListener("click", function(e) {
-		        if (!sidebar.contains(e.target) && sidebar.classList.contains("active")) {
-		            sidebar.classList.remove("active");
-		            hamburger.classList.remove("active"); // Reset hamburger button position
-		        }
-		    });
-		
-		    // Prevent sidebar from closing when clicking inside it
-		    sidebar.addEventListener("click", function(e) {
-		        e.stopPropagation();
-		    });
-		});
-	</script>
+		<script src="bpl/plugins/bootstrap3/jquery.min.js"></script>
+		<script src="bpl/plugins/bootstrap3/bootstrap.min.js"></script>
+		<script>
+			document.addEventListener("DOMContentLoaded", function() {
+				const sidebar = document.getElementById("menu");
+				const hamburger = document.getElementById("hamburgerButton");
+			
+				// Toggle sidebar and move hamburger button on click
+				hamburger.addEventListener("click", function(e) {
+					sidebar.classList.toggle("active");
+					hamburger.classList.toggle("active"); // Add or remove the active class on the hamburger button
+					e.stopPropagation(); // Prevent click from propagating to the document
+				});
+			
+				// Close sidebar and reset hamburger button position when clicking outside
+				document.addEventListener("click", function(e) {
+					if (!sidebar.contains(e.target) && sidebar.classList.contains("active")) {
+						sidebar.classList.remove("active");
+						hamburger.classList.remove("active"); // Reset hamburger button position
+					}
+				});
+			
+				// Prevent sidebar from closing when clicking inside it
+				sidebar.addEventListener("click", function(e) {
+					e.stopPropagation();
+				});
+			});
+		</script>
 	JS;
 }
 
@@ -1832,6 +1868,7 @@ function cron_menu(): string
 	//	$str .= '<li><a href="' . Uri::root(true) . '/crons/cron_fast_track_deposit_reset.php' . '">Deposit Reset</a></li>';
 	$str .= '<li><a href="' . Uri::root(true) .
 		'/crons/cron_fast_track_processing.php' . '">Processing</a></li>';
+
 	$str .= '<li class="uk-nav-divider"></li>';
 	$str .= '<li class="uk-nav-header">' . $sp->fixed_daily_name . '</li>';
 	$str .= '<li><a href="' . Uri::root(true) .
@@ -1839,6 +1876,14 @@ function cron_menu(): string
 	//	$str .= '<li><a href="' . Uri::root(true) . '/crons/cron_fixed_daily_deposit_reset.php' . '">Deposit Reset</a></li>';
 	$str .= '<li><a href="' . Uri::root(true) .
 		'/crons/cron_fixed_daily_processing.php' . '">Processing</a></li>';
+
+	$str .= '<li class="uk-nav-divider"></li>';
+	$str .= '<li class="uk-nav-header">' . $sp->fixed_daily_token_name . '</li>';
+	$str .= '<li><a href="' . Uri::root(true) .
+		'/crons/cron_fixed_daily_token.php' . '">' . $sp->fixed_daily_token_name . '</a></li>';
+	//	$str .= '<li><a href="' . Uri::root(true) . '/crons/cron_fixed_daily_token_deposit_reset.php' . '">Deposit Reset</a></li>';
+	$str .= '<li><a href="' . Uri::root(true) .
+		'/crons/cron_fixed_daily_token_processing.php' . '">Processing</a></li>';
 
 	$str .= '<li class="uk-nav-divider"></li>';
 	$str .= '<li class="uk-nav-header">Flushout</li>';
@@ -1935,7 +1980,7 @@ function member($account_type, $username, $user_id): string
 //	$str .= codes();
 	$str .= buy_package($account_type);
 	$str .= $account_type === 'starter' ? '' : wallet_member($account_type);
-	$str .= $account_type === 'starter' ? '' : token_member($account_type);
+	$str .= $account_type === 'starter' ? '' : fixed_daily_token_member($account_type);
 	$str .= shop_member($account_type);
 	//	$str .= account_member();
 
@@ -2047,7 +2092,7 @@ function affiliates($account_type, $user_id): string
 	// unilevel
 	if (
 			/*$account_type !== 'starter'
-																																																																																																									   &&*/ (
+																																																																																																																																							&&*/ (
 			$sp->unilevel
 			&& $sul->{$account_type . '_unilevel_level'} > 0
 			&& !empty(user_unilevel($user_id))

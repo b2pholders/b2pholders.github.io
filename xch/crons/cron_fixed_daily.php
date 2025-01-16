@@ -49,7 +49,7 @@ function main()
 				//                $interval = $si->{$account_type . '_fixed_daily_interval'};
 				$maturity = $si->{$account_type . '_fixed_daily_maturity'};
 				$required_directs = $si->{$account_type . '_fixed_daily_required_directs'};
-				$actual_directs = directs_valid($fd->user_id);
+				$actual_directs = count(directs_valid($fd->user_id));
 
 				//                $interval = $si->{$fd->account_type . '_fixed_daily_interval'};
 
