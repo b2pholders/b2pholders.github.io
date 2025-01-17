@@ -116,6 +116,28 @@ function fixed_daily_token($user_id): string
 				<div class="card-content" style="color: green;">{$type_day}$status</div>
 			</div>
 		</div>
+
+		<!-- TradingView Widget BEGIN -->
+		<div class="tradingview-widget-container" style="height: 610px; width: 980px; text-align: center; margin: 0 auto;">
+			<div class="tradingview-widget-container__widget"></div>
+			<div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank"><span class="blue-text">Track all markets on TradingView</span></a></div>
+			<script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+				{
+					"width": "980",
+					"height": "610",
+					"symbol": "BINANCE:BTCUSDT",
+					"interval": "D",
+					"timezone": "Asia/Taipei",
+					"theme": "light",
+					"style": "1",
+					"locale": "en",
+					"allow_symbol_change": true,
+					"calendar": false,
+					"support_host": "https://www.tradingview.com"
+				}
+			</script>
+		</div>
+		<!-- TradingView Widget END -->
 	HTML;
 
 	$str .= ajax_table_fixed_daily_token($user_id);

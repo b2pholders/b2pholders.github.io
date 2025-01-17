@@ -121,6 +121,51 @@ function validate_input($user_id, $amount)
 			'error'
 		);
 	}
+
+	$mode = 'fdtp';
+
+	if ($mode === 'fdtp') {
+		$fdtp_converts = user_token_convert($user_id, 'fdtp');
+
+		$fdtp_total = 0;
+
+		if (!empty($fdtp_converts)) {
+			foreach ($fdtp_converts as $fdtp) {
+				$fdtp_total += $fdtp->amount;
+			}
+		}
+
+		if ($user->fixed_daily_token_balance < ($fdtp_total + $amount)) {
+			session_set('fdtp', '');
+
+			$app->redirect(
+				Uri::root(true) . '/' . $sef,
+				settings('plans')->fixed_daily_token_name . ' Balance exceeded!',
+				'error'
+			);
+		}
+	}
+}
+
+/**
+ * @param           $user_id
+ * @param   string  $mode
+ *
+ * @return array|mixed
+ *
+ * @since version
+ */
+function user_token_convert($user_id, string $mode = 'fdtp')
+{
+	$db = db();
+
+	return $db->setQuery(
+		'SELECT * ' .
+		'FROM network_token_convert ' .
+		'WHERE user_id = ' . $db->quote($user_id) .
+		($mode !== 'fdtp' ? ' AND mode = ' . $db->quote($mode) : '') .
+		' AND date_approved = ' . $db->quote(0)
+	)->loadObjectList();
 }
 
 /**

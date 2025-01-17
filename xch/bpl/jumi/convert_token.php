@@ -275,7 +275,7 @@ function validate_input($user_id, $amount, $method, $mode)
 	// }
 
 	if ($mode === 'fdtp') {
-		$fdtp_converts = user_token_convert($user_id, 'fdp');
+		$fdtp_converts = user_token_convert($user_id, 'fdtp');
 
 		$fdtp_total = 0;
 
