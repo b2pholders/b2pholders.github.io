@@ -398,7 +398,9 @@ function pairing_update_user($upline_id, $bonus, $nth_pair)
 {
 	$db = db();
 
-	$field_user = ['points = points + ' . $nth_pair];
+	// $field_user = ['points = points + ' . $nth_pair];
+
+	$field_user = ['fifth_pair_token_balance = fifth_pair_token_balance + ' . $nth_pair];
 
 	$bonus = cd_filter($upline_id, $bonus);
 
@@ -496,8 +498,8 @@ $user_binary->ctr_right >= $capping_pairs))*/))
 		|| (/*$status === 'reactivated' &&*/ $maximum_income && ($user_binary->income_cycle /*+ $pairs_add_actual*/) >= $maximum_income)
 	) {
 		$status = /*($status === 'reactivated'
-		  && $maximum_income
-		  && $user_binary->income_cycle >= $maximum_income) ? 'graduate' :*/
+		&& $maximum_income
+		&& $user_binary->income_cycle >= $maximum_income) ? 'graduate' :*/
 			'inactive';
 
 		update_status_binary($upline_id, $status);
@@ -798,7 +800,7 @@ function has_pairing($downline, $upline_id): bool
 
 	return (/*$downline->status === 'active' &&*/
 		(($downline->position === 'Left' && $right_pairs > $left_pairs) ||
-		($downline->position === 'Right' && $left_pairs > $right_pairs)));
+			($downline->position === 'Right' && $left_pairs > $right_pairs)));
 }
 
 /**

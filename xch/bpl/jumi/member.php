@@ -1745,7 +1745,7 @@ function row_savings($user_id): string
 'balance' : 'payout_transfer'*/ 'share_fund';
 
 	/*$reactivate = $user->status_global === 'active' ? '' :
-																																																											'<a style="float:right" href="' . sef(130) . '">Reactivate Account</a>';*/
+																																																																 '<a style="float:right" href="' . sef(130) . '">Reactivate Account</a>';*/
 
 	return '<tr>
 	        <td><a href="javascript:void(0)">' . $sa->share_fund_name . '</a>:</td>
@@ -1774,7 +1774,7 @@ function row_loans($user_id): string
 'balance' : 'payout_transfer'*/ 'loans';
 
 	/*$reactivate = $user->status_global === 'active' ? '' :
-																																																											'<a style="float:right" href="' . sef(130) . '">Reactivate Account</a>';*/
+																																																																 '<a style="float:right" href="' . sef(130) . '">Reactivate Account</a>';*/
 
 	return '<tr>
 	        <td><a href="javascript:void(0)">Loans</a>:</td>
@@ -1795,6 +1795,8 @@ function row_loans($user_id): string
 function table_binary_summary($user_id): string
 {
 	$sp = settings('plans');
+
+	$user = user($user_id);
 
 	$binary = binary($user_id);
 
@@ -1820,19 +1822,19 @@ function table_binary_summary($user_id): string
 
 		$str .= settings('binary')->{user($user_id)->account_type . '_pairs_safety'} ? '<tr>
 	            <td><a href="javascript:void(0)">Match Reward</a>:</td>
-	            <td>' . $binary->income_cycle . '</td>
+	            <td>' . number_format($binary->income_cycle, 8) . '</td>
 	        </tr>
 	        <tr>
-	            <td><a href="javascript:void(0)">Reward Points</a>:</td>
-	            <td>' . $binary->income_giftcheck . '</td>
-	        </tr>
-	        <tr>
-	            <td><a href="javascript:void(0)">Flush Out (pts.)</a>:</td>
-	            <td>' . number_format($binary->income_flushout) . '</td>
-	        </tr>
+	            <td><a href="javascript:void(0)">Loyalty Token (B2P)</a>:</td>
+	            <td>' . /* $binary->income_giftcheck */ number_format($user->fifth_pair_token_balance, 8) . '<a style="float:right" href="' . sef(153) . '">Deposit</a></td>
+	        </tr>' . /* '
+<tr>
+<td><a href="javascript:void(0)">Flush Out (pts.)</a>:</td>
+<td>' . number_format($binary->income_flushout) . '</td>
+</tr>' . */ '
 	        <tr>
 	            <td><a href="javascript:void(0)">Total Match Reward Today</a>:</td>
-	            <td>' . $binary->pairs_today_total . '</td>
+	            <td>' . number_format($binary->pairs_today_total, 8) . '</td>
 	        </tr>' : '';
 
 		$str .= '</table>';

@@ -60,6 +60,7 @@ function main()
 	$method = input_get('method');
 
 	$cid = input_get('cid');
+	$fpt = session_get('fpt');
 	$fdp = session_get('fdp');
 	$fdtp = session_get('fdtp');
 	$ftk = session_get('ftk');
@@ -131,6 +132,9 @@ function main()
 	if ($fdp !== '') {
 		$mode = 'fdp';
 		$value = $fdp;
+	} elseif ($fpt !== '') {
+		$mode = 'fpt';
+		$value = $fpt;
 	} elseif ($fdtp !== '') {
 		$mode = 'fdtp';
 		$value = $fdtp;
@@ -596,6 +600,10 @@ function process_conversion($user_id, $amount, $method, $mode)
 				session_set('fdp', '');
 			}
 
+			if ($mode === 'fpt') {
+				session_set('fpt', '');
+			}
+
 			if ($mode === 'fdtp') {
 				session_set('fdtp', '');
 			}
@@ -769,15 +777,15 @@ function view_method_select($user_id, $mode): string
 	$user = user($user_id);
 	$pmu = arr_payment_method($user);
 
-	$isReadonly = $mode === 'fdtp'; // Determine if the select should be readonly (disabled)
+	$isReadonly = in_array($mode, ['fdtp', 'fpt']); // Determine if the select should be readonly (disabled)
 	$str = '<select name="method" id="method" style="float:left" ' . ($isReadonly ? 'disabled' : '') . '>';
 
 	// Default option
-	$str .= '<option value="none" ' . ($mode !== 'fdtp' ? 'selected' : '') . '>Select Method</option>';
+	$str .= '<option value="none" ' . (!$isReadonly ? 'selected' : '') . '>Select Method</option>';
 
 	if (!empty($pmu)) {
 		foreach ($pmu as $k => $v) {
-			$selected = ($mode === 'fdtp' && $k === 'b2p') ? 'selected' : '';
+			$selected = ($isReadonly && $k === 'b2p') ? 'selected' : '';
 			$str .= '<option value="' . $k . '" ' . $selected . '>' . strtoupper($k) . '</option>';
 		}
 	}

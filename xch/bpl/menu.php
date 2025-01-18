@@ -653,7 +653,7 @@ function fixed_daily_token_admin($admintype): string
 		$str .= ('<li><a href="' . sef(98) . '">Withdraw B2P</a></li>');
 		$str .= ('<li><a href="' . sef(99) . '">Completed B2P Withdrawals</a></li>');
 		$str .= ('<li><a href="' . sef(100) . '">Pending B2P Withdrawals</a></li>');
-		$str .= ('<li><a href="' . sef(101) . '">B2P Withdrawal Logs</a></li>');
+		// $str .= ('<li><a href="' . sef(101) . '">B2P Withdrawal Logs</a></li>');
 		$str .= '</ul>
             </div>
         </div>
@@ -688,7 +688,7 @@ function fixed_daily_token_member($admintype): string
 		$str .= ('<li><a href="' . sef(98) . '">Withdraw B2P</a></li>');
 		$str .= ('<li><a href="' . sef(99) . '">Completed B2P Withdrawals</a></li>');
 		// $str .= ('<li><a href="' . sef(100) . '">Pending B2P Withdrawals</a></li>');
-		$str .= ('<li><a href="' . sef(101) . '">B2P Withdrawal Logs</a></li>');
+		// $str .= ('<li><a href="' . sef(101) . '">B2P Withdrawal Logs</a></li>');
 		$str .= '</ul>
             </div>
         </div>
@@ -2092,7 +2092,7 @@ function affiliates($account_type, $user_id): string
 	// unilevel
 	if (
 			/*$account_type !== 'starter'
-																																																																																																																																							&&*/ (
+																																																																																																																																									 &&*/ (
 			$sp->unilevel
 			&& $sul->{$account_type . '_unilevel_level'} > 0
 			&& !empty(user_unilevel($user_id))

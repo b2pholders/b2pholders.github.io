@@ -710,6 +710,8 @@ function table_binary_summary($user_id): string
 {
 	$sp = settings('plans');
 
+	$user = user($user_id);
+
 	$binary = binary($user_id);
 
 	$str = '';
@@ -734,19 +736,19 @@ function table_binary_summary($user_id): string
 
 		$str .= settings('binary')->{user($user_id)->account_type . '_pairs_safety'} ? '<tr>
 	            <td><a href="javascript:void(0)">Match Reward</a>:</td>
-	            <td>' . $binary->income_cycle . '</td>
+	            <td>' . number_format($binary->income_cycle, 8) . '</td>
 	        </tr>
 	        <tr>
-	            <td><a href="javascript:void(0)">Reward Points</a>:</td>
-	            <td>' . $binary->income_giftcheck . '</td>
-	        </tr>
-	        <tr>
-	            <td><a href="javascript:void(0)">Flush Out (pts.)</a>:</td>
-	            <td>' . number_format($binary->income_flushout) . '</td>
-	        </tr>
+	            <td><a href="javascript:void(0)">Loyalty Token (B2P)</a>:</td>
+	            <td>' . /* $binary->income_giftcheck */ number_format($user->fifth_pair_token_balance, 8) . '<a style="float:right" href="' . sef(153) . '">Deposit</a></td>
+	        </tr>' . /* '
+<tr>
+<td><a href="javascript:void(0)">Flush Out (pts.)</a>:</td>
+<td>' . number_format($binary->income_flushout) . '</td>
+</tr>' . */ '
 	        <tr>
 	            <td><a href="javascript:void(0)">Total Match Reward Today</a>:</td>
-	            <td>' . $binary->pairs_today_total . '</td>
+	            <td>' . number_format($binary->pairs_today_total, 8) . '</td>
 	        </tr>' : '';
 
 		$str .= '</table>';
@@ -820,7 +822,7 @@ function member($user_id): string
 	$str .= tableStyle();
 
 	$str .= '<div class="card">';
-	$str .= '<div class="card-header">Dashboard</div>';
+	$str .= '<div class="card-header">Income Details</div>';
 	$str .= '<div class="table-responsive">';
 	$str .= '<table class="category table table-striped table-bordered table-hover" style="width: 100%;">';
 

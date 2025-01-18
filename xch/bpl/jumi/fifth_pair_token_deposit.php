@@ -1,6 +1,6 @@
 <?php
 
-namespace BPL\Jumi\Fixed_Daily_Token_Deposit;
+namespace BPL\Jumi\Fifth_Pair_Token_Deposit;
 
 require_once 'bpl/mods/query.php';
 require_once 'bpl/mods/helpers.php';
@@ -36,15 +36,15 @@ main();
 function main()
 {
 	$user_id = session_get('user_id');
-	$amount = input_get('amount_fdp');
+	$amount = input_get('amount_fpt');
 
-	session_set('fdp', $amount);
+	session_set('fpt', $amount);
 
 	page_validate();
 
 	$str = menu();
 
-	$str .= '<h1>' . settings('plans')->fixed_daily_token_name . ' Wallet</h1>';
+	$str .= '<h1>Loyalty Token Wallet</h1>';
 
 	if ($amount !== '') {
 		process_form($user_id, $amount);
@@ -64,63 +64,40 @@ function main()
  */
 function validate_input($user_id, $amount)
 {
-	$sef = sef(18);
+	$sef = sef(153);
 
 	$app = application();
 
-	$token = 'B2P';
-
-	$si = settings('investment');
-
 	$user = user($user_id);
 
-	$account_type = $user->account_type;
-
-	// $fixed_daily_token_principal = $si->{$account_type . '_fixed_daily_token_principal'};
-	$fixed_daily_token_principal_cut = $si->{$account_type . '_fixed_daily_token_principal_cut'} / 100;
-	//	$fixed_daily_interest      = $settings_investment->{$account_type . '_fixed_daily_interest'} / 100;
-//	$fixed_daily_harvest       = $settings_investment->{$account_type . '_fixed_daily_harvest'};
-	$fixed_daily_token_maturity = $si->{$account_type . '_fixed_daily_token_maturity'};
-	//	$fixed_daily_donation      = $settings_investment->{$account_type . '_fixed_daily_donation'} / 100;
-
-	$fixed_daily_token_principal_cut = $fixed_daily_token_principal_cut ?: 1;
-
-	// $principal = $fixed_daily_token_principal * $fixed_daily_token_principal_cut;
-	//	$maturity_principal = $principal * ($fixed_daily_maturity * $fixed_daily_interest + 1);
-
-	//	$minimum_deposit    = ($maturity_principal / $fixed_daily_maturity) *
-//		$fixed_daily_harvest * (1 - $fixed_daily_donation);
-
-	$fixed_daily_token_minimum_deposit = $si->{$account_type . '_fixed_daily_token_minimum_deposit'};
-
-	if ($amount > $user->fixed_daily_token_balance) {
+	if ($amount > $user->fifth_pair_token_balance) {
 		$app->redirect(
 			Uri::root(true) . '/' . $sef,
-			'Exceeds ' . settings('plans')->fixed_daily_token_name .
-			' Balance!',
+			'Exceeds Loyalty Token Balance!',
 			'error'
 		);
 	}
+}
 
-	if (user_fixed_daily_token($user_id)->day < $fixed_daily_token_maturity && $amount < $fixed_daily_token_minimum_deposit) {
-		$app->redirect(
-			Uri::root(true) . '/' . $sef,
-			'Enter at least ' . number_format($fixed_daily_token_minimum_deposit, 8) .
-			' ' . /* settings('ancillaries')->currency */ $token . '!',
-			'error'
-		);
-	}
+/**
+ * @param           $user_id
+ * @param   string  $mode
+ *
+ * @return array|mixed
+ *
+ * @since version
+ */
+function user_token_convert($user_id, string $mode = 'fdtp')
+{
+	$db = db();
 
-	if (
-		((double) $user->fixed_daily_token_deposit_today + (double) $amount) > $si->{
-			$user->account_type . '_fixed_daily_token_maximum_deposit'}
-	) {
-		$app->redirect(
-			Uri::root(true) . '/' . $sef . qs() . 'uid=' . $user_id,
-			'Exceeded Maximum Withdrawal!',
-			'error'
-		);
-	}
+	return $db->setQuery(
+		'SELECT * ' .
+		'FROM network_token_convert ' .
+		'WHERE user_id = ' . $db->quote($user_id) .
+		($mode !== 'fdtp' ? ' AND mode = ' . $db->quote($mode) : '') .
+		' AND date_approved = ' . $db->quote(0)
+	)->loadObjectList();
 }
 
 /**
@@ -132,33 +109,9 @@ function validate_input($user_id, $amount)
  */
 function process_form($user_id, $amount)
 {
-	//	$db = db();
-
 	validate_input($user_id, $amount);
 
-	//	try
-//	{
-//		$db->transactionStart();
-//
-//		update_user($user_id, $amount);
-//
-//		logs($user_id, $amount);
-//
-//		$db->transactionCommit();
-//	}
-//	catch (Exception $e)
-//	{
-//		$db->transactionRollback();
-//		ExceptionHandler::render($e);
-//	}
-
-	//	application()->redirect(Uri::root(true) . '/' . sef(18),
-//		settings('plans')->fixed_daily_name . ' Deposit Completed Successfully!', 'success');
-
-	application()->redirect(
-		Uri::root(true) . '/' . sef(57)/* . qs() . 'fdp=' . $amount*//*,
-'We\'ll Process your conversion within 24 hours.<br>Thank You.', 'success'*/
-	);
+	application()->redirect(Uri::root(true) . '/' . sef(98));
 }
 
 /**
@@ -173,8 +126,6 @@ function update_user($user_id, $amount)
 	$db = db();
 
 	$field_user = ['fixed_daily_balance = fixed_daily_balance - ' . $amount];
-	//	$field_user[] = (settings('ancillaries')->withdrawal_mode === 'standard' ?
-//			'balance = balance + ' : 'payout_transfer = payout_transfer + ') . $amount;
 
 	update(
 		'network_users',
@@ -313,46 +264,19 @@ function activity($user_id, $amount)
 /**
  * @param $user_id
  *
- *
- * @return mixed|null
- * @since version
- */
-function user_fixed_daily_token($user_id)
-{
-	$db = db();
-
-	return $db->setQuery(
-		'SELECT * ' .
-		'FROM network_fixed_daily_token ' .
-		'WHERE user_id = ' . $db->quote($user_id)
-	)->loadObject();
-}
-
-/**
- * @param $user_id
- *
  * @return string
  *
  * @since version
  */
 function view_form($user_id): string
 {
-	// $currency = settings('ancillaries')->currency;
-
-	// $sa = settings('ancillaries');
-
-	// $currency = $sa->currency;
-
 	$user = user($user_id);
 
 	$str = '<form method="post">
 	    <table class="category table table-striped table-bordered table-hover">
 	        <tr>
-	            <td><strong>' . settings('plans')->fixed_daily_token_name . ' Balance: ' .
-		number_format($user->fixed_daily_token_balance, 8) . ' ' . /* $currency */ 'B2P' . ' </strong>';
-	// $str .= '<strong style="float: right">
-	//                     ' . $sa->efund_name . ' Balance: ' .
-	// 	number_format($user->payout_transfer, 8) . ' ' . /* $currency */ 'B2P' . '</strong>';
+	            <td><strong>Loyalty Token Balance: ' .
+		number_format($user->fifth_pair_token_balance, 8) . ' B2P</strong>';
 	$str .= '</td>
 	        </tr>
 	        <tr>
@@ -360,7 +284,7 @@ function view_form($user_id): string
 	                <div class="uk-form-row">
 	                    <input type="text"
 	                           placeholder="Input Amount"
-	                           name="amount_fdp"
+	                           name="amount_fpt"
 	                           class="uk-form-medium uk-form-width-medium"
 	                           required>
 	                    <input class="uk-button uk-button-medium"

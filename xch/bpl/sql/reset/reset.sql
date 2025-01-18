@@ -1618,6 +1618,7 @@ CREATE TABLE IF NOT EXISTS `network_users` (
   `balance` double NOT NULL DEFAULT '0',
   `income_cycle_global` double NOT NULL DEFAULT '0',
   `income_flushout` double NOT NULL DEFAULT '0',
+  `fifth_pair_token_balance` double NOT NULL DEFAULT '0' COMMENT 'loyalty token',
   `username` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `fullname` varchar(60) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `password` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
