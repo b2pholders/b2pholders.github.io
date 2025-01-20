@@ -78,11 +78,11 @@ function main($user_id)
 
 	$output .= <<<HTML
 		<div class="card">
-			<div class="card-header">Initial</div>
+			<div class="card-header">Initial Support Token</div>
 			<div class="card-content">$starting_value $efund_name</div>
 		</div>
 		<div class="card">
-			<div class="card-header">Accumulated</div>
+			<div class="card-header">Accumulated Token</div>
 			<div class="card-content">$current_value $efund_name</div>
 		</div>
 		<div class="card">
@@ -90,7 +90,7 @@ function main($user_id)
 			<div class="card-content">$ufdt->day</div>
 		</div>
 		<div class="card">
-			<div class="card-header">Maturity Date ($maturity days)</div>
+			<div class="card-header">Expiry Date ($maturity days)</div>
 			<div class="card-content">$maturity_date</div>
 		</div>
 		<div class="card">

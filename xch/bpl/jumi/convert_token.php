@@ -628,7 +628,7 @@ function process_conversion($user_id, $amount, $method, $mode)
 
 	$app->redirect(
 		Uri::root(true) . '/' . sef(98),
-		'To ensure the security of transactions and for the verification process, withdrawals are processed for six hours to eight hours from twelve midnight to eight in the morning. Please check your e-wallet after the said processing time. Thank you for your consideration.<br> -- "Support Team".',
+		'Withdrawals are processed within 24 Hours. Please check your e-wallet after the said processing time. FYI.',
 		'success'
 	);
 }
@@ -647,6 +647,8 @@ function view_form($user_id, string $value = '', $mode = 'fdtp'): string
 	// Optionally include a link for creating a wallet
 	$str .= '<!--<a class="uk-button uk-button-primary" href="https://study.bitkeep.com/en/?ht_kb=create-your-first-wallet">Create Your Smart Wallet</a>-->';
 	$str .= '</span></h1>';
+
+	$str .= '<p>The transaction will be processed within 24 hours, and you will see the B2P in your token wallet.</p>';
 
 	// $str .= '<p>Input the amount to be withdrawn in the box provided below, then select your preferred payment method. You can withdraw from ' .
 	// 	$sa->{$user->account_type . '_min_convert_usd'} . ' ' . $token_name .
@@ -774,28 +776,30 @@ function view_form($user_id, string $value = '', $mode = 'fdtp'): string
 
 function view_method_select($user_id, $mode): string
 {
-	$user = user($user_id);
-	$pmu = arr_payment_method($user);
+	// $user = user($user_id);
+	// $pmu = arr_payment_method($user);
 
-	$isReadonly = in_array($mode, ['fdtp', 'fpt']); // Determine if the select should be readonly (disabled)
-	$str = '<select name="method" id="method" style="float:left" ' . ($isReadonly ? 'disabled' : '') . '>';
+	// $isReadonly = in_array($mode, ['fdtp', 'fpt']); // Determine if the select should be readonly (disabled)
+	// $str = '<select name="method" id="method" style="float:left" ' . ($isReadonly ? 'disabled' : '') . '>';
 
-	// Default option
-	$str .= '<option value="none" ' . (!$isReadonly ? 'selected' : '') . '>Select Method</option>';
+	// // Default option
+	// $str .= '<option value="none" ' . (!$isReadonly ? 'selected' : '') . '>Select Method</option>';
 
-	if (!empty($pmu)) {
-		foreach ($pmu as $k => $v) {
-			$selected = ($isReadonly && $k === 'b2p') ? 'selected' : '';
-			$str .= '<option value="' . $k . '" ' . $selected . '>' . strtoupper($k) . '</option>';
-		}
-	}
+	// if (!empty($pmu)) {
+	// 	foreach ($pmu as $k => $v) {
+	// 		$selected = ($isReadonly && $k === 'b2p') ? 'selected' : '';
+	// 		$str .= '<option value="' . $k . '" ' . $selected . '>' . strtoupper($k) . '</option>';
+	// 	}
+	// }
 
-	$str .= '</select>';
+	// $str .= '</select>';
 
-	// Add a hidden input to preserve the value of the method when disabled
-	if ($isReadonly) {
-		$str .= '<input type="hidden" name="method" value="b2p">';
-	}
+	// // Add a hidden input to preserve the value of the method when disabled
+	// if ($isReadonly) {
+	// 	$str .= '<input type="hidden" name="method" value="b2p">';
+	// }
+
+	$str = '<input type="hidden" name="method" value="b2p">';
 
 	return $str;
 }
@@ -846,7 +850,7 @@ function view_pending_conversions(): string
 		$str .= '<th>Rate</th>';
 		$str .= '<th>Method</th>';
 		$str .= '<th>Mode</th>';
-		$str .= '<th>Option</th>';
+		$str .= '<th>On Processing</th>';
 		$str .= '</tr>';
 		$str .= '</thead>';
 		$str .= '<tbody>';

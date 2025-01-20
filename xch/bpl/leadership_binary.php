@@ -29,16 +29,15 @@ use function BPL\Mods\Helpers\settings;
  */
 function main()
 {
-	foreach (users() as $user)
-	{
+	foreach (users() as $user) {
 		$slb = settings('leadership');
 
-		$account_type  = $user->account_type;
+		$account_type = $user->account_type;
 		$user_bonus_lb = $user->bonus_leadership;
 
 		$sponsored = user_directs($user->id);
 
-		$type_level       = $slb->{$account_type . '_leadership_level'};
+		$type_level = $slb->{$account_type . '_leadership_level'};
 		$required_directs = $slb->{$account_type . '_leadership_sponsored'};
 		$max_daily_income = $slb->{$account_type . '_leadership_max_daily_income'};
 		$max_income_total = $slb->{$account_type . '_leadership_max'};
@@ -49,22 +48,18 @@ function main()
 
 		if (
 			$type_level
-//	        && empty(user_cd($user->id))
+			//	        && empty(user_cd($user->id))
 			&& count($sponsored) >= $required_directs
-		)
-		{
-			$lb     = bonus_total($user);
+		) {
+			$lb = bonus_total($user);
 			$lb_add = $lb - $ulb->bonus_leadership_last;
 
-			if ($lb_add > 0)
-			{
-				if ($max_daily_income > 0 && ($income_today + $lb_add) >= $max_daily_income)
-				{
+			if ($lb_add > 0) {
+				if ($max_daily_income > 0 && ($income_today + $lb_add) >= $max_daily_income) {
 					$lb_add = non_zero($max_daily_income - $income_today);
 				}
 
-				if ($max_income_total > 0 && ($user_bonus_lb + $lb_add) >= $max_income_total)
-				{
+				if ($max_income_total > 0 && ($user_bonus_lb + $lb_add) >= $max_income_total) {
 					$lb_add = non_zero($max_income_total - $user_bonus_lb);
 				}
 
@@ -86,22 +81,22 @@ function update_bonus_lb($lb_add, $lb, $user)
 {
 	$db = db();
 
-//    $se = settings('entry');
+	//    $se = settings('entry');
 //    $sf = settings('freeze');
 
 	$user_id = $user->id;
-//    $account_type = $user->account_type;
+	//    $account_type = $user->account_type;
 
-//    $income_cycle_global = $user->income_cycle_global;
+	//    $income_cycle_global = $user->income_cycle_global;
 
-//    $entry  = $se->{$account_type . '_entry'};
+	//    $entry  = $se->{$account_type . '_entry'};
 //    $factor = $sf->{$account_type . '_percentage'} / 100;
 
-//    $freeze_limit = $entry * $factor;
+	//    $freeze_limit = $entry * $factor;
 
-//    $status = $user->status_global;
+	//    $status = $user->status_global;
 
-//    if ($income_cycle_global >= $freeze_limit)
+	//    if ($income_cycle_global >= $freeze_limit)
 //    {
 //        if ($status === 'active')
 //        {
@@ -155,14 +150,11 @@ function update_bonus_lb($lb_add, $lb, $user)
 //        {
 	$field_user = ['bonus_leadership = bonus_leadership + ' . $lb_add];
 
-//	$field_user[] = 'income_cycle_global = income_cycle_global + ' . cd_filter($user_id, $lb_add);
+	//	$field_user[] = 'income_cycle_global = income_cycle_global + ' . cd_filter($user_id, $lb_add);
 
-	if (settings('ancillaries')->withdrawal_mode === 'standard')
-	{
+	if (settings('ancillaries')->withdrawal_mode === 'standard') {
 		$field_user[] = 'balance = balance + ' . cd_filter($user_id, $lb_add);
-	}
-	else
-	{
+	} else {
 		$field_user[] = 'payout_transfer = payout_transfer + ' . cd_filter($user_id, $lb_add);
 	}
 
@@ -173,10 +165,10 @@ function update_bonus_lb($lb_add, $lb, $user)
 	);
 
 	update_leadership($lb_add, $lb, $user_id);
-//        }
+	//        }
 
 	log_activity($user, $lb);
-//    }
+	//    }
 }
 
 /**
@@ -203,13 +195,13 @@ function view($user): string
 	$account_type = $user->account_type;
 
 	$required_directs = settings('leadership')->{$account_type . '_leadership_sponsored'};
-	$level            = settings('leadership')->{$account_type . '_leadership_level'};
+	$level = settings('leadership')->{$account_type . '_leadership_level'};
 
 	$status = count(user_directs($user->id)) >= $required_directs ? '' : ' (inactive)';
 
 	$currency = settings('ancillaries')->currency;
 
-	$str = '<h3>Profit Summary</h3>
+	$str = '<h3>Income Summary</h3>
         <table class="category table table-striped table-bordered table-hover">
             <thead>
             <tr>
@@ -217,20 +209,19 @@ function view($user): string
                     <div style="text-align: center"><h4>Level</h4></div>
                 </th>
                 <th>
-                    <div style="text-align: center"><h4>Team</h4></div>
+                    <div style="text-align: center"><h4>Accounts</h4></div>
                 </th>
                 <th>
-                    <div style="text-align: center"><h4>Profit (' . $currency . ')</h4></div>
+                    <div style="text-align: center"><h4>Profit</h4></div>
                 </th>
                 <th>
-                    <div style="text-align: center"><h4>Percentage (%)</h4></div>
+                    <div style="text-align: center"><h4>Fixed Rate (%)</h4></div>
                 </th>
             </tr>
             </thead>
             <tbody>';
 
-	switch ((int) $level)
-	{
+	switch ((int) $level) {
 		case 1:
 			$str .= view_row(1, $user);
 
@@ -326,51 +317,50 @@ function view_row($level, $user): string
 {
 	$sl = settings('leadership');
 
-	switch ((int) $level)
-	{
+	switch ((int) $level) {
 		case 1:
 			$members = members_lvl1($user);
-			$bonus   = leadership_lvl1($user);
+			$bonus = leadership_lvl1($user);
 			break;
 		case 2:
 			$members = members_lvl2($user);
-			$bonus   = leadership_lvl2($user);
+			$bonus = leadership_lvl2($user);
 			break;
 		case 3:
 			$members = members_lvl3($user);
-			$bonus   = leadership_lvl3($user);
+			$bonus = leadership_lvl3($user);
 			break;
 		case 4:
 			$members = members_lvl4($user);
-			$bonus   = leadership_lvl4($user);
+			$bonus = leadership_lvl4($user);
 			break;
 		case 5:
 			$members = members_lvl5($user);
-			$bonus   = leadership_lvl5($user);
+			$bonus = leadership_lvl5($user);
 			break;
 		case 6:
 			$members = members_lvl6($user);
-			$bonus   = leadership_lvl6($user);
+			$bonus = leadership_lvl6($user);
 			break;
 		case 7:
 			$members = members_lvl7($user);
-			$bonus   = leadership_lvl7($user);
+			$bonus = leadership_lvl7($user);
 			break;
 		case 8:
 			$members = members_lvl8($user);
-			$bonus   = leadership_lvl8($user);
+			$bonus = leadership_lvl8($user);
 			break;
 		case 9:
 			$members = members_lvl9($user);
-			$bonus   = leadership_lvl9($user);
+			$bonus = leadership_lvl9($user);
 			break;
 		case 10:
 			$members = members_lvl10($user);
-			$bonus   = leadership_lvl10($user);
+			$bonus = leadership_lvl10($user);
 			break;
 		default:
 			$members = 0;
-			$bonus   = 0;
+			$bonus = 0;
 			break;
 	}
 
@@ -378,9 +368,9 @@ function view_row($level, $user): string
 
 	$str .= '<td>
                         <div style="text-align: center" ' .
-		($level === 1 ? 'style="color: red"' : '') . '>
-                            <strong>' . ((int) $level !== 1 ? $level : '') .
-		($level === 1 ? ' (Direct)' : '') . '</strong>
+		/* ($level === 1 ? 'style="color: red"' : '') . */ '>
+                            <strong>' . /* ((int) $level !== 1 ? $level : '') .
+($level === 1 ? ' (Direct)' : '') */ $level . '</strong>
                         </div>
                     </td>';
 
@@ -397,7 +387,7 @@ function view_row($level, $user): string
 			number_format($bonus, 8)) . '</div>
                     </td>';
 
-	$share     = $sl->{$user->account_type . '_leadership_share_' . $level};
+	$share = $sl->{$user->account_type . '_leadership_share_' . $level};
 	$share_cut = $sl->{$user->account_type . '_leadership_share_cut_' . $level};
 
 	$percentage = $share * $share_cut / 100;
@@ -429,7 +419,8 @@ function log_activity($user, $bonus)
 		[
 			$db->quote($user->id),
 			$db->quote($user->sponsor_id),
-			$db->quote('<b>' . settings('plans')->leadership_binary_name .
+			$db->quote(
+				'<b>' . settings('plans')->leadership_binary_name .
 				' Bonus: </b> <a href="' . sef(44) . qs() . 'uid=' . $user->id . '">' .
 				$user->username . '</a> has earned ' . number_format($bonus, 2) .
 				' ' . settings('ancillaries')->currency
@@ -473,14 +464,12 @@ function bonus_total($user)
 	$account_type = $user->account_type;
 
 	$required_directs = $settings_leadership->{$account_type . '_leadership_sponsored'};
-	$type_level       = $settings_leadership->{$account_type . '_leadership_level'};
+	$type_level = $settings_leadership->{$account_type . '_leadership_level'};
 
 	$total = 0;
 
-	if (count(user_directs($user->id)) >= $required_directs)
-	{
-		switch ($type_level)
-		{
+	if (count(user_directs($user->id)) >= $required_directs) {
+		switch ($type_level) {
 			case 1:
 				$total = leadership_lvl1($user);
 
@@ -594,22 +583,20 @@ function bonus_leadership($level, $indirects, $head_account_type)
 {
 	$bonus = 0;
 
-	if (!empty($indirects))
-	{
+	if (!empty($indirects)) {
 		$slb = settings('leadership');
 
-		$head_share     = $slb->{$head_account_type . '_leadership_share_' . $level} / 100;
+		$head_share = $slb->{$head_account_type . '_leadership_share_' . $level} / 100;
 		$head_share_cut = $slb->{$head_account_type . '_leadership_share_cut_' . $level} / 100;
 
 		$head_bonus_share = $head_share * $head_share_cut;
 
-		foreach ($indirects as $indirect)
-		{
+		foreach ($indirects as $indirect) {
 			$user_binary = user_binary($indirect->id);
 
 			$indirect_account_type = $user_binary->account_type;
 
-			$indirect_share     = $slb->{$indirect_account_type . '_leadership_share_' . $level} / 100;
+			$indirect_share = $slb->{$indirect_account_type . '_leadership_share_' . $level} / 100;
 			$indirect_share_cut = $slb->{$indirect_account_type . '_leadership_share_cut_' . $level} / 100;
 
 			$indirect_bonus_share = $indirect_share * $indirect_share_cut;
@@ -989,16 +976,12 @@ function level_directs(array $lvl_1 = []): array
 {
 	$lvl_directs = [];
 
-	if (!empty($lvl_1))
-	{
-		foreach ($lvl_1 as $s1)
-		{
+	if (!empty($lvl_1)) {
+		foreach ($lvl_1 as $s1) {
 			$directs = user_directs($s1->id);
 
-			if (!empty($directs))
-			{
-				foreach ($directs as $direct)
-				{
+			if (!empty($directs)) {
+				foreach ($directs as $direct) {
 					$lvl_directs[] = $direct; // user object
 				}
 			}
@@ -1091,12 +1074,9 @@ function update_user($bonus, $user_id)
 {
 	$field_user = ['bonus_leadership = bonus_leadership + ' . $bonus];
 
-	if (settings('ancillaries')->withdrawal_mode === 'standard')
-	{
+	if (settings('ancillaries')->withdrawal_mode === 'standard') {
 		$field_user[] = 'balance = balance + ' . $bonus;
-	}
-	else
-	{
+	} else {
 		$field_user[] = 'payout_transfer = payout_transfer + ' . $bonus;
 	}
 

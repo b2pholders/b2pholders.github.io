@@ -22,7 +22,7 @@ main();
  */
 function main()
 {
-	$user_id  = session_get('user_id');
+	$user_id = session_get('user_id');
 
 	page_validate();
 
@@ -30,12 +30,12 @@ function main()
 
 	$uid = input_get('uid');
 
-	if ($uid !== '')
-	{
+	if ($uid !== '') {
 		$user_id = $uid;
 	}
 
-	$str .= '<h1>' . settings('plans')->leadership_passive_name . ' Structure</h1>';
+	// $str .= '<h1>' . settings('plans')->leadership_passive_name . ' Structure</h1>';
+	$str .= '<h1>Genealogy Tree</h1>';
 	$str .= genealogy('indirect', $user_id, 'leadership_passive');
 
 	echo $str;

@@ -48,25 +48,23 @@ function view_table($user_id): string
 {
 	$directs = user_directs($user_id);
 
-	$str = '<h1>Sponsored Members</h1>';
+	$str = '<h1>Sponsored Accounts</h1>';
 
-	if (!empty($directs))
-	{
+	if (!empty($directs)) {
 		$str .= '<table class="category table table-striped table-bordered table-hover">
         <thead>
         <tr>
             <th>#</th>
-            <th>Member</th>
-            <th>Account Type</th>
-            <th>Rank</th>
+            <th>Accounts</th>
+            <th>Package</th>
+            <th>Title</th>
         </tr>
         </thead>
         <tbody>';
 
 		$ctr = 0;
 
-		foreach ($directs as $member)
-		{
+		foreach ($directs as $member) {
 			$ctr++;
 
 			$str .= '<tr>
@@ -81,9 +79,7 @@ function view_table($user_id): string
 
 		$str .= '</tbody>
     </table>';
-	}
-	else
-	{
+	} else {
 		$str .= '<hr><p>No sponsored members yet.</p>';
 	}
 

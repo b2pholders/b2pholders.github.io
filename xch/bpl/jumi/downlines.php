@@ -34,11 +34,11 @@ function main()
 
 	echo menu();
 
-//	$user = user($user_id);
+	//	$user = user($user_id);
 
-//	$binary_sponsored = settings('binary')->{$user->account_type . '_binary_sponsored'};
+	//	$binary_sponsored = settings('binary')->{$user->account_type . '_binary_sponsored'};
 
-//	if (!($user->account_type !== 'starter' &&
+	//	if (!($user->account_type !== 'starter' &&
 //		count(directs_paid($user_id)) >= $binary_sponsored))
 //	{
 //		echo '<h4 style="alignment: center">Sponsor At Least ' . $binary_sponsored .
@@ -49,7 +49,7 @@ function main()
 
 	view_table($user_id);
 
-//	echo '<pre>target a:';
+	//	echo '<pre>target a:';
 //	echo print_r(tail_tip(1), true); // test2 username
 //	echo '</pre>';
 }
@@ -63,8 +63,9 @@ function view_table($user_id)
 {
 	$user_binary = user_binary($user_id);
 
-	echo '<h1>' . settings('plans')->binary_pair_name . ' Summary</h1>';
-    echo '<table class="category table table-striped table-bordered table-hover">
+	// echo '<h1>' . settings('plans')->binary_pair_name . ' Summary</h1>';
+	echo '<h1>Binary Teams</h1>';
+	echo '<table class="category table table-striped table-bordered table-hover">
         <thead>
         <tr>
             <th style="text-align: center">A</th>

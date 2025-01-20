@@ -192,7 +192,7 @@ function row_direct_referral($user_id): string
 	) {
 		$str .= '<tr>
 	            <td><a href="' .
-			sef(13) . '">Sponsored Members</a>:</td>
+			sef(13) . '">Direct Agents</a>:</td>
 	            <td>' . count(user_direct($user_id)) . '</td>
 	        </tr>
 	        <tr>
@@ -304,7 +304,7 @@ function row_binary($user_id): string
 		}
 
 		$str .= '<tr>
-            <td><a href="javascript:void(0)">' . $sp->binary_pair_name . ' (' . $flag . ')' . '</a>:</td>
+            <td><a href="javascript:void(0)">' . $sp->binary_pair_name . /* ' (' . $flag . ')' . */ '</a>:</td>
            	<td>' . number_format($binary->income_cycle, 8) . ' ' .
 			settings('ancillaries')->currency . /*($flushout ? '' : $reactivate) .*/
 			'</td></tr>';
@@ -691,7 +691,7 @@ function row_balance($user_id): string
 		'<a style="float:right" href="' . sef(130) . '">Reactivate Account</a>';
 
 	return '<tr>
-	        <td><a href="javascript:void(0)">Balance</a>:</td>
+	        <td><a href="javascript:void(0)">Wallet Available Balance</a>:</td>
 	        <td>' . number_format(user($user_id)->{$field_balance}, 8) .
 		' ' . $sa->currency . (!$sp->account_freeze ? '' : $reactivate) .
 		'</td>
@@ -720,7 +720,7 @@ function table_binary_summary($user_id): string
 		// $str .= '<hr class="uk-grid-divider">
 		//     <h3>' . $sp->binary_pair_name . ' Summary</h3>';
 		$str .= '<div class="card">
-			<div class="card-header">' . $sp->binary_pair_name . ' Summary</div>
+			<div class="card-header">' . $sp->binary_pair_name . ' Dashboard</div>
         		<div class="table-responsive">';
 		$str .= '<table class="category table table-striped table-bordered table-hover">
 		        <tr>
@@ -730,25 +730,25 @@ function table_binary_summary($user_id): string
 		            </td>
 		        </tr>
 		        <tr>
-		            <td><a href="javascript:void(0)">Counted Matches</a>:</td>
-		            <td>' . number_format($binary->pairs, 8) . '</td>
+		            <td><a href="javascript:void(0)">Match Bonus</a>:</td>
+		            <td>' . number_format($binary->pairs, 8) . ' USDT</td>
 		        </tr>';
 
 		$str .= settings('binary')->{user($user_id)->account_type . '_pairs_safety'} ? '<tr>
-	            <td><a href="javascript:void(0)">Match Reward</a>:</td>
-	            <td>' . number_format($binary->income_cycle, 8) . '</td>
+	            <td><a href="javascript:void(0)">Loyalty Bonus</a>:</td>
+	            <td>' . number_format($binary->income_cycle, 8) . ' USDT</td>
 	        </tr>
 	        <tr>
-	            <td><a href="javascript:void(0)">Loyalty Token (B2P)</a>:</td>
-	            <td>' . /* $binary->income_giftcheck */ number_format($user->fifth_pair_token_balance, 8) . '<a style="float:right" href="' . sef(153) . '">Deposit</a></td>
+	            <td><a href="javascript:void(0)">Loyalty Token</a>:</td>
+	            <td>' . /* $binary->income_giftcheck */ number_format($user->fifth_pair_token_balance, 8) . ' B2P<a style="float:right" href="' . sef(153) . '">Withdraw B2P</a></td>
 	        </tr>' . /* '
 <tr>
 <td><a href="javascript:void(0)">Flush Out (pts.)</a>:</td>
 <td>' . number_format($binary->income_flushout) . '</td>
 </tr>' . */ '
 	        <tr>
-	            <td><a href="javascript:void(0)">Total Match Reward Today</a>:</td>
-	            <td>' . number_format($binary->pairs_today_total, 8) . '</td>
+	            <td><a href="javascript:void(0)">Total Earned Token Today</a>:</td>
+	            <td>' . number_format($binary->pairs_today_total, 8) . ' B2P</td>
 	        </tr>' : '';
 
 		$str .= '</table>';
@@ -822,7 +822,7 @@ function member($user_id): string
 	$str .= tableStyle();
 
 	$str .= '<div class="card">';
-	$str .= '<div class="card-header">Income Details</div>';
+	$str .= '<div class="card-header">Agent Dashboard</div>';
 	$str .= '<div class="table-responsive">';
 	$str .= '<table class="category table table-striped table-bordered table-hover" style="width: 100%;">';
 
@@ -841,7 +841,7 @@ function member($user_id): string
 function user_info($user): string
 {
 	$str = '<div class="card">
-		<div class="card-header">User Info</div>
+		<div class="card-header">User Dashboard</div>
 			<div class="table-responsive">';
 	$str .= '<table class="category table table-striped table-bordered table-hover">';
 
@@ -885,7 +885,7 @@ function core($user_id): string
 {
 	$str = row_direct_referral($user_id);
 	$str .= row_indirect_referral($user_id);
-	$str .= row_binary($user_id);
+	// $str .= row_binary($user_id);
 	$str .= row_passup_binary($user_id);
 	$str .= row_leadership_binary($user_id);
 	$str .= row_leadership_passive($user_id);

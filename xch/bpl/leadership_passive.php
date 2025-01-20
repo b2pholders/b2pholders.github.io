@@ -29,16 +29,15 @@ function main()
 {
 	$slp = settings('leadership_passive');
 
-	foreach (users() as $user)
-	{
+	foreach (users() as $user) {
 		$account_type = $user->account_type;
 
 		$count_directs = count(user_directs($user->user_id));
 
-		$type_level       = $slp->{$account_type . '_leadership_passive_level'};
+		$type_level = $slp->{$account_type . '_leadership_passive_level'};
 		$required_directs = $slp->{$account_type . '_leadership_passive_sponsored'};
 		$max_daily_income = $slp->{$account_type . '_leadership_passive_max_daily_income'};
-		$income_max       = $slp->{$account_type . '_leadership_passive_maximum'};
+		$income_max = $slp->{$account_type . '_leadership_passive_maximum'};
 
 		$user_bonus_lp = $user->bonus_leadership_passive;
 
@@ -46,23 +45,21 @@ function main()
 
 		$income_today = $ulp->income_today;
 
-		if ($type_level > 0 && $count_directs >= $required_directs
+		if (
+			$type_level > 0 && $count_directs >= $required_directs
 			/*&& (($max_daily_income > 0 && $income_today < $max_daily_income) || !$max_daily_income)
-			&& ($income_max > 0 && $user_bonus_lp < $income_max || !$income_max)*/)
-		{
+							  && ($income_max > 0 && $user_bonus_lp < $income_max || !$income_max)*/
+		) {
 			$lp_total = bonus_total($user);
 
 			$lp_add = $lp_total - $ulp->bonus_leadership_passive_last;
 
-			if ($lp_add > 0)
-			{
-				if ($max_daily_income > 0 && ($income_today + $lp_add) >= $max_daily_income)
-				{
+			if ($lp_add > 0) {
+				if ($max_daily_income > 0 && ($income_today + $lp_add) >= $max_daily_income) {
 					$lp_add = non_zero($max_daily_income - $income_today);
 				}
 
-				if ($income_max > 0 && ($user_bonus_lp + $lp_add) >= $income_max)
-				{
+				if ($income_max > 0 && ($user_bonus_lp + $lp_add) >= $income_max) {
 					$ir_add = non_zero($income_max - $user_bonus_lp);
 				}
 
@@ -102,7 +99,7 @@ function view($user_id): string
 	$settings_leadership_passive = settings('leadership_passive');
 
 	$required_directs = $settings_leadership_passive->{$account_type . '_leadership_passive_sponsored'};
-	$level            = $settings_leadership_passive->{$account_type . '_leadership_passive_level'};
+	$level = $settings_leadership_passive->{$account_type . '_leadership_passive_level'};
 
 	$status = count(user_directs($user->id)) >= $required_directs ? '' : ' (inactive)';
 
@@ -116,20 +113,19 @@ function view($user_id): string
                     <div style="text-align: center"><h4>Level</h4></div>
                 </th>
                 <th>
-                    <div style="text-align: center"><h4>Member</h4></div>
+                    <div style="text-align: center"><h4>Accounts</h4></div>
                 </th>
                 <th>
-                    <div style="text-align: center"><h4>Bonus (' . $currency . ')</h4></div>
+                    <div style="text-align: center"><h4>Profit</h4></div>
                 </th>
                 <th>
-                    <div style="text-align: center"><h4>Allocation (%)</h4></div>
+                    <div style="text-align: center"><h4>Fixed Rate (%)</h4></div>
                 </th>
             </tr>
             </thead>
             <tbody>';
 
-	switch ((int) $level)
-	{
+	switch ((int) $level) {
 		case 1:
 			$str .= view_row(1, $user);
 
@@ -195,7 +191,7 @@ function view($user_id): string
 
 	$ulp = user_leadership_passive($user_id);
 
-	$flushout_local  = $ulp->flushout_local;
+	$flushout_local = $ulp->flushout_local;
 	$flushout_global = $ulp->flushout_global;
 
 	$str .= '<tr>
@@ -221,11 +217,12 @@ function view($user_id): string
 
 function insert_leadership_passive($insert_id, $code_type, $username, $sponsor_id, $date, string $prov = 'code')
 {
-	if (empty(user_leadership_passive($insert_id)))
-	{
-		insert('network_leadership_passive',
+	if (empty(user_leadership_passive($insert_id))) {
+		insert(
+			'network_leadership_passive',
 			['user_id'],
-			[db()->quote($insert_id)]);
+			[db()->quote($insert_id)]
+		);
 
 		logs_leadership_passive($insert_id, $code_type, $username, $sponsor_id, $date, $prov);
 	}
@@ -241,8 +238,7 @@ function logs_leadership_passive($insert_id, $code_type, $username, $sponsor, $d
 
 	$user_sponsor = user_username($sponsor);
 
-	if (!empty($user_sponsor))
-	{
+	if (!empty($user_sponsor)) {
 		$sponsor_id = $user_sponsor[0]->id;
 	}
 
@@ -272,12 +268,9 @@ function source($prov): string
 {
 	$source = ' Sign Up';
 
-	if ($prov === 'activate')
-	{
+	if ($prov === 'activate') {
 		$source = ' Activation';
-	}
-	elseif ($prov === 'upgrade')
-	{
+	} elseif ($prov === 'upgrade') {
 		$source = ' Upgrade';
 	}
 
@@ -307,51 +300,50 @@ function view_row($level, $user): string
 {
 	$slp = settings('leadership_passive');
 
-	switch ((int) $level)
-	{
+	switch ((int) $level) {
 		case 1:
 			$members = members_lvl1($user);
-			$bonus   = leadership_passive_lvl1($user);
+			$bonus = leadership_passive_lvl1($user);
 			break;
 		case 2:
 			$members = members_lvl2($user);
-			$bonus   = leadership_passive_lvl2($user);
+			$bonus = leadership_passive_lvl2($user);
 			break;
 		case 3:
 			$members = members_lvl3($user);
-			$bonus   = leadership_passive_lvl3($user);
+			$bonus = leadership_passive_lvl3($user);
 			break;
 		case 4:
 			$members = members_lvl4($user);
-			$bonus   = leadership_passive_lvl4($user);
+			$bonus = leadership_passive_lvl4($user);
 			break;
 		case 5:
 			$members = members_lvl5($user);
-			$bonus   = leadership_passive_lvl5($user);
+			$bonus = leadership_passive_lvl5($user);
 			break;
 		case 6:
 			$members = members_lvl6($user);
-			$bonus   = leadership_passive_lvl6($user);
+			$bonus = leadership_passive_lvl6($user);
 			break;
 		case 7:
 			$members = members_lvl7($user);
-			$bonus   = leadership_passive_lvl7($user);
+			$bonus = leadership_passive_lvl7($user);
 			break;
 		case 8:
 			$members = members_lvl8($user);
-			$bonus   = leadership_passive_lvl8($user);
+			$bonus = leadership_passive_lvl8($user);
 			break;
 		case 9:
 			$members = members_lvl9($user);
-			$bonus   = leadership_passive_lvl9($user);
+			$bonus = leadership_passive_lvl9($user);
 			break;
 		case 10:
 			$members = members_lvl10($user);
-			$bonus   = leadership_passive_lvl10($user);
+			$bonus = leadership_passive_lvl10($user);
 			break;
 		default:
 			$members = 0;
-			$bonus   = 0;
+			$bonus = 0;
 			break;
 	}
 
@@ -359,9 +351,9 @@ function view_row($level, $user): string
 
 	$str .= '<td>
                         <div style="text-align: center" ' .
-		($level === 1 ? 'style="color: red"' : '') . '>
-                            <strong>' . ((int) $level !== 1 ? $level : '') .
-		($level === 1 ? ' (Direct)' : '') . '</strong>
+		/* ($level === 1 ? 'style="color: red"' : '') . */ '>
+                            <strong>' . /* ((int) $level !== 1 ? $level : '') .
+($level === 1 ? ' (Direct)' : '') */ $level . '</strong>
                         </div>
                     </td>';
 
@@ -378,7 +370,7 @@ function view_row($level, $user): string
 			number_format($bonus, 8)) . '</div>
                     </td>';
 
-	$share     = $slp->{$user->account_type . '_leadership_passive_share_' . $level};
+	$share = $slp->{$user->account_type . '_leadership_passive_share_' . $level};
 	$share_cut = $slp->{$user->account_type . '_leadership_passive_share_cut_' . $level};
 
 	$percentage = $share * $share_cut / 100;
@@ -410,7 +402,8 @@ function log_activity($user, $bonus)
 		[
 			$db->quote($user->id),
 			$db->quote($user->sponsor_id),
-			$db->quote('<b>' . settings('plans')->leadership_passive_name .
+			$db->quote(
+				'<b>' . settings('plans')->leadership_passive_name .
 				' Bonus: </b> <a href="' . sef(44) . qs() . 'uid=' . $user->id . '">' .
 				$user->username . '</a> has earned ' . number_format($bonus, 2) .
 				' ' . settings('ancillaries')->currency
@@ -454,14 +447,12 @@ function bonus_total($user)
 	$account_type = $user->account_type;
 
 	$required_directs = $settings_lp->{$account_type . '_leadership_passive_sponsored'};
-	$type_level       = $settings_lp->{$account_type . '_leadership_passive_level'};
+	$type_level = $settings_lp->{$account_type . '_leadership_passive_level'};
 
 	$total = 0;
 
-	if (count(user_directs($user->id)) >= $required_directs)
-	{
-		switch ($type_level)
-		{
+	if (count(user_directs($user->id)) >= $required_directs) {
+		switch ($type_level) {
 			case 1:
 				$total = leadership_passive_lvl1($user);
 
@@ -574,20 +565,18 @@ function bonus_leadership_passive($level, $users)
 {
 	$bonus = 0;
 
-	if (!empty($users))
-	{
-		foreach ($users as $user)
-		{
+	if (!empty($users)) {
+		foreach ($users as $user) {
 			$account_type = $user->account_type;
 
 			$settings_lp = settings('leadership_passive');
 
-			$share     = $settings_lp->{$account_type . '_leadership_passive_share_' . $level} / 100;
+			$share = $settings_lp->{$account_type . '_leadership_passive_share_' . $level} / 100;
 			$share_cut = $settings_lp->{$account_type . '_leadership_passive_share_cut_' . $level} / 100;
 
-			$top_up         = $user->top_up_interest;
-			$fast_track     = $user->fast_track_interest;
-			$fixed_daily    = $user->fixed_daily_interest;
+			$top_up = $user->top_up_interest;
+			$fast_track = $user->fast_track_interest;
+			$fixed_daily = $user->fixed_daily_interest;
 			$compound_daily = $user->compound_daily_interest;
 
 			$passive = $top_up + $fast_track + $fixed_daily + $compound_daily;
@@ -964,16 +953,12 @@ function level_directs(array $lvl_1 = []): array
 {
 	$lvl_directs = [];
 
-	if (!empty($lvl_1))
-	{
-		foreach ($lvl_1 as $s1)
-		{
+	if (!empty($lvl_1)) {
+		foreach ($lvl_1 as $s1) {
 			$directs = user_directs($s1->id);
 
-			if (!empty($directs))
-			{
-				foreach ($directs as $direct)
-				{
+			if (!empty($directs)) {
+				foreach ($directs as $direct) {
 					$lvl_directs[] = $direct;
 				}
 			}
@@ -1055,12 +1040,9 @@ function update_user($bonus, $user_id)
 {
 	$field_user = ['bonus_leadership_passive = bonus_leadership_passive + ' . $bonus];
 
-	if (settings('ancillaries')->withdrawal_mode === 'standard')
-	{
+	if (settings('ancillaries')->withdrawal_mode === 'standard') {
 		$field_user[] = 'balance = balance + ' . $bonus;
-	}
-	else
-	{
+	} else {
 		$field_user[] = 'payout_transfer = payout_transfer + ' . $bonus;
 	}
 

@@ -442,6 +442,8 @@ function view_form($user_id): string
 		$sa->{$user->account_type . '_min_request_usd'} . ' ' . $efund_name . ' up to ' . $sa->{$user->account_type . '_max_request_usd'} .
 		' ' . $efund_name . ' maximum request" then press the submit button. Press the button under "Method" and follow the instructions provided.</p>';
 
+	$str .= '<p>Always ensure you\'re using the USDT BEP20 (Binance Smart Chain) network, as payment method, to avoid losing your assets.</p>';
+
 	$str .= '<form method="post" onsubmit="submit.disabled=true; return true;" style="width:100%; max-width:600px; margin:0 auto; padding:20px;">';
 
 	$str .= '<form method="post" onsubmit="submit.disabled=true; return true;" style="width:100%; max-width:600px; margin:0 auto; padding:20px; box-sizing:border-box;">';
@@ -481,74 +483,74 @@ function view_method_select($user_id): string
 
 	if (!empty($pmu)) {
 		foreach ($pmu as $k => $v) {
-			if ($k === 'peso') {
-				$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
-			}
+			// if ($k === 'peso') {
+			// 	$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
+			// }
 
-			if ($k === 'busd') {
-				$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
-			}
+			// if ($k === 'busd') {
+			// 	$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
+			// }
 
-			if ($k === 'gold') {
-				$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
-			}
+			// if ($k === 'gold') {
+			// 	$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
+			// }
 
 			if ($k === 'usdt') {
 				$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
 			}
 
-			if ($k === 'bnb') {
-				$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
-			}
+			// if ($k === 'bnb') {
+			// 	$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
+			// }
 
-			if ($k === 'btcb') {
-				$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
-			}
+			// if ($k === 'btcb') {
+			// 	$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
+			// }
 
-			if ($k === 'btcw') {
-				$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
-			}
+			// if ($k === 'btcw') {
+			// 	$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
+			// }
 
-			if ($k === 'pac') {
-				$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
-			}
+			// if ($k === 'pac') {
+			// 	$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
+			// }
 
-			if ($k === 'shib') {
-				$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
-			}
+			// if ($k === 'shib') {
+			// 	$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
+			// }
 
-			if ($k === 'doge') {
-				$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
-			}
+			// if ($k === 'doge') {
+			// 	$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
+			// }
 
-			if ($k === 'trx') {
-				$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
-			}
+			// if ($k === 'trx') {
+			// 	$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
+			// }
 
-			if ($k === 'usdc') {
-				$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
-			}
+			// if ($k === 'usdc') {
+			// 	$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
+			// }
 
 			//			if ($k === 'gcash')
 //			{
 //				$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
 //			}
 
-			if ($k === 'bank') {
-				$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
-			}
+			// if ($k === 'bank') {
+			// 	$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
+			// }
 
-			if ($k === 'b2p') {
-				$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
-			}
+			// if ($k === 'b2p') {
+			// 	$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
+			// }
 
-			if ($k === 'aet') {
-				$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
-			}
+			// if ($k === 'aet') {
+			// 	$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
+			// }
 
-			if ($k === 'tpay') {
-				$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
-			}
+			// if ($k === 'tpay') {
+			// 	$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
+			// }
 
 			//			if ($k == /*'btc3'*/'p2p')
 //			{
@@ -688,7 +690,7 @@ function view_pending_requests(): string
 
 			if (!in_array($tmp->method, ['bank', 'gcash'])) {
 				$str .= '<img src="images/trust-wallet.svg" alt="" width="150px">';
-				$str .= '<p style="color: red;">After successful transaction, please screenshot the transaction and send it to the email below. The transaction will be processed within eight hours, and you will see the ' . $efund_name . ' in your dashboard wallet. For any concerns, you can email us anytime.<br><br> -- "Support Team".</p>';
+				$str .= '<p style="color: red;">After successful transaction, please screenshot the transaction and send it to the email below. The transaction will be processed within 24 hours, and you will see the ' . $efund_name . ' in your dashboard wallet. For any concerns, you can email us anytime.<br><br> -- "Support Team".</p>';
 				$str .= $contact;
 				$str .= '<img src="' . qr_code_generate($admin_payment_address) . '" alt="QR Code Trust Wallet" style="width:250px;">';
 				$str .= '<p>Please pay <b>' . number_format($tmp->price, 8) . '</b> ' . strtoupper($currency) . ' to the following Wallet Address:</p>';

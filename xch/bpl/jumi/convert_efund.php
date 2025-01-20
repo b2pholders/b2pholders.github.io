@@ -584,7 +584,7 @@ function process_conversion($user_id, $amount, $method, $mode)
 
 	$app->redirect(
 		Uri::root(true) . '/' . sef(57),
-		'To ensure the security of transactions and for the verification process, withdrawals are processed for six hours to eight hours from twelve midnight to eight in the morning. Please check your e-wallet after the said processing time. Thank you for your consideration.<br> -- "Support Team".',
+		'Withdrawals are processed within 24 Hours. Please check your e-wallet after the said processing time. FYI.',
 		'success'
 	);
 }
@@ -615,6 +615,8 @@ function view_form($user_id, string $value = ''): string
 	$str .= '<p>Input the amount to be withdrawn in the box provided below, then select your preferred payment method. You can withdraw from ' .
 		$sa->{$user->account_type . '_min_convert_usd'} . ' ' . $efund_name .
 		' up to ' . $sa->{$user->account_type . '_max_convert_usd'} . ' ' . $efund_name . '.</p>';
+
+	$str .= '<p>Always ensure you\'re using the B2P BEP20 (Binance Smart Chain) network, as payment method, to avoid losing your assets.</p>';
 
 	// Start form
 	$str .= '<form method="post" onsubmit="submit.disabled=true; return true;" class="withdrawal-form">';
@@ -752,21 +754,21 @@ function view_method_select($user_id): string
 //				$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
 //			}
 
-			if ($k === 'bank') {
-				$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
-			}
+			// if ($k === 'bank') {
+			// 	$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
+			// }
 
-			if ($k === 'busd') {
-				$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
-			}
+			// if ($k === 'busd') {
+			// 	$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
+			// }
 
-			if ($k === 'usdt') {
-				$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
-			}
+			// if ($k === 'usdt') {
+			// 	$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
+			// }
 
-			if ($k === 'peso') {
-				$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
-			}
+			// if ($k === 'peso') {
+			// 	$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
+			// }
 
 			//			if ($k === 'gold')
 //			{
@@ -783,9 +785,9 @@ function view_method_select($user_id): string
 //				$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
 //			}
 
-			if ($k === 'bnb') {
-				$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
-			}
+			// if ($k === 'bnb') {
+			// 	$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
+			// }
 
 			//			if ($k === 'pac')
 //			{
@@ -796,13 +798,13 @@ function view_method_select($user_id): string
 				$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
 			}
 
-			if ($k === 'aet') {
-				$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
-			}
+			// if ($k === 'aet') {
+			// 	$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
+			// }
 
-			if ($k === 'tpay') {
-				$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
-			}
+			// if ($k === 'tpay') {
+			// 	$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
+			// }
 		}
 	}
 

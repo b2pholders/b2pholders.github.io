@@ -27,7 +27,7 @@ main();
  */
 function main()
 {
-	$user_id  = session_get('user_id');
+	$user_id = session_get('user_id');
 	$usertype = session_get('usertype');
 
 	$uid = input_get('uid');
@@ -36,8 +36,7 @@ function main()
 
 	$str = menu();
 
-	if ($uid !== '')
-	{
+	if ($uid !== '') {
 		$user_id = $uid;
 	}
 
@@ -81,11 +80,11 @@ function user_binary($user_id)
 function view_table($user_id, $usertype): string
 {
 	$settings_plans = settings('plans');
-	$user           = user($user_id);
-	$currency       = settings('ancillaries')->currency;
+	$user = user($user_id);
+	$currency = settings('ancillaries')->currency;
 
 	$str = '<div class="container table-responsive">';
-	$str .= '<h1 class="text-center">' . /*htmlspecialchars($user->username)*/'Profile' . '</h1>';
+	$str .= '<h1 class="text-center">' . /*htmlspecialchars($user->username)*/ 'Profile' . '</h1>';
 
 	$str .= '<div class="card mb-3">';
 	$str .= '<div class="card-header"><strong>Account Information</strong></div>';
@@ -121,9 +120,9 @@ function view_table($user_id, $usertype): string
 	$str .= '<tr><th>Detail</th><th>Information</th></tr>';
 	$str .= '<tr><td>Username:</td><td>' . (!empty($user->username) ? htmlspecialchars($user->username) : '-') . '</td></tr>';
 	$str .= '<tr><td>Full Name:</td><td>' . (!empty($user->fullname) ? htmlspecialchars($user->fullname) : '-') . '</td></tr>';
-//	$str .= '<tr><td>Account Type:</td><td><span class="badge badge-info">' . htmlspecialchars(settings('entry')->{$user->account_type . '_package_name'}) . '</span></td></tr>';
+	//	$str .= '<tr><td>Account Type:</td><td><span class="badge badge-info">' . htmlspecialchars(settings('entry')->{$user->account_type . '_package_name'}) . '</span></td></tr>';
 //	$str .= '<tr><td>Joined:</td><td>' . date('M j, Y - g:i A', $user->date_registered) . '</td></tr>';
-	$str .= '<tr><td>Token Assets:</td><td><span class="badge badge-success">' . number_format($user->payout_transfer, 2) . ' ' . htmlspecialchars($currency) . '</span></td></tr>';
+	$str .= '<tr><td>USDT Wallet:</td><td><span class="badge badge-success">' . number_format($user->payout_transfer, 8) . ' ' . htmlspecialchars($currency) . '</span></td></tr>';
 	$str .= '</table>';
 
 	$str .= '</div></div>';
@@ -217,18 +216,15 @@ function view_table($user_id, $usertype): string
 		</style>';
 	}
 
-	if ($settings_plans->binary_pair)
-	{
+	if ($settings_plans->binary_pair) {
 		$user_binary = user_binary($user_id);
 
 		$upline_username = 'n/a';
 
-		if ($user_binary)
-		{
+		if ($user_binary) {
 			$user_binary = user($user_binary->upline_id);
 
-			if ($user_binary)
-			{
+			if ($user_binary) {
 				$upline_username = htmlspecialchars($user_binary->username);
 			}
 		}
@@ -257,17 +253,22 @@ function view_table($user_id, $usertype): string
 	$str .= '<div class="card-body">';
 	$str .= '<table class="custom-table">';
 	$str .= '<tr><td>Payment Method:</td><td>' . payment_info($user->payment_method) . '</td></tr>';
-//	$str .= '<tr><td>Beneficiary:</td><td>' . contact_info($user->beneficiary) . '</td></tr>';
+	//	$str .= '<tr><td>Beneficiary:</td><td>' . contact_info($user->beneficiary) . '</td></tr>';
 	$str .= '</table>';
 	$str .= '</div></div>';
 
 	$str .= '<div class="text-center">';
-	if ($user_id !== '')
-	{
-		$str .= '<a href="' . sef(60) . qs() . 'uid=' . $user->id . '" class="btn btn-secondary">Update Profile</a> ';
+
+	// if ($user_id !== '' && (input_get('uid') === '' || (input_get('uid') !== '' && input_get('uid') === session_get('user_id')))) {
+	// 	$str .= '<a href="' . sef(60) . qs() . 'uid=' . $user->id . '" class="btn btn-secondary">Update Profile</a> ';
+	// }
+
+	if (!empty($user_id) && (empty(input_get('uid')) || input_get('uid') === session_get('user_id'))) {
+		$url = sef(60) . qs() . 'uid=' . $user->id;
+		$str .= '<a href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '" class="btn btn-secondary">Update Profile</a> ';
 	}
-	if ($usertype === 'Admin')
-	{
+
+	if ($usertype === 'Admin') {
 		$str .= '<a href="' . sef(106) . qs() . 'uid=' . $user->id . '" class="btn btn-secondary">View Transactions</a>';
 	}
 	$str .= '</div>';
@@ -279,7 +280,7 @@ function view_table($user_id, $usertype): string
 
 function get_formatted_address($address): string
 {
-	$tmp     = explode('|', $address);
+	$tmp = explode('|', $address);
 	$country = (isset($tmp[4]) && $tmp[4] !== '') ? (get_country_name($tmp[4])) : '';
 
 	return (!empty($address) ? $tmp[0] . ' ' . $tmp[1] . '<br>' . $tmp[2] . ', ' . $tmp[3] . '<br>' . $country : '-');
@@ -291,23 +292,17 @@ function payment_info($payment_method): string
 
 	$str = '';
 
-	if (!empty($pmu))
-	{
-		foreach ($pmu as $k => $v)
-		{
+	if (!empty($pmu)) {
+		foreach ($pmu as $k => $v) {
 			$str .= '<p class="category table table-bordered">';
 			$str .= '<a class="uk-button uk-button-success uk-button-small" href="javascript:void(0)">';
 			$str .= strtoupper($k);
 			$str .= '</a>';
 
-			if (!is_array($v))
-			{
+			if (!is_array($v)) {
 				$str .= '<small style="padding-left: 7px"><b>' . $v . '</b></small>';
-			}
-			else
-			{
-				foreach ($v as $x => $y)
-				{
+			} else {
+				foreach ($v as $x => $y) {
 					$str .= '<small style="padding-left: 7px"><b>' . strtoupper($x) . ': ' . $y . '</b></small>';
 				}
 			}
@@ -325,17 +320,14 @@ function contact_info($contact): string
 
 	$str = '';
 
-	if (!empty($ciu))
-	{
-		foreach ($ciu as $k => $v)
-		{
+	if (!empty($ciu)) {
+		foreach ($ciu as $k => $v) {
 			$str .= '<p class="category table table-bordered">';
 			$str .= '<a class="uk-button uk-button-small" href="javascript:void(0)">';
 			$str .= strtoupper($k);
 			$str .= '</a>';
 
-			if (!is_array($v))
-			{
+			if (!is_array($v)) {
 				$str .= '<small style="padding-left: 7px"><b>' . $v . '</b></small>';
 			}
 

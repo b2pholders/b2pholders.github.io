@@ -57,7 +57,7 @@ function main()
 			//	        && empty(user_cd($user_id))
 			&& count($sponsored) >= $type_directs
 			/*&& (($income_limit_cycle > 0 && $income_today < $income_limit_cycle) || !$income_limit_cycle)
-							  && ($income_max > 0 && $user_bonus_ir < $income_max || !$income_max)*/
+														 && ($income_max > 0 && $user_bonus_ir < $income_max || !$income_max)*/
 		) {
 			// whole value
 			$ir_total = total($user_id)['bonus'];
@@ -524,11 +524,11 @@ function view($user_id): string
 		$str .= '</th>';
 
 		$str .= '<th>';
-		$str .= '<div style="text-align: center"><h4>Member</h4></div>';
+		$str .= '<div style="text-align: center"><h4>Accounts</h4></div>';
 		$str .= '</th>';
 
 		$str .= '<th>';
-		$str .= '<div style="text-align: center"><h4>Profit (' . $currency . ')</h4></div>';
+		$str .= '<div style="text-align: center"><h4>Profit</h4></div>';
 		$str .= '</th>';
 
 		$str .= '<th>';
@@ -550,9 +550,9 @@ function view($user_id): string
 			$str .= '<tr>';
 
 			$str .= '<td>';
-			$str .= '<div style="text-align: center" ' . ($ctr === 1 ? 'style="color: red"' : '') . '>
-                            <strong>' . ($ctr !== 1 ? $ctr : '') .
-				($ctr === 1 ? ' (Direct)' : '') . '</strong>
+			$str .= '<div style="text-align: center" ' . /* ($ctr === 1 ? 'style="color: red"' : '') . */ '>
+                            <strong>' . /* ($ctr !== 1 ? $ctr : '') .
+	  ($ctr === 1 ? ' (Direct)' : '') */ $ctr . '</strong>
                         </div>';
 			$str .= '</td>';
 

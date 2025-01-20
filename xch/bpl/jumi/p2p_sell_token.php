@@ -54,23 +54,23 @@ main();
  */
 function main()
 {
-	$username     = session_get('username');
-	$usertype     = session_get('usertype');
-	$admintype    = session_get('admintype');
+	$username = session_get('username');
+	$usertype = session_get('usertype');
+	$admintype = session_get('admintype');
 	$account_type = session_get('account_type');
-	$user_id      = session_get('user_id');
+	$user_id = session_get('user_id');
 
 	$request_id = input_get('request_id');
-	$amount     = input_get('amount');
+	$amount = input_get('amount');
 	$amount_min = input_get('amount_min');
 	$value_sell = input_get('value_sell');
-	$type       = input_get('type');
-	$method     = input_get('method');
-//	$price      = input_get('price');
+	$type = input_get('type');
+	$method = input_get('method');
+	//	$price      = input_get('price');
 
 	$cid = input_get('cid');
-	$gp  = input_get('gp');
-	$dp  = input_get('dp');
+	$gp = input_get('gp');
+	$dp = input_get('dp');
 
 	$aid = input_get('aid');
 	$did = input_get('did');
@@ -79,7 +79,7 @@ function main()
 
 	$grace_period = 33000; // seconds
 
-	$p_post    = input_get('pst', 0);
+	$p_post = input_get('pst', 0);
 	$p_request = input_get('rq', 0);
 
 	page_validate();
@@ -88,28 +88,23 @@ function main()
 
 	validate_seller($user_id, $type);
 
-	if ($amount !== '')
-	{
+	if ($amount !== '') {
 		process_add_post($user_id, $amount, $amount_min, $type, $method);
 	}
 
-	if ($value_sell !== '')
-	{
+	if ($value_sell !== '') {
 		process_sell_request($user_id, $value_sell, $request_id);
 	}
 
-	if ($cid !== '')
-	{
+	if ($cid !== '') {
 		process_delete_post($cid, $gp, $dp);
 	}
 
-	if ($aid !== '')
-	{
+	if ($aid !== '') {
 		process_approve_request($aid);
 	}
 
-	if ($did !== '')
-	{
+	if ($did !== '') {
 		process_deny_request($did);
 	}
 
@@ -129,35 +124,43 @@ function validate_input_sell_request($user_id, $value, $request_id)
 
 	$amount_pending = $buyer->amount_pending;
 	$amount_minimum = $buyer->amount_minimum;
-	$type_buy       = $buyer->type_buy;
+	$type_buy = $buyer->type_buy;
 
 	$user_seller = user($user_id);
 	$bank_seller = payment_method($user_seller);
 
 	$app = application();
 
-	if (empty($bank_seller[$buyer->type_buy]))
-	{
-		$app->redirect(Uri::root(true) . '/' . sef(60) . qs() . 'uid=' . $user_id,
-			'Please fill Up ' . strtoupper($buyer->type_buy) . ' Wallet Address.', 'error');
+	if (empty($bank_seller[$buyer->type_buy])) {
+		$app->redirect(
+			Uri::root(true) . '/' . sef(60) . qs() . 'uid=' . $user_id,
+			'Please fill Up ' . strtoupper($buyer->type_buy) . ' Wallet Address.',
+			'error'
+		);
 	}
 
-	if (empty($bank_seller[$buyer->method_buy]))
-	{
-		$app->redirect(Uri::root(true) . '/' . sef(60) . qs() . 'uid=' . $user_id,
-			'Please fill Up ' . strtoupper($buyer->method_buy) . ' Payment Method.', 'error');
+	if (empty($bank_seller[$buyer->method_buy])) {
+		$app->redirect(
+			Uri::root(true) . '/' . sef(60) . qs() . 'uid=' . $user_id,
+			'Please fill Up ' . strtoupper($buyer->method_buy) . ' Payment Method.',
+			'error'
+		);
 	}
 
-	if ($value > $amount_pending)
-	{
-		$app->redirect(Uri::root(true) . '/' . sef(54),
-			'Please enter valid amount!', 'error');
+	if ($value > $amount_pending) {
+		$app->redirect(
+			Uri::root(true) . '/' . sef(54),
+			'Please enter valid amount!',
+			'error'
+		);
 	}
 
-	if ($value < $amount_minimum)
-	{
-		$app->redirect(Uri::root(true) . '/' . sef(54),
-			'Minimum amount is ' . $amount_minimum . ' ' . strtoupper($type_buy), 'error');
+	if ($value < $amount_minimum) {
+		$app->redirect(
+			Uri::root(true) . '/' . sef(54),
+			'Minimum amount is ' . $amount_minimum . ' ' . strtoupper($type_buy),
+			'error'
+		);
 	}
 }
 
@@ -167,17 +170,14 @@ function php_price_usd()
 
 	$data = [];
 
-	try
-	{
+	try {
 		$json = /*!in_array('curl', get_loaded_extensions()) || is_localhost() ?
-			*/
+		   */
 			@file_get_contents($url)/* : file_get_contents_curl($url)*/
 		;
 
 		$data = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
-	}
-	catch (Exception $e)
-	{
+	} catch (Exception $e) {
 
 	}
 
@@ -186,8 +186,7 @@ function php_price_usd()
 
 function price_usd_coinbrain($token = 'BTC3')
 {
-	switch ($token)
-	{
+	switch ($token) {
 		case 'B2P':
 			$contract = '0xF8AB9fF465C612D5bE6A56716AdF95c52f8Bc72d';
 			break;
@@ -235,10 +234,9 @@ function price_usd_coinbrain($token = 'BTC3')
 		coinbrain_price_token('https://api.coinbrain.com/public/coin-info', $data)
 	);
 
-	if (!empty($results))
-	{
+	if (!empty($results)) {
 		$results = (array) $results[0];
-		$price   = $results['priceUsd'];
+		$price = $results['priceUsd'];
 	}
 
 	return $price;
@@ -260,23 +258,21 @@ function process_sell_request($user_id, $value_sell, $request_id)
 
 	$user_seller = user($posting->seller_id);
 
-	$method_buyer   = $request->method_buy;
+	$method_buyer = $request->method_buy;
 	$amount_pending = $request->amount_pending;
-	$price_buy      = $request->price_buy;
+	$price_buy = $request->price_buy;
 
 	$total = $value_sell * $price_buy;
 
-	if (in_array($method_buyer, ['bank', 'gcash', 'maya']))
-	{
-//		$currency = 'PHP';
+	if (in_array($method_buyer, ['bank', 'gcash', 'maya'])) {
+		//		$currency = 'PHP';
 
 		$php_price_usd = php_price_usd();
 
 		$price_php = 0;
 
-		if ($php_price_usd && isset($php_price_usd['tether']['php']))
-		{
-//			$ask = $php_price_usd['market']['ask'];
+		if ($php_price_usd && isset($php_price_usd['tether']['php'])) {
+			//			$ask = $php_price_usd['market']['ask'];
 //			$bid = $php_price_usd['market']['bid'];
 //
 //			$price_php = ($ask + $bid) / 2;
@@ -285,19 +281,14 @@ function process_sell_request($user_id, $value_sell, $request_id)
 		}
 
 		$price_total = $total * $price_php; // PHP
-	}
-	else
-	{
+	} else {
 		$currency = strtoupper($method_buyer);
 
-		if (in_array($currency, ['B2P', 'AET', 'TPAY', /*'BTC3', 'BTCB', 'BTCW', 'GOLD', 'PAC', 'P2P',*/ 'PESO']))
-		{
+		if (in_array($currency, ['B2P', 'AET', 'TPAY', /*'BTC3', 'BTCB', 'BTCW', 'GOLD', 'PAC', 'P2P',*/ 'PESO'])) {
 			$price_total = $total / price_usd_coinbrain($currency);
-		}
-		else
-		{
+		} else {
 			$price_method = token_price($currency)['price'];
-			$price_base   = token_price('USDT')['price'];
+			$price_base = token_price('USDT')['price'];
 
 			$price_total = ($price_base / $price_method) * $total;
 		}
@@ -306,14 +297,13 @@ function process_sell_request($user_id, $value_sell, $request_id)
 	$contact_info_buyer = arr_contact_info($user_buyer);
 
 	$messenger_buyer = '';
-	$mobile_buyer    = '';
-	$landline_buyer  = '';
+	$mobile_buyer = '';
+	$landline_buyer = '';
 
-	if (!empty($contact_info_buyer))
-	{
+	if (!empty($contact_info_buyer)) {
 		$messenger_buyer = $contact_info_buyer['messenger'] ?? '';
-		$mobile_buyer    = $contact_info_buyer['mobile'] ?? '';
-		$landline_buyer  = $contact_info_buyer['landline'] ?? '';
+		$mobile_buyer = $contact_info_buyer['mobile'] ?? '';
+		$landline_buyer = $contact_info_buyer['landline'] ?? '';
 	}
 
 	$contact_buyer = '<p>Buyer Messenger URL: ' . $messenger_buyer . '</p>';
@@ -340,14 +330,13 @@ function process_sell_request($user_id, $value_sell, $request_id)
 	$contact_info_seller = arr_contact_info($user_seller);
 
 	$messenger_seller = '';
-	$mobile_seller    = '';
-	$landline_seller  = '';
+	$mobile_seller = '';
+	$landline_seller = '';
 
-	if (!empty($contact_info_seller))
-	{
+	if (!empty($contact_info_seller)) {
 		$messenger_seller = $contact_info_seller['messenger'] ?? '';
-		$mobile_seller    = $contact_info_seller['mobile'] ?? '';
-		$landline_seller  = $contact_info_seller['landline'] ?? '';
+		$mobile_seller = $contact_info_seller['mobile'] ?? '';
+		$landline_seller = $contact_info_seller['landline'] ?? '';
 	}
 
 	$contact_seller = '<p>Seller Messenger URL: ' . $messenger_seller . '</p>';
@@ -369,8 +358,7 @@ function process_sell_request($user_id, $value_sell, $request_id)
 			Seller Amount: ' . $value_sell . ' ' . strtoupper($request->type_buy) . '<br>
 			Total: ' . $price_total . ' ' . $currency;
 
-	try
-	{
+	try {
 		$db->transactionStart();
 
 		insert_sell_request($user_id, $value_sell, $price_buy, $price_total, $method_buyer, $request->type_buy, $request_id);
@@ -379,15 +367,16 @@ function process_sell_request($user_id, $value_sell, $request_id)
 		send_mail($message_seller, 'P2P Token Buyer Request', [$user_seller->email]);
 
 		$db->transactionCommit();
-	}
-	catch (Exception $e)
-	{
+	} catch (Exception $e) {
 		$db->transactionRollback();
 		ExceptionHandler::render($e);
 	}
 
-	$app->redirect(Uri::root(true) . '/' . sef(54),
-		'P2P Token Buyer Request Successful', 'success');
+	$app->redirect(
+		Uri::root(true) . '/' . sef(54),
+		'P2P Token Buyer Request Successful',
+		'success'
+	);
 }
 
 function insert_sell_request($user_id, $value_sell, $price_buy, $price_total, $method_buyer, $type_buy, $request_id)
@@ -441,19 +430,16 @@ function view_requests($user_id, $p_request, int $rows = 5): string
 
 	$str .= '<h2>Requests</h2>';
 
-	$limit_to   = $rows;
+	$limit_to = $rows;
 	$limit_from = $limit_to * $p_request;
 
 	$requests = requests_seller_desc_lim($user_id, $limit_from, $limit_to);
 
 	$str .= paginate($p_request, requests_seller_all($user_id), 54, $rows, 'rq');
 
-	if (empty($requests))
-	{
+	if (empty($requests)) {
 		$str .= '<hr><p>No pending requests yet.</p>';
-	}
-	else
-	{
+	} else {
 		$str .= '<table class="category table table-striped table-bordered table-hover">';
 		$str .= '<thead>';
 		$str .= '<tr>';
@@ -500,8 +486,7 @@ function view_requests_all($requests, $user_id): string
 {
 	$str = '';
 
-	foreach ($requests as $request)
-	{
+	foreach ($requests as $request) {
 		$str .= view_request_single($request, $user_id);
 	}
 
@@ -519,25 +504,24 @@ function view_modals($requests): string
 {
 	$str = '';
 
-	foreach ($requests as $request)
-	{
-		$request_id     = $request->request_id;
-		$sale_id        = $request->sale_id;
-		$buyer_id       = $request->buyer_id;
-		$amount         = $request->amount;
+	foreach ($requests as $request) {
+		$request_id = $request->request_id;
+		$sale_id = $request->sale_id;
+		$buyer_id = $request->buyer_id;
+		$amount = $request->amount;
 		$amount_pending = $request->amount_pending;
-		$total_buy      = $request->total;
-		$type_buy       = $request->type_buy;
-		$price_buy      = $request->price_buy;
-		$method_buy     = $request->method_buy;
+		$total_buy = $request->total;
+		$type_buy = $request->type_buy;
+		$price_buy = $request->price_buy;
+		$method_buy = $request->method_buy;
 		$date_requested = $request->date_requested;
 
 		$posting = posting_single($sale_id);
 
 		$method_seller = $posting->method ?? '';
-		$total_sell    = $posting->total_sell ?? 0;
-		$price_sell    = $posting->price ?? 0;
-		$type_sell     = $posting->type ?? '';
+		$total_sell = $posting->total_sell ?? 0;
+		$price_sell = $posting->price ?? 0;
+		$type_sell = $posting->type ?? '';
 
 		$type = !$amount_pending ? $type_sell : $type_buy;
 
@@ -583,25 +567,25 @@ function view_modals($requests): string
  */
 function view_request_single($request, $user_id): string
 {
-	$request_id     = $request->request_id;
-	$sale_id        = $request->sale_id;
-	$buyer_id       = $request->buyer_id;
-	$amount         = $request->amount;
+	$request_id = $request->request_id;
+	$sale_id = $request->sale_id;
+	$buyer_id = $request->buyer_id;
+	$amount = $request->amount;
 	$amount_pending = $request->amount_pending;
-	$total_buy      = $request->total;
-	$type_buy       = $request->type_buy;
-	$price_buy      = $request->price_buy;
-	$method_buy     = $request->method_buy;
+	$total_buy = $request->total;
+	$type_buy = $request->type_buy;
+	$price_buy = $request->price_buy;
+	$method_buy = $request->method_buy;
 	$date_requested = $request->date_requested;
 	$date_confirmed = $request->date_confirmed;
 
 	$posting = posting_single($sale_id);
 
 	$method_seller = $posting->method ?? '';
-	$total_sell    = $posting->total_sell ?? 0;
-	$price_sell    = $posting->price ?? 0;
-	$type_sell     = $posting->type ?? '';
-//	$purchase_id   = $posting->purchase_id ?? '';
+	$total_sell = $posting->total_sell ?? 0;
+	$price_sell = $posting->price ?? 0;
+	$type_sell = $posting->type ?? '';
+	//	$purchase_id   = $posting->purchase_id ?? '';
 
 	$type = !$amount_pending ? $type_sell : $type_buy;
 
@@ -618,8 +602,7 @@ function view_request_single($request, $user_id): string
 
 	$currency = $method;
 
-	if (in_array($currency, ['bank', 'gcash', 'maya']))
-	{
+	if (in_array($currency, ['bank', 'gcash', 'maya'])) {
 		$currency = 'PHP';
 	}
 
@@ -631,14 +614,11 @@ function view_request_single($request, $user_id): string
 	$str = '<tr>';
 	$str .= '<td> ' . date('M j, Y - g:i A', $date_requested) . ' </td>';
 
-	if ($amount_pending)
-	{
+	if ($amount_pending) {
 		$str .= '<td> ' . '<input type="button" class="uk-button uk-button-primary" value="' .
 			number_format($amount_rep, 8) . ' ' . strtoupper($type) .
 			'" data-uk-modal="{target:\'#modal-type-' . $request_id . '\'}"' . '></td>';
-	}
-	else
-	{
+	} else {
 		$str .= '<td> ' . number_format($amount_rep, 8) . ' ' . strtoupper($type) . '</td>';
 	}
 
@@ -646,12 +626,9 @@ function view_request_single($request, $user_id): string
 		strtoupper(/*!empty($posting) ? $currency : *//*settings('ancillaries')->currency)*/ 'USD') . '</td>';
 	$str .= '<td> ' . $total_rep . '</td>';
 
-	if ($amount_pending)
-	{
+	if ($amount_pending) {
 		$str .= '<td> ' . strtoupper($method) . '</td>';
-	}
-	else
-	{
+	} else {
 		$str .= '<td> ' . '<input type="button" class="uk-button uk-button-primary" value="' .
 			strtoupper($method) . '" data-uk-modal="{target:\'#modal-method-' . $request_id . '\'}"' . '></td>';
 	}
@@ -678,8 +655,7 @@ function view_request_single($request, $user_id): string
 			}
 		</style>';
 
-	if ($amount_pending)
-	{
+	if ($amount_pending) {
 		$str .= '<div id="modal-type-' . $request_id .
 			'" class="uk-modal" aria-hidden="true" style="display: none; overflow-y: scroll; margin-top: 150px">
             <div class="uk-modal-dialog" style="text-align: center">
@@ -692,46 +668,39 @@ function view_request_single($request, $user_id): string
 		$contact_info = arr_contact_info($user_buyer);
 
 		$messenger = '';
-		$mobile    = '';
-		$landline  = '';
+		$mobile = '';
+		$landline = '';
 
-		if (!empty($contact_info))
-		{
+		if (!empty($contact_info)) {
 			$messenger = $contact_info['messenger'] ?? '';
-			$mobile    = $contact_info['mobile'] ?? '';
-			$landline  = $contact_info['landline'] ?? '';
+			$mobile = $contact_info['mobile'] ?? '';
+			$landline = $contact_info['landline'] ?? '';
 		}
 
 		$str .= $messenger ? '<p>Buyer Messenger URL: <b>' . $messenger . '</b></p>' : '';
 		$str .= $mobile ? '<p>Buyer Mobile Number: <b>' . $mobile . '</b></p>' : '';
 		$str .= $landline ? '<p>Buyer Landline Number: <b>' . $landline . '</b></p>' : '';
 
-		if (!$amount_pending)
-		{
+		if (!$amount_pending) {
 			$str .= '<p>Upon payment confirmation, you can now transfer</p>';
 			$str .= '<p><b>' . number_format($amount, 8) . '</b> ' . strtoupper($type) . '</p>';
 			$str .= '<p>to the following Wallet Address:</p>';
 			$str .= '<p><b>' . $bank_buyer[$type] . '</b></p>';
 			$str .= '<img src="' . qr_code_generate($bank_buyer[$type]) .
 				'" alt="QR Code Trust Wallet" style="width:250px;">';
-		}
-		else
-		{
+		} else {
 			$str .= '<p>Buyer ' . strtoupper($type) . ' Wallet Address: <b>' . $wallet_buyer . '</b></p>';
 		}
 
 		$str .= '</div>';
 		$str .= '</div>';
-	}
-	else
-	{
+	} else {
 		$str .= '<div id="modal-method-' . $request_id .
 			'" class="uk-modal" aria-hidden="true" style="display: none; overflow-y: scroll; margin-top: 150px">
             <div class="uk-modal-dialog" style="text-align: center">
                 <button type="button" class="uk-modal-close uk-close"></button>';
 
-		if (!in_array($method, ['bank', 'gcash', 'maya']) || $amount_pending <= 0)
-		{
+		if (!in_array($method, ['bank', 'gcash', 'maya']) || $amount_pending <= 0) {
 			$str .= '<img src="images/trust-wallet.svg" alt=""><br>';
 		}
 
@@ -742,56 +711,46 @@ function view_request_single($request, $user_id): string
 		$contact_info = arr_contact_info($user_buyer);
 
 		$messenger = '';
-		$mobile    = '';
-		$landline  = '';
+		$mobile = '';
+		$landline = '';
 
-		if (!empty($contact_info))
-		{
+		if (!empty($contact_info)) {
 			$messenger = $contact_info['messenger'] ?? '';
-			$mobile    = $contact_info['mobile'] ?? '';
-			$landline  = $contact_info['landline'] ?? '';
+			$mobile = $contact_info['mobile'] ?? '';
+			$landline = $contact_info['landline'] ?? '';
 		}
 
 		$str .= $messenger ? '<p>Buyer Messenger URL: <b>' . $messenger . '</b></p>' : '';
 		$str .= $mobile ? '<p>Buyer Mobile Number: <b>' . $mobile . '</b></p>' : '';
 		$str .= $landline ? '<p>Buyer Landline Number: <b>' . $landline . '</b></p>' : '';
 
-//	$str .= '<p>Buyer Contact Info: <b>' . $user_buyer->contact . '</b></p>';
+		//	$str .= '<p>Buyer Contact Info: <b>' . $user_buyer->contact . '</b></p>';
 
-		if (!$amount_pending)
-		{
+		if (!$amount_pending) {
 			$str .= '<p>Upon payment confirmation, you can now transfer</p>';
 			$str .= '<p><b>' . number_format($amount, 8) . '</b> ' . strtoupper($type) . '</p>';
 			$str .= '<p>to the following Wallet Address:</p>';
 			$str .= '<p><b>' . $bank_buyer[$type] . '</b></p>';
 			$str .= '<img src="' . qr_code_generate($bank_buyer[$type]) .
 				'" alt="QR Code Trust Wallet" style="width:250px;">';
-		}
-		else
-		{
-//			$str .= '<p><b>Buyer ' . strtoupper($type) . ' Wallet Address: ' . $wallet_buyer . '</b></p>';
+		} else {
+			//			$str .= '<p><b>Buyer ' . strtoupper($type) . ' Wallet Address: ' . $wallet_buyer . '</b></p>';
 
-			if (!in_array($method, ['bank', 'gcash', 'maya']))
-			{
+			if (!in_array($method, ['bank', 'gcash', 'maya'])) {
 				$str .= '<p>Buyer Wallet Address: <b>' . $wallet_buyer . '</b></p>';
 				$str .= '<img src="' . qr_code_generate($wallet_buyer) .
 					'" alt="QR Code Trust Wallet" style="width:250px;">';
-			}
-			elseif ($method === 'bank')
-			{
-				$bank_name    = '';
+			} elseif ($method === 'bank') {
+				$bank_name = '';
 				$bank_account = '';
 
-				foreach ($bank_buyer[$method] as $k => $v)
-				{
-					$bank_name    = strtoupper($k);
+				foreach ($bank_buyer[$method] as $k => $v) {
+					$bank_name = strtoupper($k);
 					$bank_account = $v;
 				}
 
 				$str .= '<p>Buyer ' . $bank_name . ' Account: <b>' . $bank_account . '</b></p>';
-			}
-			elseif ($method === 'gcash')
-			{
+			} elseif ($method === 'gcash') {
 				$str .= '<p>Buyer G-Cash Number: <b>' . $wallet_buyer . '</b></p>';
 			}
 		}
@@ -800,57 +759,39 @@ function view_request_single($request, $user_id): string
 		$str .= '</div>';
 	}
 
-	if (!empty($posting))
-	{
-		if ((int) $date_confirmed > 0)
-		{
+	if (!empty($posting)) {
+		if ((int) $date_confirmed > 0) {
 			$status = '<span class="uk-badge uk-badge-success uk-badge-notification">Approved</span>';
-		}
-		else
-		{
-			if ((int) $date_confirmed === 0)
-			{
-				if ($amount_pending > 0)
-				{
+		} else {
+			if ((int) $date_confirmed === 0) {
+				if ($amount_pending > 0) {
 					$status = '<span class="uk-badge uk-badge-success uk-badge-notification">Active</span>';
-				}
-				else
-				{
+				} else {
 					$status = '<span class="uk-badge uk-badge-warning uk-badge-notification">Pending</span>';
 				}
-			}
-			else
-			{
+			} else {
 				$status = '<span class="uk-badge uk-badge-danger uk-badge-notification">Denied</span>';
 			}
 		}
-	}
-	else
-	{
+	} else {
 		$status = '<span class="uk-badge uk-badge-success uk-badge-notification">Active</span>';
 	}
 
 	$str .= '<td>' . $status . '</td>';
 
-	if ($amount_pending)
-	{
+	if ($amount_pending) {
 		$str .= '<td><input type="button" class="uk-button uk-button-primary" value="Sell" 
 				data-uk-modal="{target:\'#modal-sell-' . $request_id . '\'}"></td>';
-	}
-	else
-	{
-		if ($posting->seller_id === $user_id)
-		{
+	} else {
+		if ($posting->seller_id === $user_id) {
 			$str .= '<td><input type="button" class="uk-button uk-button-primary" value="Confirm" 
 				data-uk-modal="{target:\'#modal-confirm-' . $request_id . '\'}"></td>';
-		}
-		else
-		{
+		} else {
 			$str .= '<td>N/A</td>';
 		}
 	}
 
-//	$str .= !$amount_pending ? '<td><input type="button" class="uk-button uk-button-primary" value="Confirm"
+	//	$str .= !$amount_pending ? '<td><input type="button" class="uk-button uk-button-primary" value="Confirm"
 //				data-uk-modal="{target:\'#modal-confirm-' . $request_id . '\'}"></td>' :
 //		'<td><input type="button" class="uk-button uk-button-primary" value="Sell"
 //				data-uk-modal="{target:\'#modal-sell-' . $request_id . '\'}"></td>';
@@ -868,27 +809,25 @@ function view_modal_buy_confirm(
 	$type,
 	$total,
 	$method_buyer,
-	$wallet_buyer): string
-{
+	$wallet_buyer
+): string {
 	$user_buyer = user($buyer_id);
 
 	$contact_info = arr_contact_info($user_buyer);
 
 	$messenger = '';
-	$mobile    = '';
-	$landline  = '';
+	$mobile = '';
+	$landline = '';
 
-	if (!empty($contact_info))
-	{
+	if (!empty($contact_info)) {
 		$messenger = $contact_info['messenger'] ?? '';
-		$mobile    = $contact_info['mobile'] ?? '';
-		$landline  = $contact_info['landline'] ?? '';
+		$mobile = $contact_info['mobile'] ?? '';
+		$landline = $contact_info['landline'] ?? '';
 	}
 
 	$currency = $method_buyer;
 
-	if (in_array($currency, ['bank', 'gcash', 'maya']))
-	{
+	if (in_array($currency, ['bank', 'gcash', 'maya'])) {
 		$currency = 'PHP';
 	}
 
@@ -905,16 +844,15 @@ function view_modal_buy_confirm(
 	$str .= $user_buyer->fullname ? ('<p>Buyer Full Name: <b>' . $user_buyer->fullname . '</b></p>') : '';
 	$str .= $user_buyer->email ? ('<p>Buyer E-mail: <b>' . $user_buyer->email . '</b></p>') : '';
 
-//	$contact_info = arr_contact_info($user_buyer);
+	//	$contact_info = arr_contact_info($user_buyer);
 
 	$str .= $messenger ? '<p>Buyer Messenger URL: <b>' . $messenger . '</b></p>' : '';
 	$str .= $mobile ? '<p>Buyer Mobile Number: <b>' . $mobile . '</b></p>' : '';
 	$str .= $landline ? '<p>Buyer Landline Number: <b>' . $landline . '</b></p>' : '';
 
-//	$str .= '<p>Buyer Contact Info: <b>' . $user_buyer->contact . '</b></p>';
+	//	$str .= '<p>Buyer Contact Info: <b>' . $user_buyer->contact . '</b></p>';
 
-	if (!in_array($method_buyer, ['bank', 'gcash', 'maya']))
-	{
+	if (!in_array($method_buyer, ['bank', 'gcash', 'maya'])) {
 		$str .= '<p>Buyer Wallet Address: <b>' . $wallet_buyer . '</b></p>';
 	}
 
@@ -935,9 +873,9 @@ function view_modal_sell_request(
 	$amount,
 	$type_buy,
 	$price_buy,
-	$method_buy): string
-{
-//	$str = '<div id="modal-sell-' . $request_id . '" class="uk-modal" aria-hidden="true"
+	$method_buy
+): string {
+	//	$str = '<div id="modal-sell-' . $request_id . '" class="uk-modal" aria-hidden="true"
 //		style="display: none; overflow-y: scroll; margin-top: 120px">';
 	$str = '<div id="modal-sell-' . $request_id . '" class="uk-modal" style="z-index: 1030;">';
 	$str .= '<div class="uk-modal-dialog" style="text-align: center">';
@@ -971,7 +909,7 @@ function view_form_sell_request($request_id): string
 			<form method="post" onsubmit="submit.disabled=true; return true;">
 				<input type="hidden" name="request_id" value="' . $request_id . '">' .
 		/*'<input type="hidden" name="amount_buy" value="' . $amount . '">
-		<input type="hidden" name="price_buy" value="' . $price_buy . '">' .*/
+														<input type="hidden" name="price_buy" value="' . $price_buy . '">' .*/
 		'<fieldset>
                     <legend>Fill Up Desired Amount to Sell</legend>
                     <div class="uk-form-row">
@@ -1014,16 +952,14 @@ function qr_code_generate($address): string
 	$tempDir = sys_get_temp_dir();
 
 	// Ensure the temporary directory is writable
-	if (!is_writable($tempDir))
-	{
+	if (!is_writable($tempDir)) {
 		throw new RuntimeException("Temporary directory is not writable.");
 	}
 
 	// Create a temporary image path
 	$tempFile = tempnam($tempDir, 'qr');
 
-	if ($tempFile === false)
-	{
+	if ($tempFile === false) {
 		throw new RuntimeException("Unable to create temporary file.");
 	}
 
@@ -1032,8 +968,7 @@ function qr_code_generate($address): string
 
 	// Read the image file and encode it in base64
 	$imageData = file_get_contents($tempFile);
-	if ($imageData === false)
-	{
+	if ($imageData === false) {
 		throw new RuntimeException("Unable to read temporary file.");
 	}
 	$imageData = base64_encode($imageData);
@@ -1064,18 +999,13 @@ function requests_seller_desc_lim($user_id, $limit_from, $limit_to, $order = 're
 		'LIMIT ' . $limit_from . ', ' . $limit_to
 	)->loadObjectList();
 
-	foreach ($results as $result)
-	{
-		if ($result->amount_pending)
-		{
+	foreach ($results as $result) {
+		if ($result->amount_pending) {
 			$return[] = $result;
-		}
-		else
-		{
+		} else {
 			$posting = posting_single($result->sale_id);
 
-			if ($posting && $posting->seller_id === $user_id)
-			{
+			if ($posting && $posting->seller_id === $user_id) {
 				$return[] = $result;
 			}
 		}
@@ -1088,7 +1018,7 @@ function requests_seller_all($user_id): array
 {
 	$db = db();
 
-//	return $db->setQuery(
+	//	return $db->setQuery(
 //		'SELECT * ' .
 //		'FROM network_p2p_token_sale ' .
 //		'WHERE date_confirmed <= 0 ' .
@@ -1112,18 +1042,13 @@ function requests_seller_all($user_id): array
 		' AND amount_minimum > 0))'
 	)->loadObjectList();
 
-	foreach ($results as $result)
-	{
-		if ($result->amount_pending)
-		{
+	foreach ($results as $result) {
+		if ($result->amount_pending) {
 			$return[] = $result;
-		}
-		else
-		{
+		} else {
 			$posting = posting_single($result->sale_id);
 
-			if ($posting && $posting->seller_id === $user_id)
-			{
+			if ($posting && $posting->seller_id === $user_id) {
 				$return[] = $result;
 			}
 		}
@@ -1145,30 +1070,30 @@ function process_delete_post($cid, $gp, $dp)
 	$db = db();
 
 	/*if ((time() - $dp) > $gp) {
-		application()->redirect(Uri::root(true) . '/' . sef(54),
-			'Post is now permanent and cannot be cancelled!', 'warning');
-	}*/
+								application()->redirect(Uri::root(true) . '/' . sef(54),
+									'Post is now permanent and cannot be cancelled!', 'warning');
+							}*/
 
 	$posting = posting_single($cid);
 
-	try
-	{
+	try {
 		$db->transactionStart();
 
 		update_user_token_cancel($posting->seller_id, $posting->amount_remaining, $posting->type);
 		delete_post($cid);
 
 		$db->transactionCommit();
-	}
-	catch (Exception $e)
-	{
+	} catch (Exception $e) {
 		$db->transactionRollback();
 
 		ExceptionHandler::render($e);
 	}
 
-	application()->redirect(Uri::root(true) . '/' . sef(54),
-		'Post deleted successfully!', 'notice');
+	application()->redirect(
+		Uri::root(true) . '/' . sef(54),
+		'Post deleted successfully!',
+		'notice'
+	);
 }
 
 /**
@@ -1197,13 +1122,15 @@ function validate_seller($user_id, $type)
 
 	$app = application();
 
-	if ($type === 'none')
-	{
-		$app->redirect(Uri::root(true) . '/' . sef(54),
-			'Select Type.', 'error');
+	if ($type === 'none') {
+		$app->redirect(
+			Uri::root(true) . '/' . sef(54),
+			'Select Type.',
+			'error'
+		);
 	}
 
-//	if ($seller->balance_fmc < $amount)
+	//	if ($seller->balance_fmc < $amount)
 //	{
 //		$app->redirect(Uri::root(true) . '/' . sef(54),
 //			'You don\'t have sufficient tokens to sell.', 'error');
@@ -1212,36 +1139,43 @@ function validate_seller($user_id, $type)
 	validate_payment_method($seller);
 
 	// fullname
-	if (empty($seller->fullname))
-	{
-		$app->redirect(Uri::root(true) . '/' . sef(60) . qs() . 'uid=' . $seller->id,
-			'Your Full Name is Required for Verification.', 'error');
+	if (empty($seller->fullname)) {
+		$app->redirect(
+			Uri::root(true) . '/' . sef(60) . qs() . 'uid=' . $seller->id,
+			'Your Full Name is Required for Verification.',
+			'error'
+		);
 	}
 
 	$arr_contact = arr_contact_info($seller);
 
 	// contact
-	if (empty($arr_contact))
-	{
-		$app->redirect(Uri::root(true) . '/' . sef(60) . qs() . 'uid=' . $seller->id,
-			'Your Contact Information is Required for Verification.', 'error');
+	if (empty($arr_contact)) {
+		$app->redirect(
+			Uri::root(true) . '/' . sef(60) . qs() . 'uid=' . $seller->id,
+			'Your Contact Information is Required for Verification.',
+			'error'
+		);
 	}
 
 	// email
-	if (empty($seller->email))
-	{
-		$app->redirect(Uri::root(true) . '/' . sef(60) . qs() . 'uid=' . $seller->id,
-			'Your Email is Required for Verification.', 'error');
+	if (empty($seller->email)) {
+		$app->redirect(
+			Uri::root(true) . '/' . sef(60) . qs() . 'uid=' . $seller->id,
+			'Your Email is Required for Verification.',
+			'error'
+		);
 	}
 
 	$address_arr = explode('|', $seller->address);
 
-	foreach ($address_arr as $addr)
-	{
-		if (empty($addr))
-		{
-			$app->redirect(Uri::root(true) . '/' . sef(60) . qs() . 'uid=' . $seller->id,
-				'Your Complete Address Location is Required for Verification.', 'error');
+	foreach ($address_arr as $addr) {
+		if (empty($addr)) {
+			$app->redirect(
+				Uri::root(true) . '/' . sef(60) . qs() . 'uid=' . $seller->id,
+				'Your Complete Address Location is Required for Verification.',
+				'error'
+			);
 		}
 	}
 }
@@ -1252,29 +1186,29 @@ function validate_payment_method($user)
 
 	$payment_method = payment_method($user);
 
-	if (empty($payment_method))
-	{
-		$app->redirect(Uri::root(true) . '/' . sef(60) . qs() . 'uid=' . $user->id,
-			'Seller Wallet Address is Required as your Payment Method.', 'error');
-	}
-	else
-	{
+	if (empty($payment_method)) {
+		$app->redirect(
+			Uri::root(true) . '/' . sef(60) . qs() . 'uid=' . $user->id,
+			'Seller Wallet Address is Required as your Payment Method.',
+			'error'
+		);
+	} else {
 		$no_address = true;
 
-		foreach ($payment_method as $v)
-		{
-			if (!empty($v))
-			{
+		foreach ($payment_method as $v) {
+			if (!empty($v)) {
 				$no_address = false;
 			}
 
 			break;
 		}
 
-		if ($no_address)
-		{
-			$app->redirect(Uri::root(true) . '/' . sef(60) . qs() . 'uid=' . $user->id,
-				'Seller Wallet Address is Required as your Payment Method.', 'error');
+		if ($no_address) {
+			$app->redirect(
+				Uri::root(true) . '/' . sef(60) . qs() . 'uid=' . $user->id,
+				'Seller Wallet Address is Required as your Payment Method.',
+				'error'
+			);
 		}
 	}
 }
@@ -1295,8 +1229,7 @@ function menu($usertype, $admintype, $account_type, $username, $user_id): string
 {
 	$str = '';
 
-	switch ($usertype)
-	{
+	switch ($usertype) {
 		case 'Admin':
 			$str .= menu_admin($admintype, $account_type, $user_id, $username);
 			break;
@@ -1367,25 +1300,31 @@ function validate_input($user_id, $amount, $amount_min, $type, $method)
 {
 	$app = application();
 
-	if ($type === $method)
-	{
-		$app->redirect(Uri::root(true) . '/' . sef(54) . qs() . 'uid=' . $user_id,
-			'Your Payment Method Must be Different from the Type.', 'error');
+	if ($type === $method) {
+		$app->redirect(
+			Uri::root(true) . '/' . sef(54) . qs() . 'uid=' . $user_id,
+			'Your Payment Method Must be Different from the Type.',
+			'error'
+		);
 	}
 
-	if ($amount <= 0)
-	{
-		$app->redirect(Uri::root(true) . '/' . sef(54),
-			'Maximum amount is required!', 'error');
+	if ($amount <= 0) {
+		$app->redirect(
+			Uri::root(true) . '/' . sef(54),
+			'Maximum amount is required!',
+			'error'
+		);
 	}
 
-	if ($amount_min <= 0)
-	{
-		$app->redirect(Uri::root(true) . '/' . sef(54),
-			'Minimum amount is required!', 'error');
+	if ($amount_min <= 0) {
+		$app->redirect(
+			Uri::root(true) . '/' . sef(54),
+			'Minimum amount is required!',
+			'error'
+		);
 	}
 
-//	if ($price <= 0)
+	//	if ($price <= 0)
 //	{
 //		$app->redirect(Uri::root(true) . '/' . sef(54),
 //			'Please enter valid price!', 'error');
@@ -1394,15 +1333,13 @@ function validate_input($user_id, $amount, $amount_min, $type, $method)
 
 function price_usd($method)
 {
-	if (in_array($method, ['bank', 'gcash', 'maya']))
-	{
+	if (in_array($method, ['bank', 'gcash', 'maya'])) {
 		$php_price_usd = php_price_usd();
 
 		$price_php = 0;
 
-		if ($php_price_usd && isset($php_price_usd['tether']['php']))
-		{
-//            $ask = $php_price_usd['market']['ask'];
+		if ($php_price_usd && isset($php_price_usd['tether']['php'])) {
+			//            $ask = $php_price_usd['market']['ask'];
 //            $bid = $php_price_usd['market']['bid'];
 //
 //            $price_php = ($ask + $bid) / 2;
@@ -1411,19 +1348,14 @@ function price_usd($method)
 		}
 
 		$price_res = $price_php; // PHP
-	}
-	else
-	{
+	} else {
 		$currency = strtoupper($method);
 
-		if (in_array($currency, ['B2P', 'AET', 'TPAY', /*'BTC3', 'BTCB', 'BTCW', 'GOLD', 'PAC', 'P2P',*/ 'PESO']))
-		{
+		if (in_array($currency, ['B2P', 'AET', 'TPAY', /*'BTC3', 'BTCB', 'BTCW', 'GOLD', 'PAC', 'P2P',*/ 'PESO'])) {
 			$price_res = 1 / price_usd_coinbrain($currency);
-		}
-		else
-		{
+		} else {
 			$price_method = token_price($currency)['price'];
-			$price_base   = token_price('USDT')['price'];
+			$price_base = token_price('USDT')['price'];
 
 			$price_res = $price_base / $price_method;
 		}
@@ -1460,10 +1392,8 @@ function process_add_post($user_id, $amount, $amount_min, $type, $method)
 
 	$contact = '';
 
-	if (!empty($arr_contact_info))
-	{
-		foreach ($arr_contact_info as $k => $v)
-		{
+	if (!empty($arr_contact_info)) {
+		foreach ($arr_contact_info as $k => $v) {
 			$contact .= $k . ': ' . $v . '<br>';
 		}
 	}
@@ -1482,12 +1412,10 @@ function process_add_post($user_id, $amount, $amount_min, $type, $method)
 			Type: ' . strtoupper($type) . '<br>
 			Price: ' . $price;
 
-	try
-	{
+	try {
 		$db->transactionStart();
 
-		if ($price_total > 0)
-		{
+		if ($price_total > 0) {
 			update_user_p2p_token_add($user_id, $amount, $type);
 
 			insert_posting($user_id, $amount, $amount_min, $type, $method, $price);
@@ -1496,15 +1424,16 @@ function process_add_post($user_id, $amount, $amount_min, $type, $method)
 		}
 
 		$db->transactionCommit();
-	}
-	catch (Exception $e)
-	{
+	} catch (Exception $e) {
 		$db->transactionRollback();
 		ExceptionHandler::render($e);
 	}
 
-	application()->redirect(Uri::root(true) . '/' . sef(54),
-		'P2P Token Seller Posting Successful', 'success');
+	application()->redirect(
+		Uri::root(true) . '/' . sef(54),
+		'P2P Token Seller Posting Successful',
+		'success'
+	);
 }
 
 /**
@@ -1525,12 +1454,9 @@ function update_user_p2p_token_add($user_id, $amount, $type)
 
 	$arr_p2p_wallet = json_decode(user($user_id)->p2p_wallet, true);
 
-	if (!empty($arr_p2p_wallet) && array_key_exists($type, $arr_p2p_wallet))
-	{
+	if (!empty($arr_p2p_wallet) && array_key_exists($type, $arr_p2p_wallet)) {
 		$arr_p2p_wallet[$type] += $amount;
-	}
-	else
-	{
+	} else {
 		$arr_p2p_wallet[$type] = $amount;
 	}
 
@@ -1547,19 +1473,16 @@ function update_user_token_cancel($user_id, $amount, $type)
 
 	$type = strtolower($type);
 
-	$user            = user($user_id);
+	$user = user($user_id);
 	$json_p2p_wallet = $user->p2p_wallet;
-	$arr_p2p_wallet  = json_decode($json_p2p_wallet, true);
+	$arr_p2p_wallet = json_decode($json_p2p_wallet, true);
 
-	if (!empty($arr_p2p_wallet) && array_key_exists($type, $arr_p2p_wallet))
-	{
-		$value_type     = (double) $arr_p2p_wallet[$type];
+	if (!empty($arr_p2p_wallet) && array_key_exists($type, $arr_p2p_wallet)) {
+		$value_type = (double) $arr_p2p_wallet[$type];
 		$value_type_new = $value_type - $amount;
 
 		$arr_p2p_wallet[$type] = $value_type_new;
-	}
-	else
-	{
+	} else {
 		$arr_p2p_wallet[$type] = 0;
 	}
 
@@ -1586,19 +1509,16 @@ function update_seller_p2p_wallet_approve($request_id)
 
 	$amount = $request->amount;
 
-	$posting   = posting_single($request->sale_id);
+	$posting = posting_single($request->sale_id);
 	$seller_id = $posting->seller_id;
 
 	$type = strtolower($posting->type);
 
 	$arr_p2p_wallet = json_decode(user($seller_id)->p2p_wallet, true);
 
-	if (!empty($arr_p2p_wallet) && array_key_exists($type, $arr_p2p_wallet))
-	{
+	if (!empty($arr_p2p_wallet) && array_key_exists($type, $arr_p2p_wallet)) {
 		$arr_p2p_wallet[$type] -= $amount;
-	}
-	else
-	{
+	} else {
 		$arr_p2p_wallet[$type] = 0;
 	}
 
@@ -1635,8 +1555,7 @@ function update_seller_posting_approve($request_id)
 		'date_updated = ' . $db->quote(time())
 	];
 
-	if ($amount_remaining_new <= 0)
-	{
+	if ($amount_remaining_new <= 0) {
 		$field[] = 'date_confirmed = ' . $db->quote(time());
 	}
 
@@ -1668,8 +1587,7 @@ function process_approve_request($aid)
 {
 	$db = db();
 
-	try
-	{
+	try {
 		$db->transactionStart();
 
 		update_seller_p2p_wallet_approve($aid);
@@ -1679,16 +1597,17 @@ function process_approve_request($aid)
 		log_p2p_buy_transaction($aid);
 
 		$db->transactionCommit();
-	}
-	catch (Exception $e)
-	{
+	} catch (Exception $e) {
 		$db->transactionRollback();
 
 		ExceptionHandler::render($e);
 	}
 
-	application()->redirect(Uri::root(true) . '/' . sef(54),
-		'Request approved successfully!', 'success');
+	application()->redirect(
+		Uri::root(true) . '/' . sef(54),
+		'Request approved successfully!',
+		'success'
+	);
 }
 
 function log_p2p_buy_transaction($request_id)
@@ -1704,7 +1623,8 @@ function log_p2p_buy_transaction($request_id)
 		$pc->method,
 		$pc->price,
 		$rc->total,
-		$rc->date_requested);
+		$rc->date_requested
+	);
 }
 
 function insert_buy_transaction(
@@ -1715,8 +1635,8 @@ function insert_buy_transaction(
 	$method,
 	$price,
 	$final,
-	$date_open)
-{
+	$date_open
+) {
 	$db = db();
 
 	insert(
@@ -1763,23 +1683,23 @@ function process_deny_request($did)
 {
 	$db = db();
 
-	try
-	{
+	try {
 		$db->transactionStart();
 
 		update_buyer_request_deny($did);
 
 		$db->transactionCommit();
-	}
-	catch (Exception $e)
-	{
+	} catch (Exception $e) {
 		$db->transactionRollback();
 
 		ExceptionHandler::render($e);
 	}
 
-	application()->redirect(Uri::root(true) . '/' . sef(54),
-		'Request has been denied!', 'notice');
+	application()->redirect(
+		Uri::root(true) . '/' . sef(54),
+		'Request has been denied!',
+		'notice'
+	);
 }
 
 /**
@@ -1796,11 +1716,13 @@ function view_form_sell_post($user_id): string
 
 	$str = '<h1>' . $sp->p2p_trading_name . '</h1>';
 
-	$user         = user($user_id);
+	$str .= '<p style="margin-bottom: -3px; color: green;">When buying tokens using P2P, always contact the other party first for payment confirmation before sending any payment.</p>';
+	$str .= '<p style="color: green;">After successfully completing the payment transaction, kindly take a screenshot of the proof of payment and share it with the other party as confirmation.</p>';
+
+	$user = user($user_id);
 	$account_type = $user->account_type;
 
-	if ($account_type !== 'starter')
-	{
+	if ($account_type !== 'starter') {
 		$str .= '<form method="post" onsubmit="submit.disabled=true; return true;">';
 		$str .= '<table class="category table table-striped table-bordered table-hover">';
 		$str .= '<tr>';
@@ -1814,7 +1736,7 @@ function view_form_sell_post($user_id): string
 		$str .= '</div></div>';
 
 		$str .= '<div class="uk-grid"><div class="uk-width-1-1" data-uk-margin="">';
-//	$str .= '<input type="text" name="price" placeholder="Preferred Price (' .
+		//	$str .= '<input type="text" name="price" placeholder="Preferred Price (' .
 //		settings('ancillaries')->currency . ')" id="price" style = "float:left">';
 		$str .= view_method_select($user_id);
 		$str .= '<input type="submit" name="submit" value="Submit" class="uk-button uk-button-primary">';
@@ -1840,12 +1762,9 @@ function view_type_select($user_id): string
 	$str = '<select name="type" id="type" style="float:left">';
 	$str .= '<option value="none" selected>Select Currency</option>';
 
-	if (!empty($pmu))
-	{
-		foreach ($pmu as $k => $v)
-		{
-			if (!in_array($k, ['bank', 'gcash', 'maya']))
-			{
+	if (!empty($pmu)) {
+		foreach ($pmu as $k => $v) {
+			if (!in_array($k, ['bank', 'gcash', 'maya'])) {
 				$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
 			}
 		}
@@ -1893,22 +1812,15 @@ function view_method_select($user_id): string
 	$str = '<select name="method" id="method" style="float:left">';
 	$str .= '<option value="none" selected>Currency Payment Method</option>';
 
-	if (!empty($pmu))
-	{
-		foreach ($pmu as $k => $v)
-		{
-			if (!is_array($v))
-			{
+	if (!empty($pmu)) {
+		foreach ($pmu as $k => $v) {
+			if (!is_array($v)) {
 				$str .= '<option value="' . $k . '"' .
 					/*($k === 'btc3' ? ' selected' : '') .*/
 					'>' . strtoupper($k) . '</option>';
-			}
-			elseif (!empty($v))
-			{
-				foreach ($v as $x => $y)
-				{
-					if (!empty($x))
-					{
+			} elseif (!empty($v)) {
+				foreach ($v as $x => $y) {
+					if (!empty($x)) {
 						$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
 					}
 
@@ -1947,19 +1859,16 @@ function view_sell_postings($user_id, $p_post, $grace_period, int $rows = 5): st
 
 	$str .= ' <h2>Available Asset</h2> ';
 
-	$limit_to   = $rows;
+	$limit_to = $rows;
 	$limit_from = $limit_to * $p_post;
 
 	$postings = postings_desc_lim($user_id, $limit_from, $limit_to);
 
 	$str .= paginate($p_post, postings_user_all($user_id), 54, $rows, 'pst');
 
-	if (empty($postings))
-	{
+	if (empty($postings)) {
 		$str .= '<hr><p>No postings yet.</p>';
-	}
-	else
-	{
+	} else {
 		$str .= '
 			<table class="category table table-striped table-bordered table-hover">
 	            <thead>
@@ -1975,8 +1884,7 @@ function view_sell_postings($user_id, $p_post, $grace_period, int $rows = 5): st
 	            </thead>
             <tbody id="p2p_seller_postings">';
 
-		foreach ($postings as $posting)
-		{
+		foreach ($postings as $posting) {
 			$str .= view_posting_single($posting, $grace_period);
 		}
 
@@ -1998,12 +1906,12 @@ function view_sell_postings($user_id, $p_post, $grace_period, int $rows = 5): st
 
 function view_posting_single($posting, $grace_period): string
 {
-	$sell_id      = $posting->sell_id;
-	$purchase_id  = $posting->purchase_id;
-	$date_posted  = $posting->date_posted;
+	$sell_id = $posting->sell_id;
+	$purchase_id = $posting->purchase_id;
+	$date_posted = $posting->date_posted;
 	$date_updated = $posting->date_updated;
-	$type         = $posting->type;
-	$method       = $posting->method;
+	$type = $posting->type;
+	$method = $posting->method;
 
 	$amount_remaining_rep = $purchase_id ? '-----' :
 		number_format($posting->amount_remaining, 8) . ' ' . strtoupper($type);
@@ -2012,8 +1920,7 @@ function view_posting_single($posting, $grace_period): string
 	$str .= '<td>' . date('M j, Y - g:i A', $date_posted) . '</td>';
 	$str .= '<td>' . $amount_remaining_rep . '</td>';
 
-	if ($purchase_id)
-	{
+	if ($purchase_id) {
 		$request = request_single($purchase_id);
 
 		$user_buyer = user($request->buyer_id);
@@ -2038,14 +1945,13 @@ function view_posting_single($posting, $grace_period): string
 		$contact_info = arr_contact_info($user_buyer);
 
 		$messenger = '';
-		$mobile    = '';
-		$landline  = '';
+		$mobile = '';
+		$landline = '';
 
-		if (!empty($contact_info))
-		{
+		if (!empty($contact_info)) {
 			$messenger = $contact_info['messenger'] ?? '';
-			$mobile    = $contact_info['mobile'] ?? '';
-			$landline  = $contact_info['landline'] ?? '';
+			$mobile = $contact_info['mobile'] ?? '';
+			$landline = $contact_info['landline'] ?? '';
 		}
 
 		$str .= $messenger ? '<p>Buyer Messenger URL: <b>' . $messenger . '</b></p>' : '';
@@ -2061,9 +1967,7 @@ function view_posting_single($posting, $grace_period): string
 
 		$str .= '</div>';
 		$str .= '</div>';
-	}
-	else
-	{
+	} else {
 		$str .= '<td>' . number_format($posting->amount_sold, 8) . ' ' . strtoupper($type) . '</td>';
 	}
 
@@ -2071,18 +1975,12 @@ function view_posting_single($posting, $grace_period): string
 		'USD' . '</td>';
 	$str .= '<td> ' . strtoupper($method) . ' </td>';
 
-	if ($purchase_id)
-	{
+	if ($purchase_id) {
 		$str .= '<td>-----</td>';
-	}
-	else
-	{
-		if ($date_updated > 0)
-		{
+	} else {
+		if ($date_updated > 0) {
 			$str .= '<td> ' . date('M j, Y - g:i A', $date_updated) . ' </td>';
-		}
-		else
-		{
+		} else {
 			$str .= '<td>No buyers yet.</td>';
 		}
 	}
@@ -2133,7 +2031,7 @@ function postings_desc_lim($user_id, $limit_from, $limit_to, $order = 'sell_id')
 		'LIMIT ' . $limit_from . ', ' . $limit_to
 	)->loadObjectList();
 
-//	return $db->setQuery(
+	//	return $db->setQuery(
 //		'SELECT * ' .
 //		'FROM network_p2p_sell_tokens ' .
 //		'WHERE date_confirmed <= 0 ' .
@@ -2165,7 +2063,7 @@ function postings_user_all($user_id)
 		' AND date_confirmed <= 0'
 	)->loadObjectList();
 
-//	return $db->setQuery(
+	//	return $db->setQuery(
 //		'SELECT * ' .
 //		'FROM network_p2p_sell_tokens ' .
 //		'WHERE date_confirmed <= 0 ' .

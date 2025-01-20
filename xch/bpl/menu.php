@@ -137,7 +137,7 @@ function signup_member($account_type): string
                         <div style="" class="uk-dropdown uk-dropdown-small">
                             <ul class="uk-nav uk-nav-dropdown">';
 	$str .= '<li><a href="' . sef(settings('ancillaries')->payment_mode === 'CODE' ? 65
-		: 144) . '">Register</a></li>';
+		: 144) . '">Add Account</a></li>';
 	//	$str .= ($account_type !== 'starter' && 0 ? '<li><a href="' . sef(1) . '">Account Summary</a></li>' : '');
 //	$str .= ($account_type !== 'starter' ? '<li><a href="' . sef(2) . '">Dashboard</a></li>' : '');
 //	$str .= '<li><a href="' . sef(2) . '">Profit Chart</a></li>';
@@ -465,27 +465,27 @@ function efund_member($user_id): string
 
 	$str = '<div class="uk-button-group" style="display: block; width: 100%; margin-bottom: 10px;">
         <button class="uk-button" style="width: 80%;">' . /*$efund_name*/
-		'Funding' . '</button>
+		'USDT Wallet' . '</button>
         <div class="" data-uk-dropdown="{mode:\'click\'}">
             <button class="uk-button"><i class="uk-icon-caret-down"></i></button>
             <div style="" class="uk-dropdown uk-dropdown-small">
                 <ul class="uk-nav uk-nav-dropdown">';
 	$str .= '<li><a href="' . sef(16) . '">' . /*$efund_name .*/
-		' Transfer Funds</a></li>';
-	$str .= '<li><a href="' . sef(73) . '">Request Funds ' . /*$efund_name .*/
+		' Transfer USDT</a></li>';
+	$str .= '<li><a href="' . sef(73) . '">Request USDT ' . /*$efund_name .*/
 		'</a></li>';
 	$str .= '<li><a href="' . sef(74) . '">' . /*$efund_name .*/
-		'Funds Transactions</a></li>';
+		'USDT Request History</a></li>';
 	$str .= '<li><a href="' . sef(75) . '">Request ' . /*$efund_name .*/
 		' Logs</a></li>';
 
 	if ($account_type !== 'starter') {
-		$str .= '<li><a href="' . sef(57) . '">Convert Funds ' . /*$efund_name .*/
+		$str .= '<li><a href="' . sef(57) . '">Withdraw USDT ' . /*$efund_name .*/
 			'</a></li>';
 		$str .= '<li><a href="' . sef(59) . '">' . /*$efund_name .*/
-			' Conversion History</a></li>';
+			' Withdrawal History</a></li>';
 		$str .= '<li><a href="' . sef(122) . '">' . /*$efund_name .*/
-			' Conversion Logs</a></li>';
+			' Withdrawal Logs</a></li>';
 	}
 
 	$str .= '</ul>
@@ -676,7 +676,7 @@ function fixed_daily_token_member($admintype): string
 	// token operations: start
 	if ($settings_plans->fixed_daily_token) {
 		$str .= '<div class="uk-button-group" style="display: block; width: 100%; margin-bottom: 10px;">
-        <button class="uk-button" style="width: 80%;">' . $settings_plans->fixed_daily_token_name . '</button>
+        <button class="uk-button" style="width: 80%;">' . /* $settings_plans->fixed_daily_token_name */ 'B2P Holdings' . '</button>
         <div class="" data-uk-dropdown="{mode:\'click\'}">
             <button class="uk-button"><i class="uk-icon-caret-down"></i></button>
             <div style="" class="uk-dropdown uk-dropdown-small">
@@ -685,7 +685,7 @@ function fixed_daily_token_member($admintype): string
 		// $str .= (($admintype === 'Super') ?
 		// '<li><a href="' . sef(5) . '">Add ' . $token_name . '</a></li>' : '');
 		// $str .= ('<li><a href="' . sef(102) . '">' . strtoupper($token_name) . ' Transfer</a></li>');
-		$str .= ('<li><a href="' . sef(98) . '">Withdraw B2P</a></li>');
+		$str .= ('<li><a href="' . sef(98) . '">B2P Wallet</a></li>');
 		$str .= ('<li><a href="' . sef(99) . '">Completed B2P Withdrawals</a></li>');
 		// $str .= ('<li><a href="' . sef(100) . '">Pending B2P Withdrawals</a></li>');
 		// $str .= ('<li><a href="' . sef(101) . '">B2P Withdrawal Logs</a></li>');
@@ -1524,7 +1524,7 @@ function p2p_trading(): string
 	// trading: start
 	return (/*$settings_plans->trading &&*/ $settings_plans->p2p_trading ?
 		'<div class="uk-button-group" style="display: block; width: 100%; margin-bottom: 10px;">
-            <button class="uk-button" style="width: 80%;">' . /*$settings_plans->p2p_trading_name*/ 'Token Swap' . '</button>
+            <button class="uk-button" style="width: 80%;">' . /*$settings_plans->p2p_trading_name*/ 'P2P / Swap' . '</button>
             <div class="" data-uk-dropdown="{mode:\'click\'}">
                 <button class="uk-button"><i class="uk-icon-caret-down"></i></button>
                 <div style="" class="uk-dropdown uk-dropdown-small">
@@ -1975,7 +1975,7 @@ function member($account_type, $username, $user_id): string
 	$str .= '<div class="uk-button-group"  style="display: block; width: 100%; margin-bottom: 10px;"><a href="' .
 		sef(settings('ancillaries')->payment_mode === 'CODE' ? 65
 			: 144) . '" class="uk-button" style="width: 93%;">' . /*$username*/
-		'Register' . '</a></div>';
+		'Add Account' . '</a></div>';
 	//	$str .= signup_member($account_type);
 //	$str .= codes();
 	$str .= buy_package($account_type);
@@ -2059,7 +2059,7 @@ function affiliates($account_type, $user_id): string
 	$user_harvest_basic = user_harvest($user_id, 'basic');
 
 	$str = '<div class="uk-button-group" style="display: block; width: 100%; margin-bottom: 10px;">';
-	$str .= '<button class="uk-button" style="width: 80%;">Affiliates</button>';
+	$str .= '<button class="uk-button" style="width: 80%;">Agent Portal</button>';
 	$str .= '<div data-uk-dropdown="{mode:\'click\'}" aria-haspopup="true" aria-expanded="true">';
 	$str .= '<button class="uk-button"><i class="uk-icon-caret-down"></i></button>';
 	$str .= '<div class="uk-dropdown uk-dropdown-small" aria-hidden="true">';
@@ -2076,23 +2076,24 @@ function affiliates($account_type, $user_id): string
 
 		$str .= '<li class="uk-nav-header">' . $sp->indirect_referral_name . '</li>';
 
-		$str .= '<li><a href="' . sef(24) . '">Genealogy</a></li>';
-		$str .= '<li><a href="' . sef(36) . '">Profit Summary</a></li>';
+		$str .= '<li><a href="' . sef(24) . '">Indirect Line</a></li>';
+		$str .= '<li><a href="' . sef(36) . '">Income Chart</a></li>';
 	}
 
 	if ($sp->echelon && user_echelon($user_id)) {
-		$first = 1;
+		$str .= $first ? '<li class="uk-nav-divider"></li>' : '';
+		$first = !$first ? 1 : $first;
 
 		$str .= '<li class="uk-nav-header">' . $sp->echelon_name . '</li>';
 
-		$str .= '<li><a href="' . sef(147) . '">Genealogy</a></li>';
-		$str .= '<li><a href="' . sef(145) . '">Profit Summary</a></li>';
+		$str .= '<li><a href="' . sef(147) . '">Team Line</a></li>';
+		$str .= '<li><a href="' . sef(145) . '">Profit Board</a></li>';
 	}
 
 	// unilevel
 	if (
 			/*$account_type !== 'starter'
-																																																																																																																																									 &&*/ (
+																																																																																																																																																																																																																																	&&*/ (
 			$sp->unilevel
 			&& $sul->{$account_type . '_unilevel_level'} > 0
 			&& !empty(user_unilevel($user_id))
@@ -2104,7 +2105,7 @@ function affiliates($account_type, $user_id): string
 		$str .= '<li class="uk-nav-header">' . $sp->unilevel_name . '</li>';
 
 		$str .= '<li><a href="' . sef(33) . '">Genealogy</a></li>';
-		$str .= '<li><a href="' . sef(109) . '">Profit Summary</a></li>';
+		$str .= '<li><a href="' . sef(109) . '">Profit Board</a></li>';
 	}
 
 	//binary
@@ -2117,8 +2118,8 @@ function affiliates($account_type, $user_id): string
 
 	$str .= '<li class="uk-nav-header">' . $sp->binary_pair_name . '</li>';
 
-	$str .= '<li><a href="' . sef(21) . '">Genealogy</a></li>';
-	$str .= '<li><a href="' . sef(14) . '">Binary</a></li>';
+	$str .= '<li><a href="' . sef(21) . '">Graphical</a></li>';
+	$str .= '<li><a href="' . sef(14) . '">Listing</a></li>';
 	// }
 
 	// leadership binary
@@ -2133,18 +2134,19 @@ function affiliates($account_type, $user_id): string
 
 		$str .= '<li class="uk-nav-header">' . $sp->leadership_binary_name . '</li>';
 
-		$str .= '<li><a href="' . sef(25) . '">Genealogy</a></li>';
-		$str .= '<li><a href="' . sef(37) . '">Profit Summary</a></li>';
+		$str .= '<li><a href="' . sef(25) . '">Direct Line</a></li>';
+		$str .= '<li><a href="' . sef(37) . '">Leadership Chart</a></li>';
 	}
 
 	// passsup binary
 	if ($sp->passup_binary && user_passup_binary($user_id)) {
+		$str .= $first ? '<li class="uk-nav-divider"></li>' : '';
 		$first = !$first ? 1 : $first;
 
 		$str .= '<li class="uk-nav-header">' . $sp->passup_binary_name . '</li>';
 
-		$str .= '<li><a href="' . sef(150) . '">Genealogy</a></li>';
-		$str .= '<li><a href="' . sef(149) . '">Profit Summary</a></li>';
+		$str .= '<li><a href="' . sef(150) . '">Infinity Line</a></li>';
+		$str .= '<li><a href="' . sef(149) . '">Infinity Bonus Board</a></li>';
 	}
 
 	// leadership passive
@@ -2166,8 +2168,8 @@ function affiliates($account_type, $user_id): string
 
 		$str .= '<li class="uk-nav-header">' . $sp->leadership_passive_name . '</li>';
 
-		$str .= '<li><a href="' . sef(38) . '">Profit Summary</a></li>';
-		$str .= '<li><a href="' . sef(39) . '">Wallet</a></li>';
+		$str .= '<li><a href="' . sef(38) . '">Bounty Line</a></li>';
+		$str .= '<li><a href="' . sef(39) . '">Bounty Chart</a></li>';
 	}
 
 	// harvest

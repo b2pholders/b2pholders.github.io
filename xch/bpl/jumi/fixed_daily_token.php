@@ -59,10 +59,16 @@ function fixed_daily_token($user_id): string
 
 	$account_type = $user->account_type;
 
+	// $header = $sp->fixed_daily_token_name . ' (' . $se->{$account_type . '_package_name'} . ' Plan)';
+	// $wallet_link = sef(152);
+	// $header .= '<span style="float: right; font-size: x-large; font-weight: bold"><span style="float: right">';
+	// $header .= '<a href="' . $wallet_link . '" class="uk-button uk-button-primary">Wallet</a></span></span>';
+
 	$header = $sp->fixed_daily_token_name . ' (' . $se->{$account_type . '_package_name'} . ' Plan)';
 	$wallet_link = sef(152);
-	$header .= '<span style="float: right; font-size: x-large; font-weight: bold"><span style="float: right">';
-	$header .= '<a href="' . $wallet_link . '" class="uk-button uk-button-primary">Wallet</a></span></span>';
+	$header .= '<div class="clearfix" style="padding-top: 5px">'; // Added clearfix container
+	$header .= '<a href="' . $wallet_link . '" class="btn btn-primary pull-right">Wallet</a>';
+	$header .= '</div>';
 
 	$si = settings('investment');
 
@@ -96,11 +102,11 @@ function fixed_daily_token($user_id): string
 		<h2>$header</h2>
 		<div class="card-container" id="table_fixed_daily_token">
 			<div class="card">
-				<div class="card-header">Initial</div>
+				<div class="card-header">Initial Support Token</div>
 				<div class="card-content">$starting_value $efund_name</div>
 			</div>
 			<div class="card">
-				<div class="card-header">Accumulated</div>
+				<div class="card-header">Accumulated Token</div>
 				<div class="card-content">$current_value $efund_name</div>
 			</div>
 			<div class="card">
@@ -108,36 +114,37 @@ function fixed_daily_token($user_id): string
 				<div class="card-content">$ufdt->day</div>
 			</div>
 			<div class="card">
-				<div class="card-header">Maturity Date ($maturity days)</div>
+				<div class="card-header">Expiry Date ($maturity days)</div>
 				<div class="card-content">$maturity_date</div>
 			</div>
 			<div class="card">
 				<div class="card-header">Status</div>
 				<div class="card-content" style="color: green;">{$type_day}$status</div>
+			</div>			
+		</div>
+
+		<div class="card-container">
+			<div class="card">
+				<div class="card-header">Native Token</div>
+				<div class="item-wrapper">
+					<iframe width="100%" height="192" frameBorder="0" scrolling="no"
+						src="https://coinbrain.com/embed/converter/bnb-0xF8AB9fF465C612D5bE6A56716AdF95c52f8Bc72d/usd?theme=light&padding=16&layout=vertical"></iframe>
+				</div>
+			</div>
+			<div class="card">
+				<div class="card-header">Primary Token</div>
+				<div class="item-wrapper">
+					<iframe width="100%" height="192" frameBorder="0" scrolling="no"
+						src="https://coinbrain.com/coins/bnb-0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c/ticker?theme=light&padding=16&type=medium&currency=USD&blocks=price%2CmarketCap%2Cvolume24h"></iframe>
+				</div>
 			</div>
 		</div>
 
-		<!-- TradingView Widget BEGIN -->
-		<div class="tradingview-widget-container" style="height: 610px; width: 980px; text-align: center; margin: 0 auto;">
-			<div class="tradingview-widget-container__widget"></div>
-			<div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank"><span class="blue-text">Track all markets on TradingView</span></a></div>
-			<script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-				{
-					"width": "980",
-					"height": "610",
-					"symbol": "BINANCE:BTCUSDT",
-					"interval": "D",
-					"timezone": "Asia/Taipei",
-					"theme": "light",
-					"style": "1",
-					"locale": "en",
-					"allow_symbol_change": true,
-					"calendar": false,
-					"support_host": "https://www.tradingview.com"
-				}
-			</script>
+		<div class="card-container">
+			<div class="card">
+				<iframe width="100%" height="640" frameBorder="0" scrolling="no" src="https://coinbrain.com/embed/bnb-0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c?theme=light&padding=16&chart=1&trades=1"></iframe>
+			</div>
 		</div>
-		<!-- TradingView Widget END -->
 	HTML;
 
 	$str .= ajax_table_fixed_daily_token($user_id);

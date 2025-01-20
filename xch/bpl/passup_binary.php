@@ -535,9 +535,9 @@ function view($user_id): string
             <table class="table table-hover">
                 <thead class="thead-light">
                     <tr>
-                        <th style="text-align: center;"><h4>Member</h4></th>
-                        <th style="text-align: center;"><h4>Profit ({$currency})</h4></th>
-                        <th style="text-align: center;"><h4>Allocation (%)</h4></th>
+                        <th style="text-align: center;"><h4>Accounts</h4></th>
+                        <th style="text-align: center;"><h4>Profit</h4></th>
+                        <th style="text-align: center;"><h4>Fixed Rate (%)</h4></th>
                     </tr>
                 </thead>
                 <tbody>

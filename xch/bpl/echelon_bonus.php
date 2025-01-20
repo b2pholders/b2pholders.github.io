@@ -735,7 +735,7 @@ function view($user_id): string
 	$type_level = $settings_echelon->{$head_account_type . '_echelon_level'};
 
 	if ($type_level && $head_account_type !== 'starter') {
-		$str .= '<h3>' . $settings_plans->echelon_name . '</h3>';
+		$str .= '<h3>' . /* $settings_plans->echelon_name */ 'Income Summary' . '</h3>';
 		$str .= '<table class="category table table-striped table-bordered table-hover">';
 		$str .= '<thead>';
 		$str .= '<tr>';
@@ -745,15 +745,15 @@ function view($user_id): string
 		$str .= '</th>';
 
 		$str .= '<th>';
-		$str .= '<div style="text-align: center"><h4>Member</h4></div>';
+		$str .= '<div style="text-align: center"><h4>Accounts</h4></div>';
 		$str .= '</th>';
 
 		$str .= '<th>';
-		$str .= '<div style="text-align: center"><h4>Profit (' . $currency . ')</h4></div>';
+		$str .= '<div style="text-align: center"><h4>Profit</h4></div>';
 		$str .= '</th>';
 
 		$str .= '<th>';
-		$str .= '<div style="text-align: center"><h4>Allocation (%)</h4></div>';
+		$str .= '<div style="text-align: center"><h4>Fixed Rate (%)</h4></div>';
 		$str .= '</th>';
 
 		$str .= '</tr>';
@@ -771,9 +771,9 @@ function view($user_id): string
 			$str .= '<tr>';
 
 			$str .= '<td>';
-			$str .= '<div style="text-align: center" ' . ($ctr === 1 ? 'style="color: red"' : '') . '>
-                            <strong>' . ($ctr !== 1 ? $ctr : '') .
-				($ctr === 1 ? ' (Direct)' : '') . '</strong>
+			$str .= '<div style="text-align: center" ' . /* ($ctr === 1 ? 'style="color: red"' : '') . */ '>
+                            <strong>' . /* ($ctr !== 1 ? $ctr : '') .
+($ctr === 1 ? ' (Direct)' : '') */ $ctr . '</strong>
                         </div>';
 			$str .= '</td>';
 

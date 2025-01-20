@@ -30,12 +30,12 @@ function main()
 
 	$uid = input_get('uid');
 
-	if ($uid !== '')
-	{
+	if ($uid !== '') {
 		$user_id = $uid;
 	}
 
-	$str .= '<h1>' . settings('plans')->binary_pair_name . ' Structure</h1>';
+	// $str .= '<h1>' . settings('plans')->binary_pair_name . ' Structure</h1>';
+	$str .= '<h1>Genealogy Tree</h1>';
 	$str .= genealogy('binary', $user_id);
 
 	echo $str;
