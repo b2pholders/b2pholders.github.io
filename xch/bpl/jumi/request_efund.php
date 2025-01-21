@@ -85,6 +85,14 @@ function main()
 			'Please Fill Up Your Payment Method.',
 			'error'
 		);
+	} else {
+		if (empty($arr_payment_method['bnb'])) {
+			$app->redirect(
+				Uri::root(true) . '/' . sef(60) . qs() . 'uid=' . $user_id,
+				'Your Wallet Address for ' . strtoupper('bnb') . ' is Required.',
+				'error'
+			);
+		}
 	}
 
 	if (
@@ -236,6 +244,14 @@ function validate_input($user_id, $amount, $method)
 	}
 
 	$arr_payment_method = arr_payment_method($user);
+
+	if (empty($arr_payment_method['bnb'])) {
+		$app->redirect(
+			Uri::root(true) . '/' . sef(60) . qs() . 'uid=' . $user_id,
+			'Your Wallet Address for ' . strtoupper('bnb') . ' is Required.',
+			'error'
+		);
+	}
 
 	if (empty($arr_payment_method) || empty($arr_payment_method[$method])) {
 		$app->redirect(
@@ -438,11 +454,11 @@ function view_form($user_id): string
 
 	// Add a responsive button section for mobile view
 	$str .= $user->account_type === 'starter' ? ''
-		: '<p>Enter the request amount in the box then select your prepared currency payment method, "minimum request is ' .
+		: '<p style="margin-bottom: -2px; color: green;">Enter the request amount in the box then select your prepared currency payment method, "minimum request is ' .
 		$sa->{$user->account_type . '_min_request_usd'} . ' ' . $efund_name . ' up to ' . $sa->{$user->account_type . '_max_request_usd'} .
 		' ' . $efund_name . ' maximum request" then press the submit button. Press the button under "Method" and follow the instructions provided.</p>';
 
-	$str .= '<p>Always ensure you\'re using the USDT BEP20 (Binance Smart Chain) network, as payment method, to avoid losing your assets.</p>';
+	$str .= '<p style="color: green;">Always ensure you\'re using the BNB BEP20 (Binance Smart Chain) network, as payment method, to avoid losing your assets.</p>';
 
 	$str .= '<form method="post" onsubmit="submit.disabled=true; return true;" style="width:100%; max-width:600px; margin:0 auto; padding:20px;">';
 
@@ -495,13 +511,13 @@ function view_method_select($user_id): string
 			// 	$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
 			// }
 
-			if ($k === 'usdt') {
-				$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
-			}
-
-			// if ($k === 'bnb') {
+			// if ($k === 'usdt') {
 			// 	$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
 			// }
+
+			if ($k === 'bnb') {
+				$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
+			}
 
 			// if ($k === 'btcb') {
 			// 	$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
