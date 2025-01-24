@@ -6,157 +6,247 @@ require_once 'bpl/mods/file_get_contents_curl.php';
 require_once 'bpl/mods/helpers.php';
 
 use Exception;
+use RuntimeException;
 
 use function BPL\Mods\File_Get_Contents_Curl\main as file_get_contents_curl;
 
 /**
- * @param   string  $token
- *
- * @return array
- *
- * @since version
+ * Check if the current request is from localhost
+ * 
+ * @param string[] $whitelist Array of IP addresses considered as localhost
+ * @return bool
  */
-function main(string $token): array
+function is_localhost(array $whitelist = ['127.0.0.1', '::1']): bool
 {
-	$data = [];
+	return in_array($_SERVER['REMOTE_ADDR'] ?? '', $whitelist, true);
+}
 
-	// Retrieve the list of supported tokens
-	$tokens = list_token();
+class TokenPriceAPI
+{
+	private const CACHE_DURATION = 300; // 5 minutes in seconds
+	private const API_TIMEOUT = 10; // seconds
+	private const MAX_RETRIES = 3;
+	private string $cacheDir;
+	private array $tokens;
 
-	if (array_key_exists($token, $tokens)) // Check if the token is in the list
+	public function __construct()
 	{
-		// Get the CoinGecko ID for the token
-		$token_id = $tokens[$token];
+		$this->cacheDir = __DIR__ . '/cache';
+		$this->ensureCacheDirectory();
+		$this->tokens = $this->getTokenList();
+	}
 
-		// Check if cached data is available and still valid
-		$cachedData = get_cached_price($token);
-		if ($cachedData !== null) {
-			return $cachedData;
+	/**
+	 * Get token price with improved error handling and retries
+	 * 
+	 * @param string $token Token symbol
+	 * @return array Price data or empty array on failure
+	 * @throws RuntimeException When critical errors occur
+	 */
+	public function getTokenPrice(string $token): array
+	{
+		if (!array_key_exists($token, $this->tokens)) {
+			return [];
 		}
 
-		// If no valid cache, fetch from API
-		$url = 'https://api.coingecko.com/api/v3/simple/price?ids=' . $token_id . '&vs_currencies=usd';
-
 		try {
-			$json = !in_array('curl', get_loaded_extensions()) || is_localhost() ?
-				@file_get_contents($url) : file_get_contents_curl($url);
-
-			$data = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
-
-			// Adjust data structure to match expected format
-			if (isset($data[$token_id]['usd'])) {
-				$data = [
-					'symbol' => $token,
-					'price' => $data[$token_id]['usd']
-				];
-
-				// Cache the fetched price
-				cache_price($token, $data);
-			} else {
-				$data = [];
-			}
-		} catch (Exception $e) {
-			// If API fails, try to return cached data
-			$cachedData = get_cached_price($token);
+			// Try cache first
+			$cachedData = $this->getCachedPrice($token);
 			if ($cachedData !== null) {
 				return $cachedData;
 			}
 
-			// Log the error if no cached data is available
-			error_log($e->getMessage());
+			return $this->fetchFreshPrice($token);
+		} catch (Exception $e) {
+			error_log("Error fetching price for $token: " . $e->getMessage());
+
+			// Fall back to cached data even if expired
+			$cachedData = $this->getCachedPrice($token, true);
+			if ($cachedData !== null) {
+				return $cachedData;
+			}
+
+			return [];
 		}
 	}
 
-	return $data;
-}
+	/**
+	 * Fetch fresh price data from API with retry mechanism
+	 */
+	private function fetchFreshPrice(string $token): array
+	{
+		$tokenId = $this->tokens[$token];
+		$url = "https://api.coingecko.com/api/v3/simple/price?ids={$tokenId}&vs_currencies=usd";
 
-/**
- * Cache the fetched price in a file
- *
- * @param   string  $token
- * @param   array   $data
- *
- * @since version
- */
-function cache_price(string $token, array $data): void
-{
-	$cacheDir = __DIR__ . '/cache';
-	if (!is_dir($cacheDir)) {
-		mkdir($cacheDir, 0755, true);
+		$attempts = 0;
+		$lastError = null;
+
+		while ($attempts < self::MAX_RETRIES) {
+			try {
+				$response = $this->makeRequest($url);
+
+				if (empty($response)) {
+					throw new RuntimeException("Empty response received");
+				}
+
+				$data = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
+
+				if (!isset($data[$tokenId]['usd'])) {
+					throw new RuntimeException("Invalid response format");
+				}
+
+				$priceData = [
+					'symbol' => $token,
+					'price' => $data[$tokenId]['usd']
+				];
+
+				$this->cachePrice($token, $priceData);
+				return $priceData;
+
+			} catch (Exception $e) {
+				$lastError = $e;
+				$attempts++;
+				if ($attempts < self::MAX_RETRIES) {
+					sleep(1); // Wait before retry
+				}
+			}
+		}
+
+		throw new RuntimeException(
+			"Failed to fetch price after {$attempts} attempts: " . $lastError->getMessage()
+		);
 	}
 
-	$cacheFile = $cacheDir . '/' . $token . '.json';
-	$cacheData = [
-		'timestamp' => time(),
-		'data' => $data
-	];
+	/**
+	 * Make HTTP request with proper configuration
+	 */
+	private function makeRequest(string $url): string
+	{
+		$ctx = stream_context_create([
+			'http' => [
+				'timeout' => self::API_TIMEOUT,
+				'ignore_errors' => true,
+				'header' => [
+					'User-Agent: PHP/TokenPriceAPI',
+					'Accept: application/json'
+				]
+			],
+			'ssl' => [
+				'verify_peer' => true,
+				'verify_peer_name' => true
+			]
+		]);
 
-	file_put_contents($cacheFile, json_encode($cacheData));
-}
+		if (!in_array('curl', get_loaded_extensions()) || is_localhost()) {
+			$response = @file_get_contents($url, false, $ctx);
+		} else {
+			$response = file_get_contents_curl($url);
+		}
 
-/**
- * Get cached price if it exists and is still valid
- *
- * @param   string  $token
- *
- * @return array|null
- *
- * @since version
- */
-function get_cached_price(string $token): ?array
-{
-	$cacheFile = __DIR__ . '/cache/' . $token . '.json';
+		if ($response === false) {
+			throw new RuntimeException("Failed to fetch URL: $url");
+		}
 
-	if (file_exists($cacheFile)) {
-		$cacheData = json_decode(file_get_contents($cacheFile), true);
+		return $response;
+	}
 
-		// Check if the cache is still valid (e.g., within 5 minutes)
-		if (isset($cacheData['timestamp']) && (time() - $cacheData['timestamp']) < 300) {
-			return $cacheData['data'];
+	/**
+	 * Get cached price with optional expired cache acceptance
+	 */
+	private function getCachedPrice(string $token, bool $acceptExpired = false): ?array
+	{
+		$cacheFile = $this->cacheDir . '/' . $token . '.json';
+
+		if (!file_exists($cacheFile)) {
+			return null;
+		}
+
+		try {
+			$cacheData = json_decode(file_get_contents($cacheFile), true, 512, JSON_THROW_ON_ERROR);
+
+			if (!isset($cacheData['timestamp'], $cacheData['data'])) {
+				return null;
+			}
+
+			$age = time() - $cacheData['timestamp'];
+
+			if ($acceptExpired || $age < self::CACHE_DURATION) {
+				return $cacheData['data'];
+			}
+		} catch (Exception $e) {
+			error_log("Cache read error for $token: " . $e->getMessage());
+		}
+
+		return null;
+	}
+
+	/**
+	 * Ensure cache directory exists and is writable
+	 */
+	private function ensureCacheDirectory(): void
+	{
+		if (!is_dir($this->cacheDir)) {
+			if (!mkdir($this->cacheDir, 0755, true)) {
+				throw new RuntimeException("Failed to create cache directory");
+			}
+		}
+
+		if (!is_writable($this->cacheDir)) {
+			throw new RuntimeException("Cache directory is not writable");
 		}
 	}
 
-	return null;
+	/**
+	 * Cache price data
+	 */
+	private function cachePrice(string $token, array $data): void
+	{
+		$cacheFile = $this->cacheDir . '/' . $token . '.json';
+		$cacheData = [
+			'timestamp' => time(),
+			'data' => $data
+		];
+
+		if (file_put_contents($cacheFile, json_encode($cacheData)) === false) {
+			throw new RuntimeException("Failed to write cache file");
+		}
+	}
+
+	/**
+	 * Get list of supported tokens
+	 */
+	private function getTokenList(): array
+	{
+		return [
+			'USDT' => 'tether',
+			'BTC' => 'bitcoin',
+			'ETH' => 'ethereum',
+			'BNB' => 'binancecoin',
+			'LTC' => 'litecoin',
+			'ADA' => 'cardano',
+			'USDC' => 'usd-coin',
+			'LINK' => 'chainlink',
+			'DOGE' => 'dogecoin',
+			'DAI' => 'dai',
+			'BUSD' => 'binance-usd',
+			'SHIB' => 'shiba-inu',
+			'UNI' => 'uniswap',
+			'MATIC' => 'matic-network',
+			'DOT' => 'polkadot',
+			'TRX' => 'tron',
+			'BCH' => 'bitcoin-cash'
+		];
+	}
 }
 
-/**
- *
- * @return string[]
- *
- * @since version
- */
-function list_token(): array
+// Example usage:
+function main(string $token): array
 {
-	// symbol => token_id
-	return [
-		'USDT' => 'tether',
-		'BTC' => 'bitcoin',
-		'ETH' => 'ethereum',
-		'BNB' => 'binancecoin',
-		'LTC' => 'litecoin',
-		'ADA' => 'cardano',
-		'USDC' => 'usd-coin',
-		'LINK' => 'chainlink',
-		'DOGE' => 'dogecoin',
-		'DAI' => 'dai',
-		'BUSD' => 'binance-usd',
-		'SHIB' => 'shiba-inu',
-		'UNI' => 'uniswap',
-		'MATIC' => 'matic-network',
-		'DOT' => 'polkadot',
-		'TRX' => 'tron',
-		'BCH' => 'bitcoin-cash'
-	];
-}
-
-/**
- * @param   string[]  $whitelist
- *
- * @return bool
- *
- * @since version
- */
-function is_localhost(array $whitelist = ['127.0.0.1', '::1']): bool
-{
-	return in_array($_SERVER['REMOTE_ADDR'], $whitelist, true);
+	try {
+		$api = new TokenPriceAPI();
+		return $api->getTokenPrice($token);
+	} catch (Exception $e) {
+		error_log("Critical error in token price API: " . $e->getMessage());
+		return [];
+	}
 }
