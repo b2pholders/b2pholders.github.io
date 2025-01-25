@@ -28,11 +28,11 @@ main();
  */
 function main()
 {
-	$usertype     = session_get('usertype');
-	$admintype    = session_get('admintype');
+	$usertype = session_get('usertype');
+	$admintype = session_get('admintype');
 	$account_type = session_get('account_type');
-	$user_id      = session_get('user_id');
-	$username     = session_get('username');
+	$user_id = session_get('user_id');
+	$username = session_get('username');
 
 	page_validate($usertype);
 
@@ -61,42 +61,41 @@ function view_sales(): string
 
 	$cd_sales = cd_sales();
 
-	$total_payouts = payouts();
+	$total_payouts = /* payouts() */ total_efund_convert();
 
-	$total_payouts = $total_payouts->payout_total ?? 0;
+	// $total_payouts = $total_payouts->payout_total ?? 0;
 
 	$fmc_purchase = token()->purchase_fmc ?? 0;
 
 	$net_sales = $total_sales - $cd_sales - $total_payouts - $fmc_purchase;
 
-	$str = '<h2>Sales Overview</h2>
+	$str = '<h2>Cash Flow</h2>
 		<table class="category table table-striped table-bordered table-hover" style="width:900px;">
 			<tr>
-				<td style="width: 21%">Members:</td>
+				<td style="width: 21%">Registrations:</td>
 				<td style="width: 43%">' . count(users()) . '
-					<a style="float:right" href="' . sef(40) . '">View All Members</a>
+					<a style="float:right" href="' . sef(40) . '">View All Accounts</a>
 				</td>
 			</tr>
 			<tr>
-				<td>Overall Sales:</td>
+				<td>Total Package Entries:</td>
 				<td>' . number_format($total_sales, 5) . ' ' . $currency . '
-					<a style="float:right" href="' . sef(35) . '">View Income Log</a>
+					<a style="float:right" href="' . sef(35) . '">View Total Cash-in</a>
 				</td>
-			</tr>
+			</tr>' . /* '
+								<tr>
+									<td>CD Sales:</td>
+									<td>' . number_format($cd_sales, 5) . ' ' . $currency . '
+									</td>
+								</tr>' . */ '
 			<tr>
-				<td>CD Sales:</td>
-				<td>' . number_format($cd_sales, 5) . ' ' . $currency . '
-				</td>
-			</tr>
-			<tr>
-				<td>Payouts:</td>
+				<td>Total Payouts:</td>
 				<td>' . number_format($total_payouts, 5) . ' ' . $currency . '
-					<a style="float:right" href="' . sef(49) . '">View Payout Log</a>
+					<a style="float:right" href="' . sef(59) . '">View All Completed Withdrawls</a>
 				</td>
 			</tr>';
 
-	if (settings('plans')->trading)
-	{
+	if (settings('plans')->trading) {
 		$str .= '<tr>
 					<td>' . settings('trading')->token_name . ' Profit:</td>
 					<td>' . number_format($fmc_purchase, 5) . ' ' . $currency . '</td>
@@ -104,12 +103,21 @@ function view_sales(): string
 	}
 
 	$str .= '<tr>
-				<td>Net Sales:</td>
+				<td>Net Remaining Balance:</td>
 				<td>' . number_format($net_sales, 5) . ' ' . $currency . '</td>
 			</tr>
 		</table>';
 
 	return $str;
+}
+
+function total_efund_convert()
+{
+	return db()->setQuery(
+		'SELECT conversion_total 
+        FROM network_efund_conversions 
+        ORDER BY conversion_date DESC'
+	)->loadResult();
 }
 
 /**
@@ -120,8 +128,7 @@ function view_sales(): string
  */
 function page_validate($usertype)
 {
-	if ($usertype !== 'Admin' && $usertype !== 'manager')
-	{
+	if ($usertype !== 'Admin' && $usertype !== 'manager') {
 		application()->redirect(Uri::root(true) . '/' . sef(43));
 	}
 }

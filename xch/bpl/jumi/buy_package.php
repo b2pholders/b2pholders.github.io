@@ -447,6 +447,8 @@ function process_buy($user_id, $admintype, $type, $method, $upline, $position, $
 
 		$sponsor = user($user->sponsor_id)->username;
 
+		log_income_admin($user_id, $type);
+
 		process_plans($user_id, $type, $username, $sponsor, $date, 'activate');
 
 		send_mail($message_admin, 'A New Member has been ' .
@@ -468,6 +470,41 @@ function process_buy($user_id, $admintype, $type, $method, $upline, $position, $
 		'\'s ' . ucfirst(settings('entry')->{$type . '_package_name'}) . ' ' .
 		(settings('ancillaries')->payment_mode === 'CODE' ? 'Registration' : 'Activation') .
 		' Successful!', 'success');
+}
+
+function log_income_admin($insert_id, $code_type)
+{
+	$settings_entry = settings('entry');
+
+	$db = db();
+
+	$income = (income_admin()->income_total ?? 0) + $settings_entry->{$code_type . '_entry'};
+
+	// insert company income
+	insert(
+		'network_income',
+		[
+			'transaction_id',
+			'amount',
+			'income_total',
+			'income_date'
+		],
+		[
+			$db->quote($insert_id),
+			$db->quote($settings_entry->{$code_type . '_entry'}),
+			$db->quote($income),
+			$db->quote(time())
+		]
+	);
+}
+
+function income_admin()
+{
+	return db()->setQuery(
+		'SELECT * ' .
+		'FROM network_income ' .
+		'ORDER BY income_id DESC'
+	)->loadObject();
 }
 
 function validate_binary($upline, $position, string $account_type_new = 'starter', string $prov = 'code')

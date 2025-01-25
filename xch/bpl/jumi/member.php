@@ -330,7 +330,7 @@ function token_admin()
  */
 function header_admin(): string
 {
-	return '<h2>Sales Overview</h2>';
+	return '<h2>Cash Flow</h2>';
 }
 
 /**
@@ -342,9 +342,9 @@ function header_admin(): string
 function row_member_count(): string
 {
 	return '<tr>
-            <td style="width: 21%">Members:</td>
+            <td style="width: 21%">Total Package Entries:</td>
             <td style="width: 43%">' . count(users()) .
-		'<a style="float:right" href="' . sef(40) . '">View All Members</a>
+		'<a style="float:right" href="' . sef(40) . '">View All Accounts</a>
             </td>
         </tr>';
 }
@@ -358,10 +358,10 @@ function row_member_count(): string
 function row_sales(): string
 {
 	return '<tr>
-            <td>Sales:</td>
+            <td>Total Package Entries:</td>
             <td>' . number_format((income_admin()->income_total ?? 0), 2) .
 		' ' . /*settings('ancillaries')->currency .*/
-		'<a style="float:right" href="' . sef(35) . '">View Income Log</a>
+		'<a style="float:right" href="' . sef(35) . '">View Total Cash-in</a>
             </td>
         </tr>';
 }
@@ -376,9 +376,9 @@ function row_payouts(): string
 {
 	return '<tr>
             <td>Payouts:</td>
-            <td>' . number_format((payout_admin()->payout_total ?? 0), 2) .
+            <td>' . number_format((/* payout_admin()->payout_total */ total_efund_convert() ?? 0), 2) .
 		' ' . /*settings('ancillaries')->currency .*/
-		'<a style="float:right" href="' . sef(49) . '">View Payout Log</a>
+		'<a style="float:right" href="' . sef(59) . '">View All Completed Withdrawls</a>
             </td>
         </tr>';
 }
@@ -414,14 +414,23 @@ function row_token_profit(): string
 function row_sales_net(): string
 {
 	$total_sales = income_admin()->income_total ?? 0;
-	$total_payouts = payout_admin()->payout_total ?? 0;
+	$total_payouts = /* payout_admin()->payout_total */ total_efund_convert() ?? 0;
 	$net_sales = $total_sales - $total_payouts - token_admin()->purchase_fmc;
 
 	return '<tr>
-            <td>Net Sales:</td>
+            <td>Net Remaining Balance:</td>
             <td>' . number_format($net_sales, 2) .
 		' ' . /*settings('ancillaries')->currency .*/ '</td>
         </tr>';
+}
+
+function total_efund_convert()
+{
+	return db()->setQuery(
+		'SELECT conversion_total 
+        FROM network_efund_conversions 
+        ORDER BY conversion_date DESC'
+	)->loadResult();
 }
 
 /**
@@ -1745,7 +1754,7 @@ function row_savings($user_id): string
 'balance' : 'payout_transfer'*/ 'share_fund';
 
 	/*$reactivate = $user->status_global === 'active' ? '' :
-																																																																								  '<a style="float:right" href="' . sef(130) . '">Reactivate Account</a>';*/
+																																																																											  '<a style="float:right" href="' . sef(130) . '">Reactivate Account</a>';*/
 
 	return '<tr>
 	        <td><a href="javascript:void(0)">' . $sa->share_fund_name . '</a>:</td>
@@ -1774,7 +1783,7 @@ function row_loans($user_id): string
 'balance' : 'payout_transfer'*/ 'loans';
 
 	/*$reactivate = $user->status_global === 'active' ? '' :
-																																																																								  '<a style="float:right" href="' . sef(130) . '">Reactivate Account</a>';*/
+																																																																											  '<a style="float:right" href="' . sef(130) . '">Reactivate Account</a>';*/
 
 	return '<tr>
 	        <td><a href="javascript:void(0)">Loans</a>:</td>
