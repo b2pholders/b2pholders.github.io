@@ -40,19 +40,16 @@ main();
 function main()
 {
 	$usertype = session_get('usertype');
-	$user_id  = session_get('user_id');
-	$final    = input_get('final');
+	$user_id = session_get('user_id');
+	$final = input_get('final');
 
 	page_validate($usertype, $user_id);
 
 	$str = menu();
 
-	if ($final === '')
-	{
+	if ($final === '') {
 		$str .= view_form($user_id);
-	}
-	else
-	{
+	} else {
 		process_reactivation($user_id);
 	}
 
@@ -80,7 +77,7 @@ function view_form($user_id): string
 	    <b>Full Name:</b> ' . $user->fullname . '<hr>
 	    <form method="post">
 	        <input type="hidden" name="final" value="1">
-	        <input type="hidden" name="uid" value="' . $user->user_id . '">
+	        <input type="hidden" name="uid" value="' . $user->id . '">
 	        <input type="submit" value="Reactivate Account" class="uk-button uk-button-primary">
 	    </form>';
 }
@@ -96,34 +93,36 @@ function validate($user_id)
 	$app = application();
 
 	$sa = settings('ancillaries');
-//	$sb = settings('binary');
+	//	$sb = settings('binary');
 	$sf = settings('freeze');
 
-//	$binary_user = binary_user($user_id);
+	//	$binary_user = binary_user($user_id);
 
 	$user = user($user_id);
 
 	$account_type = $user->account_type;
 
-//	$reactivate_count = $binary_user->reactivate_count;
+	//	$reactivate_count = $binary_user->reactivate_count;
 
-//	$cost_reactivate = $sb->{$account_type . '_pairs_reactivate'};
+	//	$cost_reactivate = $sb->{$account_type . '_pairs_reactivate'};
 //	$capping_cycle_max = $sb->{$account_type . '_capping_cycle_max'};
 
 	$cost_reactivate = $sf->{$account_type . '_reactivation'};
 
-//	if ($reactivate_count >= $capping_cycle_max)
+	//	if ($reactivate_count >= $capping_cycle_max)
 //	{
 //		$app->redirect(Uri::root(true) . '/' . sef(120),
 //			'Maximum reactivation reached!', 'error');
 //	}
 
 	// check stock fund balance
-	if ($user->payout_transfer < $cost_reactivate)
-	{
-		$app->redirect(Uri::root(true) . '/' . sef(130),
+	if ($user->payout_transfer < $cost_reactivate) {
+		$app->redirect(
+			Uri::root(true) . '/' . sef(130),
 			'Maintain at least an ' . $sa->efund_name . ' amount of ' .
-			number_format($cost_reactivate, 8) . ' ' . settings('ancillaries')->currency, 'error');
+			number_format($cost_reactivate, 8) . ' ' . settings('ancillaries')->currency,
+			'error'
+		);
 	}
 }
 
@@ -158,13 +157,12 @@ function process_reactivation($user_id)
 
 	validate($user_id);
 
-	try
-	{
+	try {
 		$db->transactionStart();
 
 		update_users($user_id);
 
-//		if (update_binary($user_id))
+		//		if (update_binary($user_id))
 //		{
 //			process_binary($user_id);
 //		}
@@ -172,9 +170,7 @@ function process_reactivation($user_id)
 		logs($user_id);
 
 		$db->transactionCommit();
-	}
-	catch (Exception $e)
-	{
+	} catch (Exception $e) {
 		$db->transactionRollback();
 		ExceptionHandler::render($e);
 	}
@@ -208,32 +204,34 @@ function update_users($user_id)
 {
 	$db = db();
 
-//	$sa = settings('ancillaries');
+	//	$sa = settings('ancillaries');
 //	$sb = settings('binary');
 	$sf = settings('freeze');
 
-//	$binary_user = binary_user($user_id);
+	//	$binary_user = binary_user($user_id);
 
 	$user = user($user_id);
 
-	$account_type        = $user->account_type;
-//	$income_cycle_global = $user->income_cycle_global;
+	$account_type = $user->account_type;
+	//	$income_cycle_global = $user->income_cycle_global;
 
-//	$reactivate_count = $binary_user->reactivate_count;
+	//	$reactivate_count = $binary_user->reactivate_count;
 
-//	$cost_reactivate = $sb->{$account_type . '_pairs_reactivate'};
+	//	$cost_reactivate = $sb->{$account_type . '_pairs_reactivate'};
 //	$capping_cycle_max = $sb->{$account_type . '_capping_cycle_max'};
 
 	$cost_reactivate = $sf->{$account_type . '_reactivation'};
 
-	update('network_users',
+	update(
+		'network_users',
 		[
 			'payout_transfer = payout_transfer - ' . $cost_reactivate,
-//			'income_flushout = ' . /*income_global($user_id)*/ $income_cycle_global,
+			//			'income_flushout = ' . /*income_global($user_id)*/ $income_cycle_global,
 			'income_cycle_global = ' . '0',
 			'status_global = ' . $db->quote('active')
 		],
-		['id = ' . $db->quote($user_id)]);
+		['id = ' . $db->quote($user_id)]
+	);
 
 	update_fixed_daily($user_id);
 	update_fast_track($user_id);
@@ -243,7 +241,8 @@ function update_fixed_daily($user_id)
 {
 	$db = db();
 
-	update('network_fixed_daily',
+	update(
+		'network_fixed_daily',
 		[
 			'time_last = 0',
 			'value_last = 0',
@@ -253,7 +252,8 @@ function update_fixed_daily($user_id)
 			'date_last_cron = 0',
 			'flushout_global = 0'
 		],
-		['user_id = ' . $db->quote($user_id)]);
+		['user_id = ' . $db->quote($user_id)]
+	);
 }
 
 function update_fast_track($user_id)
@@ -307,20 +307,24 @@ function logs($user_id)
 
 	$user = user($user_id);
 
-//	$binary_user = binary_user($user_id);
+	//	$binary_user = binary_user($user_id);
 
 	$currency = settings('ancillaries')->currency;
 
 	$cost_reactivate = settings('freeze')->{$user->account_type . '_reactivation'};
 
-	insert('network_transactions',
-		['user_id',
+	insert(
+		'network_transactions',
+		[
+			'user_id',
 			'transaction',
 			'details',
 			'value',
 			'balance',
-			'transaction_date'],
-		[$db->quote($user_id),
+			'transaction_date'
+		],
+		[
+			$db->quote($user_id),
 			$db->quote('Account Reactivation'),
 			$db->quote(number_format($cost_reactivate, 8) . ' ' . $currency .
 				' deducted to <a href="' . sef(44) . qs() . 'uid=' . $user_id . '">' .
@@ -331,13 +335,17 @@ function logs($user_id)
 		]
 	);
 
-	insert('network_activity',
-		['user_id',
+	insert(
+		'network_activity',
+		[
+			'user_id',
 			'sponsor_id',
 			'upline_id',
 			'activity',
-			'activity_date'],
-		[$db->quote($user_id),
+			'activity_date'
+		],
+		[
+			$db->quote($user_id),
 			$db->quote($user_id),
 			1,
 			$db->quote('<b>Account Reactivation: ' .
@@ -345,7 +353,8 @@ function logs($user_id)
 				' deducted to <a href="' . sef(44) . qs() . 'uid=' .
 				$user_id . '">' . $user->username .
 				'</a> for Account Reactivation.'),
-			$db->quote(time())]
+			$db->quote(time())
+		]
 	);
 }
 
@@ -360,8 +369,7 @@ function page_validate($usertype, $user_id)
 {
 	$binary_user = binary_user($user_id);
 
-	if ($usertype === '' || $binary_user->status_global === 'active')
-	{
+	if ($usertype === '' || $binary_user->status_global === 'active') {
 		application()->redirect(Uri::root(true) . '/' . sef(43));
 	}
 }

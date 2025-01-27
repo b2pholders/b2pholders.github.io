@@ -703,7 +703,7 @@ function token_options(): string
 	if ($tokens) {
 		foreach ($tokens as $token) {
 			$str .= '<option value="' . strtolower($token) . '"' .
-				/*($token === 'BTC3' ? ' selected' : '') .*/
+				($token === 'B2P' ? ' selected' : '') .
 				'>' . $token . '</option>';
 			$str .= "\n\n";
 		}
@@ -865,8 +865,8 @@ function view_form_payment_method($user_id): string
 	$str .= '<select name="payout_method" id="payout_method" style="float:left">';
 	//	$str .= '<option selected>Select Currency Method</option>';
 	$str .= '<option value="bank">Bank</option>';
-	$str .= '<option value="gcash" selected>G-Cash</option>';
-	$str .= '<option value="maya" selected>MAYA</option>';
+	$str .= '<option value="gcash">G-Cash</option>';
+	$str .= '<option value="maya">MAYA</option>';
 	$str .= token_options();
 	$str .= '</select>';
 

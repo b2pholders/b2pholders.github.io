@@ -90,7 +90,7 @@ function row_balance($user): string
 	return '<tr>
         <td>Balance:</td>
         <td><span class="usd_bal_now_user">' .
-	number_format($user->{$field_balance}, 8) .
+		number_format($user->{$field_balance}, 8) .
 		' ' . $settings_ancillaries->currency .
 		'</span></td>
     </tr>';
@@ -110,7 +110,7 @@ function row_efund($user): string
 	return '<tr>
         <td>' . $sa->efund_name . ':</td>
         <td><span class="usd_bal_now_user">' .
-	number_format($user->payout_transfer, 8) . ' ' . $sa->currency . '</span></td>
+		number_format($user->payout_transfer, 8) . ' ' . $sa->currency . '</span></td>
     </tr>';
 }
 
@@ -148,7 +148,7 @@ function row_daily_incentive($user): string
 {
 	$settings_plans = settings('plans');
 
-	$currency = settings('ancillaries')->currency;
+	// $currency = settings('ancillaries')->currency;
 
 	$str = '';
 
@@ -161,13 +161,13 @@ function row_daily_incentive($user): string
 		$passive_income = $user->fixed_daily_interest + $user->top_up_interest + $user->fast_track_interest;
 
 		$str .= '<tr>
-            <td>Accumulated:</td>
-            <td>' . number_format($passive_income, 8) . ' ' . $currency . '</td>
+            <td>B2P Holdings:</td>
+            <td>' . number_format($passive_income, 8) . ' ' . /* $currency */ 'B2P' . '</td>
         </tr>';
 
 		$str .= settings('investment')->{$user->account_type . '_fast_track_donation'} ? '<tr>
             <td>Cybercharge:</td>
-            <td>' . number_format($user->donation, 8) . ' ' . $currency . '</td>
+            <td>' . number_format($user->donation, 8) . ' ' . /* $currency */ 'B2P' . '</td>
         </tr>' : '';
 	}
 

@@ -398,6 +398,7 @@ function mature()
 					$dbh->beginTransaction();
 
 					update_fixed_daily_token_time_mature($result);
+					deactivate_user($result);
 
 					$dbh->commit();
 				} catch (Exception $e) {
@@ -409,6 +410,19 @@ function mature()
 			}
 		}
 	}
+}
+
+function deactivate_user($result)
+{
+	crud(
+		'UPDATE network_users ' .
+		'SET status_global = :status_global ' .
+		'WHERE id = :user_id',
+		[
+			'status_global' => 'inactive',
+			'user_id' => $result->user_id
+		]
+	);
 }
 
 /**

@@ -372,10 +372,10 @@ function price_token_method($value, $method)
 		if (in_array($currency, ['B2P', 'AET', 'TPAY', /*'BTC3', 'BTCB', 'BTCW', 'GOLD', 'PAC', 'P2P',*/ 'PESO'])) {
 			$price_res = 1 / price_coinbrain($currency);
 		} else {
-			$price_method = token_price($currency)['price'];
+			// $price_method = token_price($currency)['price'];
 			$price_base = token_price('USDT')['price'];
 
-			$price_res = $price_base / $price_method;
+			$price_res = $price_base * /* $price_method */ price_coinbrain('B2P');
 		}
 	}
 
@@ -511,13 +511,13 @@ function view_method_select($user_id): string
 			// 	$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
 			// }
 
-			// if ($k === 'usdt') {
-			// 	$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
-			// }
-
-			if ($k === 'bnb') {
+			if ($k === 'usdt') {
 				$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
 			}
+
+			// if ($k === 'bnb') {
+			// 	$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
+			// }
 
 			// if ($k === 'btcb') {
 			// 	$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';

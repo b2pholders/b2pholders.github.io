@@ -527,7 +527,7 @@ function process_conversion($user_id, $amount, $method, $mode)
 	$amount_final = $amount - $amount_cut;
 	//	$points_cut   = $amount_cut / $convert_points_usd; // set aside for reward points
 
-	$price_total = price_token_method($amount_final, $method);
+	$price_total = /* price_token_method($amount_final, $method) */ $amount_final;
 
 	$currency = in_array($method, ['bank', 'gcash']) ? 'PHP' : $method;
 

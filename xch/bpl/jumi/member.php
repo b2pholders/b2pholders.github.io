@@ -342,7 +342,7 @@ function header_admin(): string
 function row_member_count(): string
 {
 	return '<tr>
-            <td style="width: 21%">Total Package Entries:</td>
+            <td style="width: 21%">Registrations:</td>
             <td style="width: 43%">' . count(users()) .
 		'<a style="float:right" href="' . sef(40) . '">View All Accounts</a>
             </td>
@@ -1754,7 +1754,7 @@ function row_savings($user_id): string
 'balance' : 'payout_transfer'*/ 'share_fund';
 
 	/*$reactivate = $user->status_global === 'active' ? '' :
-																																																																											  '<a style="float:right" href="' . sef(130) . '">Reactivate Account</a>';*/
+																																																																												 '<a style="float:right" href="' . sef(130) . '">Reactivate Account</a>';*/
 
 	return '<tr>
 	        <td><a href="javascript:void(0)">' . $sa->share_fund_name . '</a>:</td>
@@ -1783,7 +1783,7 @@ function row_loans($user_id): string
 'balance' : 'payout_transfer'*/ 'loans';
 
 	/*$reactivate = $user->status_global === 'active' ? '' :
-																																																																											  '<a style="float:right" href="' . sef(130) . '">Reactivate Account</a>';*/
+																																																																												 '<a style="float:right" href="' . sef(130) . '">Reactivate Account</a>';*/
 
 	return '<tr>
 	        <td><a href="javascript:void(0)">Loans</a>:</td>

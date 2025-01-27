@@ -106,7 +106,7 @@ function fixed_daily_token($user_id): string
 				<div class="card-content">$starting_value $efund_name</div>
 			</div>
 			<div class="card">
-				<div class="card-header">Accumulated Token</div>
+				<div class="card-header">B2P Holdings</div>
 				<div class="card-content">$current_value $efund_name</div>
 			</div>
 			<div class="card">
