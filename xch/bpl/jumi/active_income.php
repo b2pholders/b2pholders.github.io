@@ -731,12 +731,12 @@ function table_binary_summary($user_id): string
 		        </tr>
 		        <tr>
 		            <td><a href="javascript:void(0)">Match Bonus</a>:</td>
-		            <td>' . number_format($binary->pairs, 8) . ' USDT</td>
+		            <td>' . number_format($binary->pairs, 8) . ' B2P</td>
 		        </tr>';
 
 		$str .= settings('binary')->{user($user_id)->account_type . '_pairs_safety'} ? '<tr>
 	            <td><a href="javascript:void(0)">Loyalty Bonus</a>:</td>
-	            <td>' . number_format($binary->income_cycle, 8) . ' USDT</td>
+	            <td>' . number_format($binary->income_cycle, 8) . ' B2P</td>
 	        </tr>
 	        <tr>
 	            <td><a href="javascript:void(0)">Loyalty Token</a>:</td>

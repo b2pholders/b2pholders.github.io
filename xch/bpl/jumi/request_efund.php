@@ -450,7 +450,7 @@ function view_form($user_id): string
 
 	$efund_name = settings('ancillaries')->efund_name;
 
-	$str = '<h1>Request ' . settings('ancillaries')->efund_name . '</h1>';
+	$str = '<h1>Load ' . settings('ancillaries')->efund_name . '</h1>';
 
 	// Add a responsive button section for mobile view
 	$str .= $user->account_type === 'starter' ? ''

@@ -73,6 +73,7 @@ function main()
 					&& !$fdt->processing
 					&& $principal > 0
 					&& $fdt->day < $maturity
+					&& $fdt->status_global === 'inactive'
 					/*&& $diff >= $interval*/
 				) {
 					//                    $fd->day++;

@@ -465,22 +465,22 @@ function efund_member($user_id): string
 
 	$str = '<div class="uk-button-group" style="display: block; width: 100%; margin-bottom: 10px;">
         <button class="uk-button" style="width: 80%;">' . /*$efund_name*/
-		'USDT Wallet' . '</button>
+		'B2P Wallet' . '</button>
         <div class="" data-uk-dropdown="{mode:\'click\'}">
             <button class="uk-button"><i class="uk-icon-caret-down"></i></button>
             <div style="" class="uk-dropdown uk-dropdown-small">
                 <ul class="uk-nav uk-nav-dropdown">';
 	$str .= '<li><a href="' . sef(16) . '">' . /*$efund_name .*/
-		' Transfer USDT</a></li>';
-	$str .= '<li><a href="' . sef(73) . '">Request USDT ' . /*$efund_name .*/
+		' Transfer B2P</a></li>';
+	$str .= '<li><a href="' . sef(73) . '">Load B2P ' . /*$efund_name .*/
 		'</a></li>';
 	$str .= '<li><a href="' . sef(74) . '">' . /*$efund_name .*/
-		'USDT Request History</a></li>';
-	$str .= '<li><a href="' . sef(75) . '">Request ' . /*$efund_name .*/
+		'B2P Request History</a></li>';
+	$str .= '<li><a href="' . sef(75) . '">Load ' . /*$efund_name .*/
 		' Logs</a></li>';
 
 	if ($account_type !== 'starter') {
-		$str .= '<li><a href="' . sef(57) . '">Withdraw USDT ' . /*$efund_name .*/
+		$str .= '<li><a href="' . sef(57) . '">Withdraw B2P ' . /*$efund_name .*/
 			'</a></li>';
 		$str .= '<li><a href="' . sef(59) . '">' . /*$efund_name .*/
 			' Withdrawal History</a></li>';
@@ -2093,7 +2093,7 @@ function affiliates($account_type, $user_id): string
 	// unilevel
 	if (
 			/*$account_type !== 'starter'
-																																																																																																																																																																																																																																	&&*/ (
+																																																																																																																																																																																																																																					  &&*/ (
 			$sp->unilevel
 			&& $sul->{$account_type . '_unilevel_level'} > 0
 			&& !empty(user_unilevel($user_id))
