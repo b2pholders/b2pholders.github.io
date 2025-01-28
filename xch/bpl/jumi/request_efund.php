@@ -511,9 +511,9 @@ function view_method_select($user_id): string
 			// 	$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
 			// }
 
-			if ($k === 'usdt') {
-				$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
-			}
+			// if ($k === 'usdt') {
+			// 	$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
+			// }
 
 			// if ($k === 'bnb') {
 			// 	$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
@@ -556,9 +556,9 @@ function view_method_select($user_id): string
 			// 	$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
 			// }
 
-			// if ($k === 'b2p') {
-			// 	$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
-			// }
+			if ($k === 'b2p') {
+				$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
+			}
 
 			// if ($k === 'aet') {
 			// 	$str .= '<option value="' . $k . '">' . strtoupper($k) . '</option>';
