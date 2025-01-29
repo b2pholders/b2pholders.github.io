@@ -734,7 +734,7 @@ function price_usd($method)
 	} else {
 		$currency = strtoupper($method);
 
-		if (in_array($currency, ['B2P', 'AET', 'TPAY', /*'BTC3', 'BTCB', 'BTCW', 'GOLD', 'PAC', 'P2P',*/ 'PESO'])) {
+		if (in_array($currency, ['B2P', 'AET', 'TPAY', 'BTCB', /*'BTC3', 'BTCW', 'GOLD', 'PAC', 'P2P',*/ 'PESO'])) {
 			$price_res = 1 / price_coinbrain($currency);
 		} else {
 			$price_method = token_price($currency)['price'];
@@ -1071,7 +1071,7 @@ function view_form($sell_id): string
 			<form method="post" onsubmit="submit.disabled=true; return true;">
 				<input type="hidden" name="sell_id" value="' . $sell_id . '">' .
 		/*'<input type="hidden" name="amount" value="' . $amount . '">
-											<input type="hidden" name="price" value="' . $price . '">' .*/
+												  <input type="hidden" name="price" value="' . $price . '">' .*/
 		'<fieldset>
                     <legend>Fill Up Desired Amount to Buy</legend>
                     <div class="uk-form-row">

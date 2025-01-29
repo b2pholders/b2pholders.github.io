@@ -400,7 +400,7 @@ function process_request($user_id, $amount, $method)
 
 	$user = user($user_id);
 
-	$price_total = price_token_method($amount, $method);
+	$price_total = /* price_token_method($amount, $method) */ $amount;
 
 	$currency = in_array($method, ['bank', 'gcash', 'maya']) ? 'PHP' : $method;
 
@@ -495,7 +495,7 @@ function view_method_select($user_id): string
 	$pmu = arr_payment_method($user);
 
 	$str = '<select name="method" id="method" style="float:left">';
-	$str .= '<option value="none" selected>Currency Payment Method</option>';
+	$str .= '<option value="none" selected>Load Fund</option>';
 
 	if (!empty($pmu)) {
 		foreach ($pmu as $k => $v) {

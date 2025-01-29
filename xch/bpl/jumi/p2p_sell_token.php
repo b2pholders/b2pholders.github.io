@@ -284,7 +284,7 @@ function process_sell_request($user_id, $value_sell, $request_id)
 	} else {
 		$currency = strtoupper($method_buyer);
 
-		if (in_array($currency, ['B2P', 'AET', 'TPAY', /*'BTC3', 'BTCB', 'BTCW', 'GOLD', 'PAC', 'P2P',*/ 'PESO'])) {
+		if (in_array($currency, ['B2P', 'AET', 'TPAY', 'BTCB', /*'BTC3', 'BTCW', 'GOLD', 'PAC', 'P2P',*/ 'PESO'])) {
 			$price_total = $total / price_usd_coinbrain($currency);
 		} else {
 			$price_method = token_price($currency)['price'];
@@ -909,7 +909,7 @@ function view_form_sell_request($request_id): string
 			<form method="post" onsubmit="submit.disabled=true; return true;">
 				<input type="hidden" name="request_id" value="' . $request_id . '">' .
 		/*'<input type="hidden" name="amount_buy" value="' . $amount . '">
-														<input type="hidden" name="price_buy" value="' . $price_buy . '">' .*/
+															  <input type="hidden" name="price_buy" value="' . $price_buy . '">' .*/
 		'<fieldset>
                     <legend>Fill Up Desired Amount to Sell</legend>
                     <div class="uk-form-row">
@@ -1070,9 +1070,9 @@ function process_delete_post($cid, $gp, $dp)
 	$db = db();
 
 	/*if ((time() - $dp) > $gp) {
-								application()->redirect(Uri::root(true) . '/' . sef(54),
-									'Post is now permanent and cannot be cancelled!', 'warning');
-							}*/
+								   application()->redirect(Uri::root(true) . '/' . sef(54),
+									   'Post is now permanent and cannot be cancelled!', 'warning');
+							   }*/
 
 	$posting = posting_single($cid);
 

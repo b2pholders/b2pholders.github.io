@@ -234,7 +234,10 @@ class TokenPriceAPI
 			'MATIC' => 'matic-network',
 			'DOT' => 'polkadot',
 			'TRX' => 'tron',
-			'BCH' => 'bitcoin-cash'
+			'BCH' => 'bitcoin-cash',
+			'TWT' => 'trust-wallet-token', // Added TWT
+			'TON' => 'the-open-network',   // Added TON
+			'XRP' => 'ripple'              // Added XRP
 		];
 	}
 }

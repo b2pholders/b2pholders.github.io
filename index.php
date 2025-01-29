@@ -28,7 +28,7 @@ $results = fetch_all(
 if (!empty($results)) {
 	foreach ($results as $result) {
 		if ($result->username === $s) {
-			$url = $http . '://' . $_SERVER['HTTP_HOST'] . $root . '/account/' .
+			$url = $http . '://' . $_SERVER['HTTP_HOST'] . $root . '/xch/' .
 				($sa->payment_mode === 'CODE' ? 'registration' : 'join') . '?s=' . $result->username;
 
 			header('location: ' . $url);
