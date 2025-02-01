@@ -146,26 +146,27 @@ function row_points($user): string
  */
 function row_daily_incentive($user): string
 {
-	$settings_plans = settings('plans');
+	$sp = settings('plans');
 
 	// $currency = settings('ancillaries')->currency;
 
 	$str = '';
 
 	if (
-		($settings_plans->etrade && !empty(user_compound($user->id))) ||
-		($settings_plans->top_up && !empty(user_top_up($user->id))) ||
-		($settings_plans->fast_track && !empty(user_fast_track($user->id))) ||
-		($settings_plans->fixed_daily && !empty(user_fixed_daily($user->id)))
+		($sp->etrade && !empty(user_compound($user->id)))
+		|| ($sp->top_up && !empty(user_top_up($user->id)))
+		|| ($sp->fast_track && !empty(user_fast_track($user->id)))
+		|| ($sp->fixed_daily && !empty(user_fixed_daily($user->id)))
+		|| ($sp->fixed_daily_token && !empty(user_fixed_daily_token($user->id)))
 	) {
-		$passive_income = $user->fixed_daily_interest + $user->top_up_interest + $user->fast_track_interest;
+		$passive_income = $user->fixed_daily_token_interest + $user->fixed_daily_interest + $user->top_up_interest + $user->fast_track_interest;
 
 		$str .= '<tr>
             <td>B2P Holdings:</td>
             <td>' . number_format($passive_income, 8) . ' ' . /* $currency */ 'B2P' . '</td>
         </tr>';
 
-		$str .= settings('investment')->{$user->account_type . '_fast_track_donation'} ? '<tr>
+		$str .= settings('investment')->{$user->account_type . '_fixed_daily_token_donation'} ? '<tr>
             <td>Cybercharge:</td>
             <td>' . number_format($user->donation, 8) . ' ' . /* $currency */ 'B2P' . '</td>
         </tr>' : '';
@@ -206,6 +207,17 @@ function user_fixed_daily($user_id)
 	return $db->setQuery(
 		'SELECT * ' .
 		'FROM network_fixed_daily ' .
+		'WHERE user_id = ' . $db->quote($user_id)
+	)->loadObjectList();
+}
+
+function user_fixed_daily_token($user_id)
+{
+	$db = db();
+
+	return $db->setQuery(
+		'SELECT * ' .
+		'FROM network_fixed_daily_token ' .
 		'WHERE user_id = ' . $db->quote($user_id)
 	)->loadObjectList();
 }
