@@ -5,6 +5,7 @@ namespace BPL\Jumi\Buy_Package;
 require_once 'bpl/direct_referral.php';
 require_once 'bpl/indirect_referral.php';
 require_once 'bpl/passup.php';
+require_once 'bpl/mods/cd_filter.php';
 require_once 'bpl/mods/binary/core.php';
 require_once 'bpl/mods/binary/validate.php';
 //require_once 'bpl/binary_activate_bonus.php';
@@ -36,7 +37,9 @@ use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Session\Session;
 
-// use function BPL\Direct_Referral\main as direct_referral;
+use function BPL\Mods\Commission_Deduct\Filter\main as cd_filter;
+
+use function BPL\Direct_Referral\main as direct_referral;
 use function BPL\Indirect_Referral\main as indirect_referral;
 use function BPL\Passup_Bonus\main as passup;
 use function BPL\Leadership_Passive\insert_leadership_passive;
@@ -931,26 +934,85 @@ function user_plan($user_id, $plan)
  */
 function process_direct_referral($user_id, $code_type)
 {
-	$Settings_plans = settings('plans');
-	$settings_referral = settings('referral');
+	$sp = settings('plans');
+	$se = settings('entry');
+	$sf = settings('freeze');
+	$sr = settings('referral');
 
-	$bonus = $settings_referral->{$code_type . '_referral'};
+	$bonus = $sr->{$code_type . '_referral'};
 
 	$sponsor_id = user($user_id)->sponsor_id;
 
+	$sponsor = user($sponsor_id);
+
 	$db = db();
 
-	if ($Settings_plans->direct_referral || $Settings_plans->binary_pair) {
-		// direct_referral($user_id, $code_type, $username, $sponsor, $date, $prov);
-		update(
-			'network_users',
-			[
-				'payout_transfer = payout_transfer + ' . $bonus,
-				//'income_cycle_global = income_cycle_global + ' . $sponsor_referral_add,
-				'income_referral = income_referral + ' . $bonus
-			],
-			['id = ' . $db->quote($sponsor_id)]
-		);
+	if ($sp->direct_referral || $sp->binary_pair) {
+		$account_type = $sponsor->account_type;
+
+		$income_cycle_global = $sponsor->income_cycle_global;
+
+		$entry = $se->{$account_type . '_entry'};
+		$factor = $sf->{$account_type . '_percentage'} / 100;
+
+		$freeze_limit = $entry * $factor;
+
+		$status = $sponsor->status_global;
+
+		if ($income_cycle_global >= $freeze_limit) {
+			if ($status === 'active') {
+				update(
+					'network_users',
+					[
+						'status_global = ' . $db->quote('inactive'),
+						'income_flushout = income_flushout + ' . $bonus
+					],
+					['id = ' . $db->quote($sponsor_id)]
+				);
+			}
+		} else {
+			$diff = $freeze_limit - $income_cycle_global;
+
+			if ($diff < $bonus) {
+				$flushout_global = $bonus - $diff;
+
+				if ($sponsor->status_global === 'active') {
+					$field_user = ['income_referral = income_referral + ' . $diff];
+
+					$field_user[] = 'status_global = ' . $db->quote('inactive');
+					$field_user[] = 'income_cycle_global = income_cycle_global + ' . cd_filter($sponsor_id, $diff);
+					$field_user[] = 'income_flushout = income_flushout + ' . $flushout_global;
+
+					if (settings('ancillaries')->withdrawal_mode === 'standard') {
+						$field_user[] = 'balance = balance + ' . cd_filter($sponsor_id, $diff);
+					} else {
+						$field_user[] = 'payout_transfer = payout_transfer + ' . cd_filter($sponsor_id, $diff);
+					}
+
+					update(
+						'network_users',
+						$field_user,
+						['id = ' . $db->quote($sponsor_id)]
+					);
+				}
+			} else {
+				$field_user = ['income_referral = income_referral + ' . $bonus];
+
+				$field_user[] = 'income_cycle_global = income_cycle_global + ' . cd_filter($sponsor_id, $bonus);
+
+				if (settings('ancillaries')->withdrawal_mode === 'standard') {
+					$field_user[] = 'balance = balance + ' . cd_filter($sponsor_id, $bonus);
+				} else {
+					$field_user[] = 'payout_transfer = payout_transfer + ' . cd_filter($sponsor_id, $bonus);
+				}
+
+				update(
+					'network_users',
+					$field_user,
+					['id = ' . $db->quote($sponsor_id)]
+				);
+			}
+		}
 	}
 }
 
