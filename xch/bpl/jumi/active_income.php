@@ -43,6 +43,8 @@ function main()
 
 	page_validate();
 
+	// print_r(session_get('income_cycle_global'));
+
 	$str = menu();
 
 	switch (session_get('usertype')) {

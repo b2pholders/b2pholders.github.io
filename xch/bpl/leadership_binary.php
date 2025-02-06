@@ -21,6 +21,7 @@ use function BPL\Mods\Helpers\db;
 //use function BPL\Mods\Helpers\user;
 use function BPL\Mods\Helpers\users;
 use function BPL\Mods\Helpers\settings;
+use function BPL\Mods\Helpers\session_set;
 
 /**
  *
@@ -81,94 +82,90 @@ function update_bonus_lb($lb_add, $lb, $user)
 {
 	$db = db();
 
-	//    $se = settings('entry');
-//    $sf = settings('freeze');
+	$se = settings('entry');
+	$sf = settings('freeze');
 
 	$user_id = $user->id;
-	//    $account_type = $user->account_type;
+	$account_type = $user->account_type;
 
-	//    $income_cycle_global = $user->income_cycle_global;
+	$user_income_cycle_global = $user->income_cycle_global;
 
-	//    $entry  = $se->{$account_type . '_entry'};
-//    $factor = $sf->{$account_type . '_percentage'} / 100;
+	$entry = $se->{$account_type . '_entry'};
+	$factor = $sf->{$account_type . '_percentage'} / 100;
 
-	//    $freeze_limit = $entry * $factor;
+	$freeze_limit = $entry * $factor;
 
-	//    $status = $user->status_global;
+	$status = $user->status_global;
 
-	//    if ($income_cycle_global >= $freeze_limit)
-//    {
-//        if ($status === 'active')
-//        {
-//            update(
-//                'network_users',
-//                [
-//                    'status_global = ' . $db->quote('inactive'),
-//                    'income_flushout = income_flushout + ' . $lb_add
-//                ],
-//                ['id = ' . $db->quote($user_id)]
-//            );
-//        }
-//
-//        update_leadership(0, $lb, $user_id);
-//    }
-//    else
-//    {
-//        $diff = $freeze_limit - $income_cycle_global;
-//
-//        if ($diff < $lb_add)
-//        {
-//            $flushout_global = $lb_add - $diff;
-//
-//            if ($status === 'active')
-//            {
-//                $field_user = ['bonus_leadership = bonus_leadership + ' . $diff];
-//
-//                $field_user[] = 'status_global = ' . $db->quote('inactive');
-//                $field_user[] = 'income_cycle_global = income_cycle_global + ' . cd_filter($user_id, $diff);
-//                $field_user[] = 'income_flushout = income_flushout + ' . $flushout_global;
-//
-//                if (settings('ancillaries')->withdrawal_mode === 'standard')
-//                {
-//                    $field_user[] = 'balance = balance + ' . cd_filter($user_id, $diff);
-//                }
-//                else
-//                {
-//                    $field_user[] = 'payout_transfer = payout_transfer + ' . cd_filter($user_id, $diff);
-//                }
-//
-//                update(
-//                    'network_users',
-//                    $field_user,
-//                    ['id = ' . $db->quote($user_id)]
-//                );
-//            }
-//
-//            update_leadership($diff, $lb, $user_id);
-//        }
-//        else
-//        {
-	$field_user = ['bonus_leadership = bonus_leadership + ' . $lb_add];
+	// $income_cycle_global = session_set(
+	// 	'income_cycle_global',
+	// 	$user_income_cycle_global + $lb_add
+	// );
 
-	//	$field_user[] = 'income_cycle_global = income_cycle_global + ' . cd_filter($user_id, $lb_add);
+	$income_cycle_global = $user_income_cycle_global + $lb_add;
 
-	if (settings('ancillaries')->withdrawal_mode === 'standard') {
-		$field_user[] = 'balance = balance + ' . cd_filter($user_id, $lb_add);
+	if ($income_cycle_global >= $freeze_limit) {
+		if ($status === 'active') {
+			update(
+				'network_users',
+				[
+					'status_global = ' . $db->quote('inactive'),
+					'income_flushout = income_flushout + ' . $lb_add
+				],
+				['id = ' . $db->quote($user_id)]
+			);
+		}
+
+		update_leadership(0, $lb, $user_id);
 	} else {
-		$field_user[] = 'payout_transfer = payout_transfer + ' . cd_filter($user_id, $lb_add);
+		$diff = $freeze_limit - $income_cycle_global;
+
+		if ($diff < $lb_add) {
+			$flushout_global = $lb_add - $diff;
+
+			if ($status === 'active') {
+				$field_user = ['bonus_leadership = bonus_leadership + ' . $diff];
+
+				$field_user[] = 'status_global = ' . $db->quote('inactive');
+				$field_user[] = 'income_cycle_global = income_cycle_global + ' . cd_filter($user_id, $diff);
+				$field_user[] = 'income_flushout = income_flushout + ' . $flushout_global;
+
+				if (settings('ancillaries')->withdrawal_mode === 'standard') {
+					$field_user[] = 'balance = balance + ' . cd_filter($user_id, $diff);
+				} else {
+					$field_user[] = 'payout_transfer = payout_transfer + ' . cd_filter($user_id, $diff);
+				}
+
+				update(
+					'network_users',
+					$field_user,
+					['id = ' . $db->quote($user_id)]
+				);
+			}
+
+			update_leadership($diff, $lb, $user_id);
+		} else {
+			$field_user = ['bonus_leadership = bonus_leadership + ' . $lb_add];
+
+			$field_user[] = 'income_cycle_global = income_cycle_global + ' . cd_filter($user_id, $lb_add);
+
+			if (settings('ancillaries')->withdrawal_mode === 'standard') {
+				$field_user[] = 'balance = balance + ' . cd_filter($user_id, $lb_add);
+			} else {
+				$field_user[] = 'payout_transfer = payout_transfer + ' . cd_filter($user_id, $lb_add);
+			}
+
+			update(
+				'network_users',
+				$field_user,
+				['id = ' . $db->quote($user_id)]
+			);
+
+			update_leadership($lb_add, $lb, $user_id);
+		}
+
+		log_activity($user, $lb);
 	}
-
-	update(
-		'network_users',
-		$field_user,
-		['id = ' . $db->quote($user_id)]
-	);
-
-	update_leadership($lb_add, $lb, $user_id);
-	//        }
-
-	log_activity($user, $lb);
-	//    }
 }
 
 /**

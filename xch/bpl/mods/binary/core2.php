@@ -26,7 +26,6 @@ use function BPL\Mods\Helpers\user;
 use function BPL\Mods\Helpers\db;
 use function BPL\Mods\Helpers\settings;
 use function BPL\Mods\Helpers\time;
-use function BPL\Mods\Helpers\session_set;
 
 /**
  * @param           $insert_id
@@ -256,128 +255,132 @@ function pairing_update_binary(
 ) {
 	$db = db();
 
-	// $sp = settings('plans');
-	$sf = settings('freeze');
-	$se = settings('entry');
+	//	$sp = settings('plans');
+//	$sf = settings('freeze');
+//	$se = settings('entry');
 
-	// $saf = $sp->account_freeze;
+	//	$saf = $sp->account_freeze;
 
 	$user_binary = user_binary($upline_id);
 
-	$account_type = $user_binary->account_type;
-	$user_income_cycle_global = $user_binary->income_cycle_global;
+	//	$account_type        = $user_binary->account_type;
+//	$income_cycle_global = $user_binary->income_cycle_global;
 
-	$entry = $se->{$account_type . '_entry'};
-	$factor = $sf->{$account_type . '_percentage'} / 100;
+	//	$entry  = $se->{$account_type . '_entry'};
+//	$factor = $sf->{$account_type . '_percentage'} / 100;
 
-	$freeze_limit = $entry * $factor;
+	//	$freeze_limit = $entry * $factor;
 
 	$pairs_value = pairs_value($insert_user, $upline_id);
 
-	$income_cycle_global = $user_income_cycle_global;
-
-	if ($income_cycle_global + $pairs_add_limit >= $freeze_limit) {
-		$flushout_pairs_add_limit = $income_cycle_global + $pairs_add_limit - $freeze_limit;
-		$pairs_add_limit_diff = $pairs_add_limit - $flushout_pairs_add_limit;
-
-		$freeze = update(
+	//	if ($income_cycle_global >= $freeze_limit)
+//	{
+//		$freeze = update(
+//			'network_binary',
+//			[
+//				'freeze_flushout = freeze_flushout + ' . $pairs_add_limit,
+//				'income_flushout = income_flushout + ' . $flushout,
+//				'pairs_today = pairs_today + ' . $pairs_add_actual,
+//				'pairs_today_total = pairs_today_total + ' . $pairs_add_actual,
+//				($downline->position === 'Left' ? 'ctr_left = ctr_left' :
+//					'ctr_right = ctr_right') . ' + ' . $pairs_value
+//			],
+//			['user_id = ' . $db->quote($upline_id)]
+//		);
+//
+//		if ($user_binary->status_global === 'active' && $freeze)
+//		{
+//			update(
+//				'network_users',
+//				[
+//					'status_global = ' . $db->quote('inactive'),
+//					'income_flushout = income_flushout + ' . $pairs_add_limit
+//				],
+//				['id = ' . $db->quote($upline_id)]
+//			);
+//		}
+//	}
+//	else
+//	{
+//		$diff = $freeze_limit - $income_cycle_global;
+//
+//		if ($diff < $pairs_add_limit)
+//		{
+//			$flushout_global = $pairs_add_limit - $diff;
+//
+//			$freeze = update(
+//				'network_binary',
+//				[
+//					'freeze_flushout = freeze_flushout + ' . $flushout,
+//					'income_cycle = income_cycle + ' . $diff,
+//					'pairs_5th = pairs_5th + ' . $nth_pair,
+//					'income_giftcheck = income_giftcheck + ' . $nth_pair,
+//					'pairs = pairs + ' . $diff,
+//					'income_flushout = income_flushout + ' . $flushout,
+//					'pairs_today = pairs_today + ' . $pairs_add_actual,
+//					'pairs_today_total = pairs_today_total + ' . $pairs_add_actual,
+//					'capping_cycle = capping_cycle + ' . $diff,
+//					($downline->position === 'Left' ? 'ctr_left = ctr_left' :
+//						'ctr_right = ctr_right') . ' + ' . $pairs_value
+//				],
+//				['user_id = ' . $db->quote($upline_id)]
+//			);
+//
+//			if ($user_binary->status_global === 'active' && $freeze)
+//			{
+//				update(
+//					'network_users',
+//					[
+//						'income_cycle_global = income_cycle_global + ' . /*cd_filter($upline_id, */$diff/*)*/,
+//						'income_flushout = income_flushout + ' . $flushout_global,
+//						'status_global = ' . $db->quote('inactive')
+//					],
+//					['id = ' . $db->quote($upline_id)]
+//				);
+//
+//				if ($diff > 0)
+//				{
+//					return pairing_update_user($upline_id, $diff, $nth_pair);
+//				}
+//			}
+//		}
+//		else
+//		{
+	if ($pairs_value > 0) {
+		$update = update(
 			'network_binary',
 			[
-				'freeze_flushout = freeze_flushout + ' . $pairs_add_limit,
+				'income_cycle = income_cycle + ' . $pairs_add_limit,
+				'pairs_5th = pairs_5th + ' . $nth_pair,
+				'income_giftcheck = income_giftcheck + ' . $nth_pair,
+				'pairs = pairs + ' . $pairs_add_limit,
 				'income_flushout = income_flushout + ' . $flushout,
 				'pairs_today = pairs_today + ' . $pairs_add_actual,
 				'pairs_today_total = pairs_today_total + ' . $pairs_add_actual,
+				'capping_cycle = capping_cycle + ' . $pairs_add_limit,
 				($downline->position === 'Left' ? 'ctr_left = ctr_left' :
 					'ctr_right = ctr_right') . ' + ' . $pairs_value
 			],
-			['user_id = ' . $db->quote($upline_id)]
+			[
+				'user_id = ' . $db->quote($upline_id)
+			]
 		);
 
-		if ($user_binary->status_global === 'active' && $freeze) {
-			update(
-				'network_users',
-				[
-					'status_global = ' . $db->quote('inactive'),
-					'income_cycle_global = income_cycle_global + ' . $pairs_add_limit_diff,
-					'income_flushout = income_flushout + ' . $flushout_pairs_add_limit
-				],
-				['id = ' . $db->quote($upline_id)]
-			);
+		//				if ($user_binary->status_global === 'active' && $update)
+//				{
+//					$update = update(
+//						'network_users',
+//						['income_cycle_global = income_cycle_global + ' . /*cd_filter($upline_id, */$pairs_add_limit/*)*/],
+//						['id = ' . $db->quote($upline_id)]
+//					);
+
+		if ($update) {
+			return pairing_update_user($upline_id, $pairs_add_limit, $nth_pair);
 		}
-	} else {
-		$diff = $freeze_limit - $income_cycle_global;
-
-		if ($diff < $pairs_add_limit) {
-			$flushout_global = $pairs_add_limit - $diff;
-
-			$freeze = update(
-				'network_binary',
-				[
-					'freeze_flushout = freeze_flushout + ' . $flushout,
-					'income_cycle = income_cycle + ' . $diff,
-					'pairs_5th = pairs_5th + ' . $nth_pair,
-					'income_giftcheck = income_giftcheck + ' . $nth_pair,
-					'pairs = pairs + ' . $diff,
-					'income_flushout = income_flushout + ' . $flushout,
-					'pairs_today = pairs_today + ' . $pairs_add_actual,
-					'pairs_today_total = pairs_today_total + ' . $pairs_add_actual,
-					'capping_cycle = capping_cycle + ' . $diff,
-					($downline->position === 'Left' ? 'ctr_left = ctr_left' :
-						'ctr_right = ctr_right') . ' + ' . $pairs_value
-				],
-				['user_id = ' . $db->quote($upline_id)]
-			);
-
-			if ($user_binary->status_global === 'active' && $freeze) {
-				update(
-					'network_users',
-					[
-						'income_cycle_global = income_cycle_global + ' . /*cd_filter($upline_id, */ $diff/*)*/ ,
-						'income_flushout = income_flushout + ' . $flushout_global,
-						'status_global = ' . $db->quote('inactive')
-					],
-					['id = ' . $db->quote($upline_id)]
-				);
-
-				if ($diff > 0) {
-					return pairing_update_user($upline_id, $diff, $nth_pair);
-				}
-			}
-		} else {
-			if ($pairs_value > 0) {
-				$update = update(
-					'network_binary',
-					[
-						'income_cycle = income_cycle + ' . $pairs_add_limit,
-						'pairs_5th = pairs_5th + ' . $nth_pair,
-						'income_giftcheck = income_giftcheck + ' . $nth_pair,
-						'pairs = pairs + ' . $pairs_add_limit,
-						'income_flushout = income_flushout + ' . $flushout,
-						'pairs_today = pairs_today + ' . $pairs_add_actual,
-						'pairs_today_total = pairs_today_total + ' . $pairs_add_actual,
-						'capping_cycle = capping_cycle + ' . $pairs_add_limit,
-						($downline->position === 'Left' ? 'ctr_left = ctr_left' :
-							'ctr_right = ctr_right') . ' + ' . $pairs_value
-					],
-					[
-						'user_id = ' . $db->quote($upline_id)
-					]
-				);
-
-				if ($user_binary->status_global === 'active' && $update) {
-					$update = update(
-						'network_users',
-						['income_cycle_global = income_cycle_global + ' . /*cd_filter($upline_id, */ $pairs_add_limit/*)*/],
-						['id = ' . $db->quote($upline_id)]
-					);
-
-					if ($update) {
-						return pairing_update_user($upline_id, $pairs_add_limit, $nth_pair);
-					}
-				}
-			}
-		}
+		//				}
 	}
+	//		}
+//	}
 
 	return false;
 }
@@ -495,8 +498,8 @@ $user_binary->ctr_right >= $capping_pairs))*/))
 		|| (/*$status === 'reactivated' &&*/ $maximum_income && ($user_binary->income_cycle /*+ $pairs_add_actual*/) >= $maximum_income)
 	) {
 		$status = /*($status === 'reactivated'
-&& $maximum_income
-&& $user_binary->income_cycle >= $maximum_income) ? 'graduate' :*/
+	  && $maximum_income
+	  && $user_binary->income_cycle >= $maximum_income) ? 'graduate' :*/
 			'inactive';
 
 		update_status_binary($upline_id, $status);

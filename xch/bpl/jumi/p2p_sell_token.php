@@ -801,7 +801,7 @@ function view_request_single($request, $user_id): string
 	return $str;
 }
 
-function view_modal_buy_confirm(
+function view_modal_buy_confirm_bck(
 	$request_id,
 	$buyer_id,
 	$date_requested,
@@ -853,7 +853,7 @@ function view_modal_buy_confirm(
 	//	$str .= '<p>Buyer Contact Info: <b>' . $user_buyer->contact . '</b></p>';
 
 	if (!in_array($method_buyer, ['bank', 'gcash', 'maya'])) {
-		$str .= '<p>Buyer Wallet Address: <b>' . $wallet_buyer . '</b></p>';
+		$str .= '<p>Buyer Wallet Address:</p> <p><b>' . $wallet_buyer . '</b></p>';
 	}
 
 	$str .= '</div>';
@@ -863,6 +863,95 @@ function view_modal_buy_confirm(
 			</div>';
 	$str .= '</div>
 		        </div>';
+
+	return $str;
+}
+
+function view_modal_buy_confirm(
+	$request_id,
+	$buyer_id,
+	$date_requested,
+	$amount,
+	$type,
+	$total,
+	$method_buyer,
+	$wallet_buyer
+): string {
+	$user_buyer = user($buyer_id);
+	$contact_info = arr_contact_info($user_buyer);
+
+	$messenger = $contact_info['messenger'] ?? '';
+	$mobile = $contact_info['mobile'] ?? '';
+	$landline = $contact_info['landline'] ?? '';
+
+	$currency = in_array($method_buyer, ['bank', 'gcash', 'maya']) ? 'PHP' : $method_buyer;
+
+	$str = '<div id="modal-confirm-' . $request_id . '" class="uk-modal" aria-hidden="true" uk-modal>
+                <div class="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">
+					<button type="button" class="uk-modal-close uk-close"></button>
+                    <h2 class="uk-modal-title">Confirm Purchase</h2>
+                    <p><strong>Please verify and check the following details from the Buyer upon confirmation:</strong></p>
+                    <div class="uk-panel uk-panel-box uk-text-left">
+                        <p>Date Requested: <b>' . date('M j, Y - g:i A', $date_requested) . '</b></p>
+                        <p>Amount: <b>' . number_format($amount, 8) . ' ' . strtoupper($type) . '</b></p>
+                        <p>Total: <b>' . number_format($total, 18) . ' ' . strtoupper($currency) . '</b></p>
+                        ' . ($user_buyer->username ? '<p>Buyer Username: <b>' . $user_buyer->username . '</b></p>' : '') . '
+                        ' . ($user_buyer->fullname ? '<p>Buyer Full Name: <b>' . $user_buyer->fullname . '</b></p>' : '') . '
+                        ' . ($user_buyer->email ? '<p>Buyer E-mail: <b>' . $user_buyer->email . '</b></p>' : '') . '
+                        ' . ($messenger ? '<p>Buyer Messenger URL: <b>' . $messenger . '</b></p>' : '') . '
+                        ' . ($mobile ? '<p>Buyer Mobile Number: <b>' . $mobile . '</b></p>' : '') . '
+                        ' . ($landline ? '<p>Buyer Landline Number: <b>' . $landline . '</b></p>' : '') . '
+                        ' . (!in_array($method_buyer, ['bank', 'gcash', 'maya']) ? '<p>Buyer Wallet Address:</p> <p><b>' . $wallet_buyer . '</b></p>' : '') . '
+                    </div>
+                    <div class="uk-modal-footer uk-text-right">
+                        <a href="' . sef(54) . qs() . 'did=' . $request_id . '" class="uk-button uk-button-default">Deny</a>
+                        <a href="' . sef(54) . qs() . 'aid=' . $request_id . '" class="uk-button uk-button-primary">Approve</a>
+                    </div>
+                </div>
+            </div>';
+
+	$str .= <<<HTML
+			<style>
+				/* Ensure the modal is centered and responsive */
+				.uk-modal-dialog {
+					width: auto;
+					max-width: 600px;
+					margin: 20px auto;
+				}
+
+				/* Adjust modal width and padding for smaller screens */
+				@media (max-width: 640px) {
+					.uk-modal-dialog {
+						width: 90%;
+						margin: 10px auto;
+						padding: 15px;
+					}
+
+					.uk-modal-body {
+						padding: 15px;
+					}
+
+					.uk-modal-title {
+						font-size: 1.5rem;
+					}
+
+					/* .uk-panel-box p {
+						font-size: 0.9rem;
+					}
+
+					.uk-button {
+						padding: 8px 16px;
+						font-size: 0.9rem;
+					} */
+				}
+
+				/* Ensure the modal content is scrollable if it exceeds the viewport height */
+				.uk-modal-body {
+					max-height: 80vh;
+					overflow-y: auto;
+				}
+			</style>
+			HTML;
 
 	return $str;
 }
@@ -909,7 +998,7 @@ function view_form_sell_request($request_id): string
 			<form method="post" onsubmit="submit.disabled=true; return true;">
 				<input type="hidden" name="request_id" value="' . $request_id . '">' .
 		/*'<input type="hidden" name="amount_buy" value="' . $amount . '">
-															  <input type="hidden" name="price_buy" value="' . $price_buy . '">' .*/
+																					  <input type="hidden" name="price_buy" value="' . $price_buy . '">' .*/
 		'<fieldset>
                     <legend>Fill Up Desired Amount to Sell</legend>
                     <div class="uk-form-row">
@@ -1070,9 +1159,9 @@ function process_delete_post($cid, $gp, $dp)
 	$db = db();
 
 	/*if ((time() - $dp) > $gp) {
-								   application()->redirect(Uri::root(true) . '/' . sef(54),
-									   'Post is now permanent and cannot be cancelled!', 'warning');
-							   }*/
+											   application()->redirect(Uri::root(true) . '/' . sef(54),
+												   'Post is now permanent and cannot be cancelled!', 'warning');
+										   }*/
 
 	$posting = posting_single($cid);
 

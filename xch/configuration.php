@@ -17,7 +17,7 @@ class JConfig
 	public $host = 'localhost';
 	public $user = 'root';
 	public $password = '';
-	public $db = 'b2p_db';
+	public $db = 'b2p3_db';
 	public $dbprefix = 'joomla_';
 	public $live_site = '';
 	public $secret = 'D3C2u2y0XFn6tXvU';

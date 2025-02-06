@@ -18,6 +18,7 @@ use function BPL\Mods\Helpers\db;
 use function BPL\Mods\Helpers\user;
 use function BPL\Mods\Helpers\settings;
 use function BPL\Mods\Helpers\pgn8;
+use function BPL\Mods\Helpers\session_set;
 
 /**
  *
@@ -208,7 +209,7 @@ function update_user_passup_binary($total, $add, $user)
 
 	$account_type = $user->account_type;
 
-	$income_cycle_global = $user->income_cycle_global;
+	$user_income_cycle_global = $user->income_cycle_global;
 
 	$entry = $se->{$account_type . '_entry'};
 	$factor = $sf->{$account_type . '_percentage'} / 100;
@@ -216,6 +217,13 @@ function update_user_passup_binary($total, $add, $user)
 	$freeze_limit = $entry * $factor;
 
 	$status = $user->status_global;
+
+	$income_cycle_global = session_set(
+		'income_cycle_global',
+		$user_income_cycle_global + $add
+	);
+
+	$income_cycle_global = $user_income_cycle_global + $add;
 
 	if ($income_cycle_global >= $freeze_limit) {
 		if ($status === 'active') {

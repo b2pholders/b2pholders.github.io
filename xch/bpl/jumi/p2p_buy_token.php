@@ -1071,7 +1071,7 @@ function view_form($sell_id): string
 			<form method="post" onsubmit="submit.disabled=true; return true;">
 				<input type="hidden" name="sell_id" value="' . $sell_id . '">' .
 		/*'<input type="hidden" name="amount" value="' . $amount . '">
-												  <input type="hidden" name="price" value="' . $price . '">' .*/
+															  <input type="hidden" name="price" value="' . $price . '">' .*/
 		'<fieldset>
                     <legend>Fill Up Desired Amount to Buy</legend>
                     <div class="uk-form-row">
@@ -1321,7 +1321,7 @@ function view_posting_single($posting, $user_id): string
 		}
 	} else {
 		if (!in_array($method, ['bank', 'gcash', 'maya'])) {
-			$str .= '<p>Seller Wallet Address: <b>' . $wallet_seller . '</b></p>';
+			$str .= '<p>Seller Wallet Address:</p> <p><b>' . $wallet_seller . '</b></p>';
 			$str .= '<img src="' . qr_code_generate($wallet_seller) .
 				'" alt="QR Code Trust Wallet" style="width:250px;">';
 		} elseif ($method === 'bank') {
@@ -1590,7 +1590,7 @@ function view_request_single($request, $grace_period): string
 	if (!empty($posting)) {
 		if (!in_array($method, ['bank', 'gcash', 'maya'])) {
 			$str .= '<p>Please pay <b>' . number_format($total, 18) . '</b> ' . strtoupper($currency) .
-				' to the following address:</p>
+				'</p> <p>to the following address:</p>
 	                <p><b>' . $wallet . '</b></p>';
 		} else {
 			if ($method === 'bank') {

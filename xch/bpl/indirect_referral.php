@@ -22,6 +22,7 @@ use function BPL\Mods\Url_SEF\qs;
 use function BPL\Mods\Helpers\db;
 use function BPL\Mods\Helpers\user;
 use function BPL\Mods\Helpers\settings;
+use function BPL\Mods\Helpers\session_set;
 
 /**
  *
@@ -57,7 +58,7 @@ function main()
 			//	        && empty(user_cd($user_id))
 			&& count($sponsored) >= $type_directs
 			/*&& (($income_limit_cycle > 0 && $income_today < $income_limit_cycle) || !$income_limit_cycle)
-														 && ($income_max > 0 && $user_bonus_ir < $income_max || !$income_max)*/
+																																																											 && ($income_max > 0 && $user_bonus_ir < $income_max || !$income_max)*/
 		) {
 			// whole value
 			$ir_total = total($user_id)['bonus'];
@@ -117,10 +118,11 @@ function update_bonus_ir($ir, $ir_add, $user)
 
 	$se = settings('entry');
 	$sf = settings('freeze');
+	$sa = settings('ancillaries');
 
 	$account_type = $user->account_type;
 
-	$income_cycle_global = $user->income_cycle_global;
+	$user_income_cycle_global = $user->income_cycle_global;
 
 	$entry = $se->{$account_type . '_entry'};
 	$factor = $sf->{$account_type . '_percentage'} / 100;
@@ -129,21 +131,48 @@ function update_bonus_ir($ir, $ir_add, $user)
 
 	$status = $user->status_global;
 
-	if ($income_cycle_global >= $freeze_limit) {
+	$income_cycle_global = $user_income_cycle_global;
+
+	if ($income_cycle_global + $ir_add >= $freeze_limit) {
+		$flushout = $income_cycle_global + $ir_add - $freeze_limit;
+		$bonus_diff = $ir_add - $flushout;
+
 		if ($status === 'active') {
+			// update(
+			// 	'network_users',
+			// 	[
+			// 		'status_global = ' . $db->quote('inactive'),
+			// 		'income_flushout = income_flushout + ' . $flushout,
+			// 		'bonus_indirect_referral = bonus_indirect_referral + ' . $bonus_diff
+			// 	],
+			// 	['id = ' . $db->quote($user_id)]
+			// );
+
+			$field_user = ['bonus_indirect_referral = bonus_indirect_referral + ' . $bonus_diff];
+
+			$field_user[] = 'status_global = ' . $db->quote('inactive');
+			$field_user[] = 'income_cycle_global = income_cycle_global + ' .
+				cd_filter($user_id, $bonus_diff);
+			$field_user[] = 'income_flushout = income_flushout + ' . $flushout;
+
+			if ($sa->withdrawal_mode === 'standard') {
+				$field_user[] = 'balance = balance + ' .
+					cd_filter($user_id, $bonus_diff);
+			} else {
+				$field_user[] = 'payout_transfer = payout_transfer + ' .
+					cd_filter($user_id, $bonus_diff);
+			}
+
 			update(
 				'network_users',
-				[
-					'status_global = ' . $db->quote('inactive'),
-					'income_flushout = income_flushout + ' . $ir_add
-				],
+				$field_user,
 				['id = ' . $db->quote($user_id)]
 			);
 		}
 
 		update_network_ir($ir, 0, $user_id);
 	} else {
-		$diff = $freeze_limit - $income_cycle_global;
+		$diff = $freeze_limit - $income_cycle_global - $ir_add;
 
 		if ($diff < $ir_add) {
 			$flushout_global = $ir_add - $diff;
@@ -152,13 +181,16 @@ function update_bonus_ir($ir, $ir_add, $user)
 				$field_user = ['bonus_indirect_referral = bonus_indirect_referral + ' . $diff];
 
 				$field_user[] = 'status_global = ' . $db->quote('inactive');
-				$field_user[] = 'income_cycle_global = income_cycle_global + ' . cd_filter($user_id, $diff);
+				$field_user[] = 'income_cycle_global = income_cycle_global + ' .
+					cd_filter($user_id, $diff);
 				$field_user[] = 'income_flushout = income_flushout + ' . $flushout_global;
 
-				if (settings('ancillaries')->withdrawal_mode === 'standard') {
-					$field_user[] = 'balance = balance + ' . cd_filter($user_id, $diff);
+				if ($sa->withdrawal_mode === 'standard') {
+					$field_user[] = 'balance = balance + ' .
+						cd_filter($user_id, $diff);
 				} else {
-					$field_user[] = 'payout_transfer = payout_transfer + ' . cd_filter($user_id, $diff);
+					$field_user[] = 'payout_transfer = payout_transfer + ' .
+						cd_filter($user_id, $diff);
 				}
 
 				update(
@@ -173,12 +205,15 @@ function update_bonus_ir($ir, $ir_add, $user)
 		} else {
 			$field_user = ['bonus_indirect_referral = bonus_indirect_referral + ' . $ir_add];
 
-			$field_user[] = 'income_cycle_global = income_cycle_global + ' . cd_filter($user_id, $ir_add);
+			$field_user[] = 'income_cycle_global = income_cycle_global + ' .
+				cd_filter($user_id, $ir_add);
 
 			if (settings('ancillaries')->withdrawal_mode === 'standard') {
-				$field_user[] = 'balance = balance + ' . cd_filter($user_id, $ir_add);
+				$field_user[] = 'balance = balance + ' .
+					cd_filter($user_id, $ir_add);
 			} else {
-				$field_user[] = 'payout_transfer = payout_transfer + ' . cd_filter($user_id, $ir_add);
+				$field_user[] = 'payout_transfer = payout_transfer + ' .
+					cd_filter($user_id, $ir_add);
 			}
 
 			update(
@@ -552,7 +587,7 @@ function view($user_id): string
 			$str .= '<td>';
 			$str .= '<div style="text-align: center" ' . /* ($ctr === 1 ? 'style="color: red"' : '') . */ '>
                             <strong>' . /* ($ctr !== 1 ? $ctr : '') .
-	  ($ctr === 1 ? ' (Direct)' : '') */ $ctr . '</strong>
+($ctr === 1 ? ' (Direct)' : '') */ $ctr . '</strong>
                         </div>';
 			$str .= '</td>';
 

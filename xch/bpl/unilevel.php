@@ -17,6 +17,7 @@ use function BPL\Mods\Url_SEF\qs;
 use function BPL\Mods\Helpers\db;
 use function BPL\Mods\Helpers\user;
 use function BPL\Mods\Helpers\settings;
+use function BPL\Mods\Helpers\session_set;
 
 /**
  *
@@ -29,18 +30,17 @@ function main()
 
 	$users = users();
 
-	foreach ($users as $user)
-	{
-		$account_type  = $user->account_type;
-		$user_id       = $user->id;
+	foreach ($users as $user) {
+		$account_type = $user->account_type;
+		$user_id = $user->id;
 		$user_unilevel = $user->unilevel;
 
-//		$sponsored = user_direct($user_id);
+		//		$sponsored = user_direct($user_id);
 
-		$level              = $sul->{$account_type . '_unilevel_level'};
-		$maintenance        = $sul->{$account_type . '_unilevel_maintenance'};
+		$level = $sul->{$account_type . '_unilevel_level'};
+		$maintenance = $sul->{$account_type . '_unilevel_maintenance'};
 		$income_limit_cycle = $sul->{$account_type . '_unilevel_max_daily_income'};
-		$income_max         = $sul->{$account_type . '_unilevel_maximum'};
+		$income_max = $sul->{$account_type . '_unilevel_maximum'};
 
 		$user_ul = user_unilevel($user_id);
 
@@ -48,25 +48,21 @@ function main()
 
 		if (
 			$level
-//	        && empty(user_cd($user_id))
+			//	        && empty(user_cd($user_id))
 			&& $user_ul->period_unilevel >= $maintenance
 			&& (($income_limit_cycle > 0 && $income_today < $income_limit_cycle) || !$income_limit_cycle)
 			&& ($income_max > 0 && $user_unilevel < $income_max || !$income_max)
-		)
-		{
+		) {
 			// whole value
 			$ul_total = total($user_id)['bonus'];
-			$ul_add   = $ul_total - $user_ul->bonus_unilevel_last;
+			$ul_add = $ul_total - $user_ul->bonus_unilevel_last;
 
-			if ($ul_add > 0)
-			{
-				if ($income_limit_cycle > 0 && ($income_today + $ul_add) >= $income_limit_cycle)
-				{
+			if ($ul_add > 0) {
+				if ($income_limit_cycle > 0 && ($income_today + $ul_add) >= $income_limit_cycle) {
 					$ul_add = non_zero($income_limit_cycle - $income_today);
 				}
 
-				if ($income_max > 0 && ($user_unilevel + $ul_add) >= $income_max)
-				{
+				if ($income_max > 0 && ($user_unilevel + $ul_add) >= $income_max) {
 					$ul_add = non_zero($income_max - $user_unilevel);
 				}
 
@@ -75,7 +71,7 @@ function main()
 
 				/*if (*/
 				update_bonus_ul($ul_total, $ul_add, $user);/*)*/
-//				{
+				//				{
 //					update_user($bonus_ir_new, $ir_add, $user_id);
 //					log_activity($ir_add, $user_id, $sponsor_id, $username);
 //				}
@@ -98,11 +94,12 @@ function main()
  */
 function insert_unilevel($insert_id, $code_type, $username, $sponsor, $date, $prov)
 {
-	if (empty(user_unilevel($insert_id)))
-	{
-		insert('network_unilevel',
+	if (empty(user_unilevel($insert_id))) {
+		insert(
+			'network_unilevel',
 			['user_id'],
-			[db()->quote($insert_id)]);
+			[db()->quote($insert_id)]
+		);
 
 		logs_unilevel($insert_id, $code_type, $username, $sponsor, $date, $prov);
 	}
@@ -128,15 +125,14 @@ function logs_unilevel($insert_id, $code_type, $username, $sponsor, $date, $prov
 
 	$user_sponsor = user_username($sponsor);
 
-	if (!empty($user_sponsor))
-	{
+	if (!empty($user_sponsor)) {
 		$sponsor_id = $user_sponsor[0]->id;
 	}
 
 	$activity = '<b>' . ucwords($settings_plans->unilevel_name) . ' Entry: </b> <a href="' .
 		sef(44) . qs() . 'uid=' . $insert_id . '">' . $username . '</a> has entered into ' .
 		ucwords($settings_plans->unilevel_name) . ' upon ' . ucfirst(settings('entry')->{$code_type .
-		'_package_name'}) . source($prov) . '.';
+			'_package_name'}) . source($prov) . '.';
 
 	insert(
 		'network_activity',
@@ -166,12 +162,9 @@ function source($prov): string
 {
 	$source = ' Sign Up';
 
-	if ($prov === 'activate')
-	{
+	if ($prov === 'activate') {
 		$source = ' Activation';
-	}
-	elseif ($prov === 'upgrade')
-	{
+	} elseif ($prov === 'upgrade') {
 		$source = ' Upgrade';
 	}
 
@@ -221,8 +214,8 @@ function update_bonus_ul($ul, $ul_add, $user)
 {
 	$db = db();
 
-	$user_id    = $user->id;
-	$username   = $user->username;
+	$user_id = $user->id;
+	$username = $user->username;
 	$sponsor_id = $user->sponsor_id;
 
 	$se = settings('entry');
@@ -230,19 +223,24 @@ function update_bonus_ul($ul, $ul_add, $user)
 
 	$account_type = $user->account_type;
 
-	$income_cycle_global = $user->income_cycle_global;
+	$user_income_cycle_global = $user->income_cycle_global;
 
-	$entry  = $se->{$account_type . '_entry'};
+	$entry = $se->{$account_type . '_entry'};
 	$factor = $sf->{$account_type . '_percentage'} / 100;
 
 	$freeze_limit = $entry * $factor;
 
 	$status = $user->status_global;
 
-	if ($income_cycle_global >= $freeze_limit)
-	{
-		if ($status === 'active')
-		{
+	// $income_cycle_global = session_set(
+	// 	'income_cycle_global',
+	// 	$user_income_cycle_global + $ul_add
+	// );
+
+	$income_cycle_global = $user_income_cycle_global + $ul_add;
+
+	if ($income_cycle_global >= $freeze_limit) {
+		if ($status === 'active') {
 			update(
 				'network_users',
 				[
@@ -254,29 +252,22 @@ function update_bonus_ul($ul, $ul_add, $user)
 		}
 
 		update_network_ul($ul, 0, $user_id);
-	}
-	else
-	{
+	} else {
 		$diff = $freeze_limit - $income_cycle_global;
 
-		if ($diff < $ul_add)
-		{
+		if ($diff < $ul_add) {
 			$flushout_global = $ul_add - $diff;
 
-			if ($user->status_global === 'active')
-			{
+			if ($user->status_global === 'active') {
 				$field_user = ['unilevel = unilevel + ' . $diff];
 
 				$field_user[] = 'status_global = ' . $db->quote('inactive');
 				$field_user[] = 'income_cycle_global = income_cycle_global + ' . cd_filter($user_id, $diff);
 				$field_user[] = 'income_flushout = income_flushout + ' . $flushout_global;
 
-				if (settings('ancillaries')->withdrawal_mode === 'standard')
-				{
+				if (settings('ancillaries')->withdrawal_mode === 'standard') {
 					$field_user[] = 'balance = balance + ' . cd_filter($user_id, $diff);
-				}
-				else
-				{
+				} else {
 					$field_user[] = 'payout_transfer = payout_transfer + ' . cd_filter($user_id, $diff);
 				}
 
@@ -289,19 +280,14 @@ function update_bonus_ul($ul, $ul_add, $user)
 
 			update_network_ul($ul, $diff, $user_id);
 			log_activity($diff, $user_id, $sponsor_id, $username);
-		}
-		else
-		{
+		} else {
 			$field_user = ['unilevel = unilevel + ' . $ul_add];
 
 			$field_user[] = 'income_cycle_global = income_cycle_global + ' . cd_filter($user_id, $ul_add);
 
-			if (settings('ancillaries')->withdrawal_mode === 'standard')
-			{
+			if (settings('ancillaries')->withdrawal_mode === 'standard') {
 				$field_user[] = 'balance = balance + ' . cd_filter($user_id, $ul_add);
-			}
-			else
-			{
+			} else {
 				$field_user[] = 'payout_transfer = payout_transfer + ' . cd_filter($user_id, $ul_add);
 			}
 
@@ -356,12 +342,9 @@ function update_user($bonus_ir_new, $ir_add, $user_id)
 {
 	$field_user = ['bonus_indirect_referral = bonus_indirect_referral + ' . $ir_add];
 
-	if (settings('ancillaries')->withdrawal_mode === 'standard')
-	{
+	if (settings('ancillaries')->withdrawal_mode === 'standard') {
 		$field_user[] = 'balance = balance + ' . $bonus_ir_new;
-	}
-	else
-	{
+	} else {
 		$field_user[] = 'payout_transfer = payout_transfer + ' . $bonus_ir_new;
 	}
 
@@ -491,32 +474,27 @@ function level($head_id, array $lvl_1 = []): array
 
 	$points = [];
 
-	if (!empty($lvl_1))
-	{
-		foreach ($lvl_1 as $sponsor1)
-		{
+	if (!empty($lvl_1)) {
+		foreach ($lvl_1 as $sponsor1) {
 			$directs = user_direct($sponsor1);
 
-			if (!empty($directs))
-			{
-				foreach ($directs as $direct)
-				{
+			if (!empty($directs)) {
+				foreach ($directs as $direct) {
 					$item_points = 0;
 
 					$user_repeat = user_repeat_head($head_id, $direct->id);
 
-					foreach ($user_repeat as $repeat)
-					{
+					foreach ($user_repeat as $repeat) {
 						$item_points += $repeat->unilevel_points; // points per user
 					}
 
-//					$user_cd = user_cd($sponsor2->id);
+					//					$user_cd = user_cd($sponsor2->id);
 
 					$lvl_2[] = $direct->id; // array
 //						$points += $item_points; // double
 					$points[$direct->account_type/* . (!empty(user_cd($sponsor2->id)) ? '_cd' : '')*/] = $item_points;
 
-//					$lvl_2[$sponsor2->id] = $item_points;
+					//					$lvl_2[$sponsor2->id] = $item_points;
 				}
 			}
 		}
@@ -591,8 +569,7 @@ function nested($level, $user_id): array
 {
 	$result[] = level($user_id, [$user_id]);
 
-	for ($i_i = 2; $i_i <= $level; $i_i++)
-	{
+	for ($i_i = 2; $i_i <= $level; $i_i++) {
 		$last = array_reverse($result)[0];
 
 		$result[] = level($user_id, $last[0]);
@@ -616,16 +593,14 @@ function get($indirects, $head_account_type, $level)
 
 	$sul = settings('unilevel');
 
-	$head_share     = $sul->{$head_account_type . '_unilevel_share_' . $level};
+	$head_share = $sul->{$head_account_type . '_unilevel_share_' . $level};
 	$head_share_cut = $sul->{$head_account_type . '_unilevel_share_cut_' . $level};
 
 	$head_cut = $head_share * $head_share_cut / 100 / 100;
 
-	if (count($indirects) > 0)
-	{
-		foreach ($indirects as $account_type => $points)
-		{
-			$member_share     = $sul->{$account_type . '_unilevel_share_' . $level};
+	if (count($indirects) > 0) {
+		foreach ($indirects as $account_type => $points) {
+			$member_share = $sul->{$account_type . '_unilevel_share_' . $level};
 			$member_share_cut = $sul->{$account_type . '_unilevel_share_cut_' . $level};
 
 			$member_cut = $member_share * $member_share_cut / 100 / 100;
@@ -653,7 +628,7 @@ function bonus($head_account_type, $indirects, $ctr): array
 {
 	return [
 		'member' => count($indirects[0]),
-		'bonus'  => get($indirects[1], $head_account_type, $ctr)
+		'bonus' => get($indirects[1], $head_account_type, $ctr)
 	];
 }
 
@@ -673,23 +648,22 @@ function total($user_id): array
 	$type_level = $sul->{$head_account_type . '_unilevel_level'};
 
 	$member = 0;
-	$bonus  = 0;
+	$bonus = 0;
 
 	$ctr = 1;
 
 	$results = nested($type_level, $user_id);
 
-	foreach ($results as $result)
-	{
+	foreach ($results as $result) {
 		$member += count($result[0]);
-		$bonus  += get($result[1], $head_account_type, $ctr);
+		$bonus += get($result[1], $head_account_type, $ctr);
 
 		$ctr++;
 	}
 
 	return [
 		'member' => $member,
-		'bonus'  => $bonus
+		'bonus' => $bonus
 	];
 }
 
@@ -702,9 +676,9 @@ function total($user_id): array
  */
 function view($user_id): string
 {
-	$sa  = settings('ancillaries');
-	$sp  = settings('plans');
-	$se  = settings('entry');
+	$sa = settings('ancillaries');
+	$sp = settings('plans');
+	$se = settings('entry');
 	$sul = settings('unilevel');
 
 	$user = user($user_id);
@@ -717,8 +691,7 @@ function view($user_id): string
 
 	$type_level = $sul->{$head_account_type . '_unilevel_level'};
 
-	if ($type_level && $head_account_type !== 'starter')
-	{
+	if ($type_level && $head_account_type !== 'starter') {
 		$str .= '<h3>' . $sp->unilevel_name . '</h3>';
 		$str .= '<table class="category table table-striped table-bordered table-hover">';
 		$str .= '<thead>';
@@ -748,10 +721,9 @@ function view($user_id): string
 
 		$ctr = 1;
 
-		foreach ($results as $result)
-		{
+		foreach ($results as $result) {
 			$member = bonus($head_account_type, $result, $ctr)['member'];
-			$bonus  = bonus($head_account_type, $result, $ctr)['bonus'];
+			$bonus = bonus($head_account_type, $result, $ctr)['bonus'];
 
 			$str .= '<tr>';
 
@@ -775,7 +747,7 @@ function view($user_id): string
 					number_format($bonus, 8)) . '</div>';
 			$str .= '</td>';
 
-//			$share     = $sul->{$head_account_type . '_unilevel_share_' . $ctr};
+			//			$share     = $sul->{$head_account_type . '_unilevel_share_' . $ctr};
 //			$share_cut = $sul->{$head_account_type . '_unilevel_share_cut_' . $ctr};
 //
 //			$cut = $share * $share_cut / 100;
@@ -796,9 +768,9 @@ function view($user_id): string
 			$ctr++;
 		}
 
-//		$user_unilevel = user_unilevel($user_id);
+		//		$user_unilevel = user_unilevel($user_id);
 
-//		$flushout_global = $user_unilevel->flushout_global;
+		//		$flushout_global = $user_unilevel->flushout_global;
 //		$flushout_local  = $user_unilevel->flushout_local;
 
 		$str .= '<tr>';
@@ -811,7 +783,9 @@ function view($user_id): string
 		$str .= '<td>';
 		$str .= '<div style="text-align: center">' .
 			number_format(/*total($user_id)['bonus']*/
-				($user->unilevel/* - $flushout_global - $flushout_local*/), 8) . '</div>';
+				($user->unilevel/* - $flushout_global - $flushout_local*/),
+				8
+			) . '</div>';
 		$str .= '</td>';
 		$str .= '<td>';
 		$str .= '<div style="text-align: center">N/A</div>';
@@ -820,7 +794,7 @@ function view($user_id): string
 		$str .= '</tbody>';
 		$str .= '</table>';
 	}
-//	else
+	//	else
 //	{
 //		$str .= '<h3 style="alignment: center">Sponsor At Least ' .
 //			$sul->{$head_account_type . '_indirect_referral_sponsored'} .
