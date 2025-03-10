@@ -298,7 +298,7 @@ function validate_input($user_id, $admintype, $type, $method)
 	}
 
 	// start: check if user has enough efund to buy the package
-	if ($user->payout_transfer < $entry && (!$settings_plans->trading && $method === 'efund')) {
+	if ($user->payout_transfer < $entry /* && (!$settings_plans->trading && $method === 'efund') */) {
 		$err = 'Not enough ' . $sa->efund_name . '!';
 		$app->redirect(Uri::root(true) . '/' . sef(10), $err, 'error');
 	}
