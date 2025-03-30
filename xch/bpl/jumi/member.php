@@ -166,7 +166,7 @@ function view_form_login(): string
 	$logo2 = '<a href="../"><img src="' . $img . '" class="img-responsive" alt=""></a>';
 
 	$str = '<section class="tm-top-b uk-grid" data-uk-grid-match="{target:\'> div > .uk-panel\'}" data-uk-grid-margin="">
-			<div class="uk-width-1-1 uk-row-first"><div class="uk-panel uk-text-center">';
+            <div class="uk-width-1-1 uk-row-first"><div class="uk-panel uk-text-center">';
 
 	$str .= !1 ? $logo1 : $logo2; // logo2 enabled
 
@@ -175,8 +175,9 @@ function view_form_login(): string
                 <div class="uk-form-row">
                     <input class="uk-width-1-1" name="username" size="18" placeholder="Username" type="text" style="margin-bottom: 10px; padding: 10px;">
                 </div>
-                <div class="uk-form-row">
-                    <input class="uk-width-1-1" name="password" size="18" placeholder="Password" type="password" style="margin-bottom: 20px; padding: 10px;">
+                <div class="uk-form-row" style="position: relative;">
+                    <input class="uk-width-1-1" name="password" id="password" size="18" placeholder="Password" type="password" style="margin-bottom: 20px; padding: 10px; padding-right: 40px;">
+                    <span id="togglePassword" style="position: absolute; right: 10px; top: 40%; transform: translateY(-70%); cursor: pointer;">👁️</span>
                 </div>
                 <div class="uk-form-row">
                     <button class="uk-button uk-button-primary" value="Login" name="submit" type="submit" style="width: 100%; padding: 10px;">
@@ -185,6 +186,18 @@ function view_form_login(): string
                     <a href="' . sef(144) . '" class="uk-button uk-button-link" style="padding-top: 12px">No Account? Register Here.</a>
                 </div>
             </form>';
+
+	$str .= '<script>
+                const togglePassword = document.querySelector("#togglePassword");
+                const password = document.querySelector("#password");
+                
+                togglePassword.addEventListener("click", function () {
+                    const type = password.getAttribute("type") === "password" ? "text" : "password";
+                    password.setAttribute("type", type);
+                    this.textContent = type === "password" ? "👁️" : "👁️‍🗨️";
+                });
+            </script>';
+
 	$str .= '</div></div></section>';
 
 	$str .= identicon_js();
@@ -1754,7 +1767,7 @@ function row_savings($user_id): string
 'balance' : 'payout_transfer'*/ 'share_fund';
 
 	/*$reactivate = $user->status_global === 'active' ? '' :
-																																																																												 '<a style="float:right" href="' . sef(130) . '">Reactivate Account</a>';*/
+																																																																																	  '<a style="float:right" href="' . sef(130) . '">Reactivate Account</a>';*/
 
 	return '<tr>
 	        <td><a href="javascript:void(0)">' . $sa->share_fund_name . '</a>:</td>
@@ -1783,7 +1796,7 @@ function row_loans($user_id): string
 'balance' : 'payout_transfer'*/ 'loans';
 
 	/*$reactivate = $user->status_global === 'active' ? '' :
-																																																																												 '<a style="float:right" href="' . sef(130) . '">Reactivate Account</a>';*/
+																																																																																	  '<a style="float:right" href="' . sef(130) . '">Reactivate Account</a>';*/
 
 	return '<tr>
 	        <td><a href="javascript:void(0)">Loans</a>:</td>

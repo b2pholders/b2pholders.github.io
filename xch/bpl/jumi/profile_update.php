@@ -954,19 +954,64 @@ function arr_beneficiary_info($user)
  */
 function view_form_change_password(): string
 {
-	return '<tr>
+	return '
+
+	<!-- Bootstrap Icons CDN (add to head if not present) -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+	<tr>
 	        <td colspan="2">Change your password here.</td>
 	    </tr>
 	    <tr>
 		<tr>
 	        <td><label for="password1">Password:</label></td>
-	        <td><input type="password" name="password1" id="password1" size="40"></td>
+	        <td>
+				<div class="input-group">
+					<input type="password" name="password1" id="password1" class="form-control" placeholder="Enter Password Here.." required>
+					<span class="input-group-btn">
+						<button type="button" class="btn btn-default toggle-password" data-target="password1" style="height: 38px;">
+							<i class="bi bi-eye"></i>
+						</button>
+					</span>
+				</div>
+			</td>
 	    </tr>
 	    <tr>
 	        <td><label for="password2">Confirm Password:</label></td>
-	        <td><input type="password" name="password2" id="password2" size="40"></td>
+	        <td>
+				<div class="input-group">
+					<input type="password" name="password2" id="password2" class="form-control" placeholder="Confirm Password Here.." required>
+					<span class="input-group-btn">
+						<button type="button" class="btn btn-default toggle-password" data-target="password2" style="height: 38px;">
+							<i class="bi bi-eye"></i>
+						</button>
+					</span>
+				</div>
+			</td>
 	    </tr>
-	    <tr>';
+	<tr>
+
+	<!-- JavaScript (place before closing </body> tag) -->
+	<script>
+		document.querySelectorAll(\'.toggle-password\').forEach(button => {
+			button.addEventListener(\'click\', function() {
+				const targetId = this.getAttribute(\'data-target\');
+				const input = document.getElementById(targetId);
+				const icon = this.querySelector(\'i\');
+				
+				if (input.type === \'password\') {
+					input.type = \'text\';
+					icon.classList.remove(\'bi-eye\');
+					icon.classList.add(\'bi-eye-slash\');
+				} else {
+					input.type = \'password\';
+					icon.classList.remove(\'bi-eye-slash\');
+					icon.classList.add(\'bi-eye\');
+				}
+			});
+		});
+	</script>
+	';
 }
 
 /**

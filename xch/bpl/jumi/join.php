@@ -250,15 +250,53 @@ function view_form(): string
                 </div>
 
                 <!-- Password Fields -->
-                <div class="form-group">
-                    <label for="password1">Password: *</label>
-                    <input type="password" name="password1" id="password1" class="form-control" value="$s_password" placeholder="Enter Password Here.." required>
-                </div>
+				<div class="form-group">
+					<label for="password1">Password: *</label>
+					<div class="input-group">
+						<input type="password" name="password1" id="password1" class="form-control" value="$s_password" placeholder="Enter Password Here.." required>
+						<span class="input-group-btn">
+							<button type="button" class="btn btn-default toggle-password" data-target="password1" style="height: 38px;">
+								<i class="bi bi-eye"></i>
+							</button>
+						</span>
+					</div>
+				</div>
 
-                <div class="form-group">
-                    <label for="password2">Confirm Password: *</label>
-                    <input type="password" name="password2" id="password2" class="form-control" value="$s_password" placeholder="Confirm Password Here.." required>
-                </div>
+				<div class="form-group">
+					<label for="password2">Confirm Password: *</label>
+					<div class="input-group">
+						<input type="password" name="password2" id="password2" class="form-control" value="$s_password" placeholder="Confirm Password Here.." required>
+						<span class="input-group-btn">
+							<button type="button" class="btn btn-default toggle-password" data-target="password2" style="height: 38px;">
+								<i class="bi bi-eye"></i>
+							</button>
+						</span>
+					</div>
+				</div>
+
+				<!-- Bootstrap Icons CDN (add to head if not present) -->
+				<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+				<!-- JavaScript (place before closing </body> tag) -->
+				<script>
+					document.querySelectorAll('.toggle-password').forEach(button => {
+						button.addEventListener('click', function() {
+							const targetId = this.getAttribute('data-target');
+							const input = document.getElementById(targetId);
+							const icon = this.querySelector('i');
+							
+							if (input.type === 'password') {
+								input.type = 'text';
+								icon.classList.remove('bi-eye');
+								icon.classList.add('bi-eye-slash');
+							} else {
+								input.type = 'password';
+								icon.classList.remove('bi-eye-slash');
+								icon.classList.add('bi-eye');
+							}
+						});
+					});
+				</script>
 
                 <!-- Sponsor Field -->
                 $sponsor_field
@@ -284,7 +322,7 @@ function view_form(): string
                 $formToken
             </form>
         </div>
-    HTML;
+HTML;
 
 	// Append additional functions
 	$form .= terms();
