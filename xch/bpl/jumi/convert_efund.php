@@ -464,20 +464,26 @@ function price_token_method($value, $method)
 		}
 
 		$price_res = $price_php; // PHP
+
+		return $price_res * $value;
 	} else {
-		$currency = strtoupper($method);
+		$results = token_price(strtoupper($method));
+		$price = $results['price']; // USD / method
 
-		if (in_array($currency, ['B2P', 'AET', 'TPAY', /*'BTC3', 'BTCB', 'BTCW', 'GOLD', 'PAC', 'P2P',*/ 'PESO'])) {
-			$price_res = 1 / price_coinbrain($currency);
-		} else {
-			$price_method = token_price($currency)['price'];
-			$price_base = token_price('USDT')['price'];
+		return $value / $price; // (USD) / (USD / method) => method
+		// $currency = strtoupper($method);
 
-			$price_res = $price_base / $price_method;
-		}
+		// if (in_array($currency, ['B2P', 'AET', 'TPAY', /*'BTC3', 'BTCB', 'BTCW', 'GOLD', 'PAC', 'P2P',*/ 'PESO'])) {
+		// 	$price_res = 1 / price_coinbrain($currency);
+		// } else {
+		// 	// $price_method = token_price($currency)['price'];
+		// 	$price_base = token_price('USDT')['price'];
+
+		// 	$price_res = $price_base * /* $price_method */ price_coinbrain('B2P');
+		// }
 	}
 
-	return $price_res * $value;
+	// return $price_res * $value;
 }
 
 /**

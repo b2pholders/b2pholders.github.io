@@ -1,6 +1,6 @@
 <?php
 
-namespace BPL\Mods\Binary\Core;
+namespace BPL\Mods\Binary\Core2;
 
 //require_once 'bpl/mods/income.php';
 require_once 'bpl/upline_support.php';
@@ -498,8 +498,8 @@ $user_binary->ctr_right >= $capping_pairs))*/))
 		|| (/*$status === 'reactivated' &&*/ $maximum_income && ($user_binary->income_cycle /*+ $pairs_add_actual*/) >= $maximum_income)
 	) {
 		$status = /*($status === 'reactivated'
-	  && $maximum_income
-	  && $user_binary->income_cycle >= $maximum_income) ? 'graduate' :*/
+	&& $maximum_income
+	&& $user_binary->income_cycle >= $maximum_income) ? 'graduate' :*/
 			'inactive';
 
 		update_status_binary($upline_id, $status);

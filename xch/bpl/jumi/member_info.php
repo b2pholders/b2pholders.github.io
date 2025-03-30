@@ -77,6 +77,24 @@ function user_binary($user_id)
 	)->loadObject();
 }
 
+function sponsor_url($sponsor_id)
+{
+	$user_id = session_get('user_id');
+	$uid = input_get('uid');
+
+	$user = user($user_id);
+
+	$usertype = $user->usertype;
+
+	$str = 'javascript:void(0)';
+
+	if (!empty($user_id) && (empty($uid) || $uid === $user_id || $usertype === 'Admin')) {
+		$str = sef(44) . qs() . 'uid=' . $sponsor_id;
+	}
+
+	return $str;
+}
+
 function view_table($user_id, $usertype): string
 {
 	$settings_plans = settings('plans');
@@ -157,8 +175,10 @@ function view_table($user_id, $usertype): string
 		$str .= '<table class="custom-table">';
 		$str .= '<tr><td>Sponsored Members:</td><td>' . count(directs($user_id)) . '</td></tr>';
 
+		$sponsor_url = sponsor_url($user->sponsor_id);
+
 		$tmp = user($user->sponsor_id);
-		$sponsor_link = (!empty($tmp) && $tmp->username !== '') ? '<a href="' . sef(44) . qs() . 'uid=' . $user->sponsor_id . '">' . htmlspecialchars($tmp->username) . '</a>' : '-';
+		$sponsor_link = (!empty($tmp) && $tmp->username !== '') ? '<a href="' . $sponsor_url . '">' . htmlspecialchars($tmp->username) . '</a>' : '-';
 		$str .= '<tr><td>Sponsor:</td><td>' . $sponsor_link . '</td></tr>';
 		$str .= '</table>';
 		$str .= '</div>'; // Close table-responsive wrapper

@@ -26,7 +26,7 @@ use function BPL\Mods\Helpers\user;
 use function BPL\Mods\Helpers\db;
 use function BPL\Mods\Helpers\settings;
 use function BPL\Mods\Helpers\time;
-use function BPL\Mods\Helpers\session_set;
+// use function BPL\Mods\Helpers\session_set;
 
 /**
  * @param           $insert_id

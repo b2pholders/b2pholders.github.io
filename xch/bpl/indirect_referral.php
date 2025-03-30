@@ -22,7 +22,7 @@ use function BPL\Mods\Url_SEF\qs;
 use function BPL\Mods\Helpers\db;
 use function BPL\Mods\Helpers\user;
 use function BPL\Mods\Helpers\settings;
-use function BPL\Mods\Helpers\session_set;
+// use function BPL\Mods\Helpers\session_set;
 
 /**
  *
@@ -58,7 +58,7 @@ function main()
 			//	        && empty(user_cd($user_id))
 			&& count($sponsored) >= $type_directs
 			/*&& (($income_limit_cycle > 0 && $income_today < $income_limit_cycle) || !$income_limit_cycle)
-																																																											 && ($income_max > 0 && $user_bonus_ir < $income_max || !$income_max)*/
+																																																													  && ($income_max > 0 && $user_bonus_ir < $income_max || !$income_max)*/
 		) {
 			// whole value
 			$ir_total = total($user_id)['bonus'];

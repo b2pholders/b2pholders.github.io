@@ -17,7 +17,7 @@ use function BPL\Mods\Url_SEF\qs;
 use function BPL\Mods\Helpers\db;
 use function BPL\Mods\Helpers\user;
 use function BPL\Mods\Helpers\settings;
-use function BPL\Mods\Helpers\session_set;
+// use function BPL\Mods\Helpers\session_set;
 
 /**
  *

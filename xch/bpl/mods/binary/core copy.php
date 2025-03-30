@@ -1,6 +1,6 @@
 <?php
 
-namespace BPL\Mods\Binary\Core;
+namespace BPL\Mods\Binary\Core_Copy;
 
 //require_once 'bpl/mods/income.php';
 require_once 'bpl/upline_support.php';
@@ -42,39 +42,31 @@ function main(
 	$is_insert_cd = false,
 	string $account_type_old = '',
 	string $account_type_new = ''
-)
-{
-	$downline  = user_binary($insert_id);
+) {
+	$downline = user_binary($insert_id);
 	$upline_id = $downline->upline_id;
 
-	while ($upline_id > 0)
-	{
+	while ($upline_id > 0) {
 		if (
 			!$is_insert_cd
-//			&& empty(user_cd($downline->user_id))
+			//			&& empty(user_cd($downline->user_id))
 			&& has_binary($insert_id, $upline_id, $prov, $account_type_old, $account_type_new)
-		)
-		{
-			if (has_pairing($downline, $upline_id))
-			{
+		) {
+			if (has_pairing($downline, $upline_id)) {
 				$pairing = pairing($insert_id, $upline_id, $downline, $prov, $account_type_old, $account_type_new);
 
-				if ($pairing)
-				{
+				if ($pairing) {
 					set_binary_status($insert_id, $upline_id, $prov, $account_type_old, $account_type_new);
 				}
-			}
-			else
-			{
+			} else {
 				no_pairing($insert_id, $upline_id, $downline, $prov, $account_type_old, $account_type_new);
 			}
 		}
 
-		$downline  = user_binary($upline_id);
+		$downline = user_binary($upline_id);
 		$upline_id = $downline->upline_id;
 
-		if (!$upline_id)
-		{
+		if (!$upline_id) {
 			break;
 		}
 	}
@@ -113,7 +105,7 @@ function has_binary($insert_id, $upline_id, $prov, $account_type_old, $account_t
 
 	$reactivate_count = $upline_binary->reactivate_count;
 
-	$account_type        = $upline_binary->account_type;
+	$account_type = $upline_binary->account_type;
 	$income_cycle_global = $upline_binary->income_cycle_global;
 
 	$upline_max_income = $sb->{$account_type . '_maximum_income'};
@@ -124,7 +116,7 @@ function has_binary($insert_id, $upline_id, $prov, $account_type_old, $account_t
 	$se = settings('entry');
 
 	$factor = $sf->{$account_type . '_percentage'} / 100;
-	$entry  = $se->{$upline_binary->account_type . '_entry'};
+	$entry = $se->{$upline_binary->account_type . '_entry'};
 
 	$freeze_limit = $entry * $factor;
 
@@ -133,8 +125,8 @@ function has_binary($insert_id, $upline_id, $prov, $account_type_old, $account_t
 	$cycle_new = $upline_binary->income_cycle + $pairs_value;
 
 	return (
-//		empty(user_cd($upline_id))
-		/*&&*/ (($upline_max_income && $cycle_new <= $upline_max_income) || !$upline_max_income)
+			//		empty(user_cd($upline_id))
+			/*&&*/ (($upline_max_income && $cycle_new <= $upline_max_income) || !$upline_max_income)
 		&& ((!$flushout && ($status === 'active'/* || $status === 'reactivated'*/)) || $flushout)
 		&& $reactivate_count <= $capping_cycle_max
 		&& /*$income_global*/ $income_cycle_global < $freeze_limit
@@ -178,7 +170,7 @@ function pairing($insert_id, $upline_id, $downline, $prov, $account_type_old, $a
 		nth_pair($insert_user, $upline_id, $prov, $account_type_old, $account_type_new) : 0;
 
 	$pairs_add_actual = pairs_add_actual($insert_user, $upline_id, $prov, $account_type_old, $account_type_new);
-	$pairs_add_limit  = pairs_add_limit($insert_user, $upline_id, $prov, $account_type_old, $account_type_new);
+	$pairs_add_limit = pairs_add_limit($insert_user, $upline_id, $prov, $account_type_old, $account_type_new);
 
 	$flushout = flush_out(
 		$pairs_add_limit,
@@ -200,11 +192,10 @@ function pairing($insert_id, $upline_id, $downline, $prov, $account_type_old, $a
 		$account_type_new
 	);
 
-	if ($pairing)
-	{
-//		$update_user = pairing_update_user($upline_id, $pairs_add_limit, $nth_pair);
+	if ($pairing) {
+		//		$update_user = pairing_update_user($upline_id, $pairs_add_limit, $nth_pair);
 
-//		if ($update_user)
+		//		if ($update_user)
 //		{
 		return logs_pairing(
 			$insert_user,
@@ -216,7 +207,7 @@ function pairing($insert_id, $upline_id, $downline, $prov, $account_type_old, $a
 			$account_type_old,
 			$account_type_new
 		);
-//		}
+		//		}
 	}
 
 	return false;
@@ -261,30 +252,28 @@ function pairing_update_binary(
 	$prov,
 	$account_type_old,
 	$account_type_new
-)
-{
+) {
 	$db = db();
 
-//	$sp = settings('plans');
+	//	$sp = settings('plans');
 	$sf = settings('freeze');
 	$se = settings('entry');
 
-//	$saf = $sp->account_freeze;
+	//	$saf = $sp->account_freeze;
 
 	$user_binary = user_binary($upline_id);
 
-	$account_type        = $user_binary->account_type;
+	$account_type = $user_binary->account_type;
 	$income_cycle_global = $user_binary->income_cycle_global;
 
-	$entry  = $se->{$account_type . '_entry'};
+	$entry = $se->{$account_type . '_entry'};
 	$factor = $sf->{$account_type . '_percentage'} / 100;
 
 	$freeze_limit = $entry * $factor;
 
 	$pairs_value = pairs_value($insert_user, $upline_id);
 
-	if ($income_cycle_global >= $freeze_limit)
-	{
+	if ($income_cycle_global >= $freeze_limit) {
 		$freeze = update(
 			'network_binary',
 			[
@@ -298,8 +287,7 @@ function pairing_update_binary(
 			['user_id = ' . $db->quote($upline_id)]
 		);
 
-		if ($user_binary->status_global === 'active' && $freeze)
-		{
+		if ($user_binary->status_global === 'active' && $freeze) {
 			update(
 				'network_users',
 				[
@@ -309,13 +297,10 @@ function pairing_update_binary(
 				['id = ' . $db->quote($upline_id)]
 			);
 		}
-	}
-	else
-	{
+	} else {
 		$diff = $freeze_limit - $income_cycle_global;
 
-		if ($diff < $pairs_add_limit)
-		{
+		if ($diff < $pairs_add_limit) {
 			$flushout_global = $pairs_add_limit - $diff;
 
 			$freeze = update(
@@ -336,8 +321,7 @@ function pairing_update_binary(
 				['user_id = ' . $db->quote($upline_id)]
 			);
 
-			if ($user_binary->status_global === 'active' && $freeze)
-			{
+			if ($user_binary->status_global === 'active' && $freeze) {
 				update(
 					'network_users',
 					[
@@ -348,17 +332,14 @@ function pairing_update_binary(
 					['id = ' . $db->quote($upline_id)]
 				);
 
-				if ($diff > 0)
-				{
+				if ($diff > 0) {
 					return pairing_update_user($upline_id, $diff, $nth_pair);
 				}
 			}
-		}
-		else
-		{
-			if ($pairs_value > 0)
-			{
-				$update = update('network_binary',
+		} else {
+			if ($pairs_value > 0) {
+				$update = update(
+					'network_binary',
 					[
 						'income_cycle = income_cycle + ' . $pairs_add_limit,
 						'pairs_5th = pairs_5th + ' . $nth_pair,
@@ -376,16 +357,14 @@ function pairing_update_binary(
 					]
 				);
 
-				if ($user_binary->status_global === 'active' && $update)
-				{
+				if ($user_binary->status_global === 'active' && $update) {
 					$update = update(
 						'network_users',
 						['income_cycle_global = income_cycle_global + ' . cd_filter($upline_id, $pairs_add_limit)],
 						['id = ' . $db->quote($upline_id)]
 					);
 
-					if ($update)
-					{
+					if ($update) {
 						return pairing_update_user($upline_id, $pairs_add_limit, $nth_pair);
 					}
 				}
@@ -413,18 +392,17 @@ function pairing_update_user($upline_id, $bonus, $nth_pair)
 
 	$bonus = cd_filter($upline_id, $bonus);
 
-	if (settings('ancillaries')->withdrawal_mode === 'standard')
-	{
+	if (settings('ancillaries')->withdrawal_mode === 'standard') {
 		$field_user[] = 'balance = balance + ' . $bonus;
-	}
-	else
-	{
+	} else {
 		$field_user[] = 'payout_transfer = payout_transfer + ' . $bonus;
 	}
 
-	return update('network_users',
+	return update(
+		'network_users',
 		$field_user,
-		['id = ' . $db->quote($upline_id)]);
+		['id = ' . $db->quote($upline_id)]
+	);
 }
 
 /**
@@ -460,12 +438,15 @@ function no_pairing_update_binary($insert_user, $upline_id, $downline, $prov, $a
 {
 	$pairs_value = pairs_value($insert_user, $upline_id);
 
-	if ($pairs_value > 0)
-	{
-		update('network_binary',
-			[($downline->position === 'Left' ? 'ctr_left = ctr_left' :
-					'ctr_right = ctr_right') . ' + ' . $pairs_value],
-			['user_id = ' . db()->quote($upline_id)]);
+	if ($pairs_value > 0) {
+		update(
+			'network_binary',
+			[
+				($downline->position === 'Left' ? 'ctr_left = ctr_left' :
+					'ctr_right = ctr_right') . ' + ' . $pairs_value
+			],
+			['user_id = ' . db()->quote($upline_id)]
+		);
 	}
 }
 
@@ -492,20 +473,21 @@ function set_binary_status($insert_id, $upline_id, $prov, $account_type_old, $ac
 
 	$account_type = $user_binary->account_type;
 
-	$capping_pairs  = $settings_binary->{$account_type . '_max_pairs'};
+	$capping_pairs = $settings_binary->{$account_type . '_max_pairs'};
 	$maximum_income = $settings_binary->{$account_type . '_maximum_income'};
 
-//	$pairs_add_actual = pairs_add_actual($insert_user, $upline_id, $prov, $account_type_old, $account_type_new);
+	//	$pairs_add_actual = pairs_add_actual($insert_user, $upline_id, $prov, $account_type_old, $account_type_new);
 
-	if (($status === 'active' &&
+	if (
+		($status === 'active' &&
 			((!$flushout && ($user_binary->capping_cycle /*+ $pairs_add_actual*/) >= $capping_pairs)/* ||
-			($flushout && ($user_binary->ctr_left >= $capping_pairs &&
-					$user_binary->ctr_right >= $capping_pairs))*/))
-		|| (/*$status === 'reactivated' &&*/ $maximum_income && ($user_binary->income_cycle /*+ $pairs_add_actual*/) >= $maximum_income))
-	{
+($flushout && ($user_binary->ctr_left >= $capping_pairs &&
+$user_binary->ctr_right >= $capping_pairs))*/))
+		|| (/*$status === 'reactivated' &&*/ $maximum_income && ($user_binary->income_cycle /*+ $pairs_add_actual*/) >= $maximum_income)
+	) {
 		$status = /*($status === 'reactivated'
-			&& $maximum_income
-			&& $user_binary->income_cycle >= $maximum_income) ? 'graduate' :*/
+		  && $maximum_income
+		  && $user_binary->income_cycle >= $maximum_income) ? 'graduate' :*/
 			'inactive';
 
 		update_status_binary($upline_id, $status);
@@ -524,13 +506,17 @@ function update_status_binary($upline_id, $status)
 {
 	$db = db();
 
-	update('network_binary',
-		['status = ' . $db->quote($status),
+	update(
+		'network_binary',
+		[
+			'status = ' . $db->quote($status),
 			'direct_cycle = ' . $db->quote(0),
 			'status_cycle = ' . $db->quote(0)/*,
-			'ctr_left = ' . $db->quote(0),
-			'ctr_right = ' . $db->quote(0)*/],
-		['user_id = ' . $db->quote($upline_id)]);
+'ctr_left = ' . $db->quote(0),
+'ctr_right = ' . $db->quote(0)*/
+		],
+		['user_id = ' . $db->quote($upline_id)]
+	);
 }
 
 /**
@@ -555,38 +541,34 @@ function logs_pairing(
 	$nth_pair,
 	$prov,
 	$account_type_old,
-	$account_type_new)
-{
+	$account_type_new
+) {
 	$settings_plans = settings('plans');
 
 	$db = db();
 
 	$source = 'Sign Up';
 
-	if ($prov === 'activate')
-	{
+	if ($prov === 'activate') {
 		$source = 'Activation';
-	}
-	elseif ($prov === 'upgrade')
-	{
+	} elseif ($prov === 'upgrade') {
 		$source = 'Upgrade';
 	}
-//	elseif ($prov === 'reactivate')
+	//	elseif ($prov === 'reactivate')
 //	{
 //		$source = 'Reactivation';
 //	}
 
-//	$nth_pair = nth_pair($account_type, $upline_id, $downline);
+	//	$nth_pair = nth_pair($account_type, $upline_id, $downline);
 
 	$upline = user_binary($upline_id);
 
 	$pairs_add_actual = pairs_add_actual($insert_user, $upline_id, $prov, $account_type_old, $account_type_new);
-	$pairs_add_limit  = pairs_add_limit($insert_user, $upline_id, $prov, $account_type_old, $account_type_new);
+	$pairs_add_limit = pairs_add_limit($insert_user, $upline_id, $prov, $account_type_old, $account_type_new);
 
 	$pairing = abs($pairs_add_actual - $nth_pair);
 
-	if ($pairs_add_actual > 0 || $nth_pair > 0)
-	{
+	if ($pairs_add_actual > 0 || $nth_pair > 0) {
 		$activity = '<b>' . $settings_plans->binary_pair_name . ': </b> <a href="' . sef(44) . qs() . 'uid=' .
 			$upline->id . '">' . $upline->username . '</a> gained ' . number_format($pairs_add_actual, 2) .
 			' pts. from ' . $source . ' of <a href="' . sef(9) . qs() . 'uid=' . $insert_user->id .
@@ -595,9 +577,7 @@ function logs_pairing(
 
 		$activity .= ($nth_pair > 0) ?
 			('<br>Reward Points: ' . number_format($nth_pair, 2) . ' pts.') : '';
-	}
-	else
-	{
+	} else {
 		$activity = '<b>Points added </b> to <a href="' . sef(44) . qs() . 'uid=' . $upline->id . '">' .
 			$upline->username . '</a> from Entry of <a href="' . sef(9) . qs() . 'uid=' . $insert_user->id .
 			'" target="_blank">' . $insert_user->username . '</a>. <br>';
@@ -610,17 +590,22 @@ function logs_pairing(
 	$activity .= ($pairs_add_actual > $pairing && $flushout) ? ('<br>Flush out: ' .
 		number_format($pairs_add_actual - $pairing, 2) . ' pts.') : '';
 
-	return insert('network_activity',
-		['user_id',
+	return insert(
+		'network_activity',
+		[
+			'user_id',
 			'sponsor_id',
 			'upline_id',
 			'activity',
-			'activity_date'],
-		[$db->quote($insert_user->id),
+			'activity_date'
+		],
+		[
+			$db->quote($insert_user->id),
 			$db->quote($insert_user->sponsor_id),
 			$db->quote($upline->id),
 			$db->quote($activity),
-			$db->quote(time())]
+			$db->quote(time())
+		]
 	);
 }
 
@@ -639,15 +624,12 @@ function logs_no_pairing($insert_user, $upline_id, $downline, $prov, $account_ty
 {
 	$source = 'Sign Up';
 
-	if ($prov === 'activate')
-	{
+	if ($prov === 'activate') {
 		$source = 'Activation';
-	}
-	elseif ($prov === 'upgrade')
-	{
+	} elseif ($prov === 'upgrade') {
 		$source = 'Upgrade';
 	}
-//	elseif ($prov === 'reactivate')
+	//	elseif ($prov === 'reactivate')
 //	{
 //		$source = 'Reactivation';
 //	}
@@ -656,8 +638,7 @@ function logs_no_pairing($insert_user, $upline_id, $downline, $prov, $account_ty
 
 	$pairs_value = pairs_value($insert_user, $upline->id);
 
-	if ($pairs_value > 0)
-	{
+	if ($pairs_value > 0) {
 		$activity = '<b>Points added </b> to <a href="' . sef(44) . qs() . 'uid=' . $upline->id . '">' .
 			$upline->username . '\'s</a> Group ' . ($downline->position === 'Left' ? 'A' : 'B') . ': 
 		from ' . $source . ' of <a href="' . sef(9) . qs() . 'uid=' . $insert_user->id .
@@ -669,17 +650,22 @@ function logs_no_pairing($insert_user, $upline_id, $downline, $prov, $account_ty
 
 		$db = db();
 
-		insert('network_activity',
-			['user_id',
+		insert(
+			'network_activity',
+			[
+				'user_id',
 				'sponsor_id',
 				'upline_id',
 				'activity',
-				'activity_date'],
-			[$db->quote($insert_user->id),
+				'activity_date'
+			],
+			[
+				$db->quote($insert_user->id),
 				$db->quote($insert_user->sponsor_id),
 				$db->quote($upline->id),
 				$db->quote($activity),
-				$db->quote(time())]
+				$db->quote(time())
+			]
 		);
 	}
 }
@@ -709,17 +695,22 @@ function logs_status_binary($insert_user, $upline_id, $status, $prov, $account_t
 
 	$db = db();
 
-	insert('network_activity',
-		['user_id',
+	insert(
+		'network_activity',
+		[
+			'user_id',
 			'sponsor_id',
 			'upline_id',
 			'activity',
-			'activity_date'],
-		[$db->quote($insert_user->id),
+			'activity_date'
+		],
+		[
+			$db->quote($insert_user->id),
 			$db->quote($insert_user->sponsor_id),
 			$db->quote($upline->id),
 			$db->quote($activity),
-			$db->quote(time())]
+			$db->quote(time())
+		]
 	);
 }
 
@@ -735,14 +726,14 @@ function pairs_value($insert_user, $upline_id)
 {
 	$sb = settings('binary');
 
-	$account_type   = $insert_user->account_type;
+	$account_type = $insert_user->account_type;
 	$insert_user_id = $insert_user->id;
 
 	$upline_binary = user_binary($upline_id);
 
 	$status = $upline_binary->status;
 
-//	if ($prov === 'upgrade')
+	//	if ($prov === 'upgrade')
 //	{
 //		$insert_pairs_old = $settings_binary->{$account_type_old . '_pairs'};
 //		$insert_pairs_new = $settings_binary->{$account_type_new . '_pairs'};
@@ -764,18 +755,16 @@ function pairs_value($insert_user, $upline_id)
 
 	$upline_max_income = $sb->{$upline_binary->account_type . '_maximum_income'};
 
-	if (($upline_income_cycle + $pairs_lim) >= $upline_max_income)
-	{
+	if (($upline_income_cycle + $pairs_lim) >= $upline_max_income) {
 		$pairs_lim = non_zero($upline_max_income - $upline_income_cycle);
 	}
 
-	if (pair_upgradable($upline_id) && $status === 'active')
-	{
+	if (pair_upgradable($upline_id) && $status === 'active') {
 		$pairs_proper = $sb->{$account_type . '_pairs_proper'};
-		$pairs_lim    = $pairs_lim > $pairs_proper ? $pairs_proper : $pairs_lim;
+		$pairs_lim = $pairs_lim > $pairs_proper ? $pairs_proper : $pairs_lim;
 	}
 
-//	if ($status === 'reactivated')
+	//	if ($status === 'reactivated')
 //	{
 //		$pairs_capped = $settings_binary->{$account_type . '_pairs_capped'};
 //		$pairs_lim    = $pairs_lim > $pairs_capped ? $pairs_capped : $pairs_lim;
@@ -794,12 +783,12 @@ function pairs_value($insert_user, $upline_id)
  */
 function has_pairing($downline, $upline_id): bool
 {
-	$left_pairs  = left_pairs($upline_id);
+	$left_pairs = left_pairs($upline_id);
 	$right_pairs = right_pairs($upline_id);
 
 	return (/*$downline->status === 'active' &&*/
-	(($downline->position === 'Left' && $right_pairs > $left_pairs) ||
-		($downline->position === 'Right' && $left_pairs > $right_pairs)));
+		(($downline->position === 'Left' && $right_pairs > $left_pairs) ||
+			($downline->position === 'Right' && $left_pairs > $right_pairs)));
 }
 
 /**
@@ -907,7 +896,7 @@ function max_pairs_add($upline_id) // waiting
  */
 function pairs_add_actual($insert_user, $upline_id, $prov, $account_type_old, $account_type_new)
 {
-	$pairs_value   = pairs_value($insert_user, $upline_id);
+	$pairs_value = pairs_value($insert_user, $upline_id);
 	$max_pairs_add = max_pairs_add($upline_id);
 
 	$pairs_add_actual = $pairs_value > $max_pairs_add ? $max_pairs_add : $pairs_value;
@@ -955,36 +944,26 @@ function flush_out(&$pairs_add_limited, $pairs_add_actual, $nth_pair, $upline_id
 	$ub = user_binary($upline_id);
 	$sb = settings('binary');
 
-	$max_cycle   = $sb->{$ub->account_type . '_max_cycle'};
+	$max_cycle = $sb->{$ub->account_type . '_max_cycle'};
 	$pairs_today = $ub->pairs_today;
 
 	$flushout = 0;
 
-	if ($max_cycle > 0)
-	{
-		if ($pairs_today < $max_cycle)
-		{
-			if (($pairs_today + $pairs_add_actual) <= $max_cycle)
-			{
+	if ($max_cycle > 0) {
+		if ($pairs_today < $max_cycle) {
+			if (($pairs_today + $pairs_add_actual) <= $max_cycle) {
 				$pairs_add_limited = abs($pairs_add_limited - $nth_pair);
-			}
-			else
-			{
-				if ($pairs_add_actual > $max_cycle)
-				{
+			} else {
+				if ($pairs_add_actual > $max_cycle) {
 					$pairs_add_limited = $max_cycle;
-					$flushout          = non_zero($max_cycle - $pairs_add_actual);
-				}
-				else
-				{
+					$flushout = non_zero($max_cycle - $pairs_add_actual);
+				} else {
 					$pairs_add_limited = non_zero($max_cycle - $pairs_today);
 				}
 			}
-		}
-		else
-		{
+		} else {
 			$pairs_add_limited = 0;
-			$flushout          = $pairs_add_actual;
+			$flushout = $pairs_add_actual;
 		}
 	}
 
@@ -1016,7 +995,7 @@ function non_zero($value)
  */
 function pairs_add_limit($insert_user, $upline_id, $prov, $account_type_old, $account_type_new)
 {
-	$pairs_value   = pairs_value($insert_user, $upline_id);
+	$pairs_value = pairs_value($insert_user, $upline_id);
 	$max_pairs_add = max_pairs_add($upline_id);
 
 	$pairs_add_limit = $pairs_value > $max_pairs_add ? $max_pairs_add : $pairs_value;
@@ -1051,16 +1030,15 @@ function status_cycle_directs($upline_id): array
 
 	$status_cycle_directs = [];
 
-	if (!empty($directs))
-	{
-		foreach ($directs as $direct)
-		{
+	if (!empty($directs)) {
+		foreach ($directs as $direct) {
 			$user_binary = user_binary($direct->id);
-			$max_pairs   = settings('binary')->{$user_binary->account_type . '_max_pairs'};
+			$max_pairs = settings('binary')->{$user_binary->account_type . '_max_pairs'};
 
-			if ((int) $user_binary->status_cycle === 1 &&
-				$user_binary->capping_cycle >= $max_pairs)
-			{
+			if (
+				(int) $user_binary->status_cycle === 1 &&
+				$user_binary->capping_cycle >= $max_pairs
+			) {
 				$status_cycle_directs[] = $direct->id;
 			}
 		}
@@ -1095,7 +1073,7 @@ function pair_upgradable($upline_id): bool
 {
 	$flushout = settings('binary')->hedge === 'flushout';
 
-	$required_pairs   = required_pairs($upline_id);
+	$required_pairs = required_pairs($upline_id);
 	$required_directs = binary_directs($upline_id);
 
 	return (!$flushout &&
