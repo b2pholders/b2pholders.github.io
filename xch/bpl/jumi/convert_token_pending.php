@@ -662,12 +662,12 @@ function process_approve($uid)
 		update_token_convert($uid);
 
 		/* if ($update) {
-												echelon_bonus();
-												// echo '<pre>';
-												// print_r(echelon_nested(10, 2));
-												// echo '</pre>';
-												// exit();
-											} */
+															echelon_bonus();
+															// echo '<pre>';
+															// print_r(echelon_nested(10, 2));
+															// echo '</pre>';
+															// exit();
+														} */
 
 		logs_approve($uid);
 
@@ -898,7 +898,7 @@ function delete_convert($uid)
 	$eec = entry_efund_convert($uid);
 
 	delete(
-		'network_tokenconvert',
+		'network_token_convert',
 		['convert_id = ' . db()->quote($uid)]
 	);
 
@@ -919,7 +919,7 @@ function entry_efund_convert($cid)
 
 	return $db->setQuery(
 		'SELECT * ' .
-		'FROM network_efund_convert ' .
+		'FROM network_token_convert ' .
 		'WHERE convert_id = ' . $db->quote($cid)
 	)->loadObject();
 }

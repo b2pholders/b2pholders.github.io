@@ -685,7 +685,7 @@ function fixed_daily_token_member($admintype): string
 		// $str .= (($admintype === 'Super') ?
 		// '<li><a href="' . sef(5) . '">Add ' . $token_name . '</a></li>' : '');
 		// $str .= ('<li><a href="' . sef(102) . '">' . strtoupper($token_name) . ' Transfer</a></li>');
-		$str .= ('<li><a href="' . sef(98) . '">B2P Wallet</a></li>');
+		// $str .= ('<li><a href="' . sef(98) . '">B2P Wallet</a></li>');
 		$str .= ('<li><a href="' . sef(99) . '">Completed B2P Withdrawals</a></li>');
 		// $str .= ('<li><a href="' . sef(100) . '">Pending B2P Withdrawals</a></li>');
 		// $str .= ('<li><a href="' . sef(101) . '">B2P Withdrawal Logs</a></li>');
@@ -2093,7 +2093,7 @@ function affiliates($account_type, $user_id): string
 	// unilevel
 	if (
 			/*$account_type !== 'starter'
-																																																																																																																																																																																																																																					  &&*/ (
+																																																																																																																																																																																																																																							   &&*/ (
 			$sp->unilevel
 			&& $sul->{$account_type . '_unilevel_level'} > 0
 			&& !empty(user_unilevel($user_id))

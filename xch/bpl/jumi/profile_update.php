@@ -967,7 +967,7 @@ function view_form_change_password(): string
 	        <td><label for="password1">Password:</label></td>
 	        <td>
 				<div class="input-group">
-					<input type="password" name="password1" id="password1" class="form-control" placeholder="Enter Password Here.." required>
+					<input type="password" name="password1" id="password1" class="form-control" placeholder="Enter Password Here..">
 					<span class="input-group-btn">
 						<button type="button" class="btn btn-default toggle-password" data-target="password1" style="height: 38px;">
 							<i class="bi bi-eye"></i>
@@ -980,7 +980,7 @@ function view_form_change_password(): string
 	        <td><label for="password2">Confirm Password:</label></td>
 	        <td>
 				<div class="input-group">
-					<input type="password" name="password2" id="password2" class="form-control" placeholder="Confirm Password Here.." required>
+					<input type="password" name="password2" id="password2" class="form-control" placeholder="Confirm Password Here..">
 					<span class="input-group-btn">
 						<button type="button" class="btn btn-default toggle-password" data-target="password2" style="height: 38px;">
 							<i class="bi bi-eye"></i>

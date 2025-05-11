@@ -660,8 +660,8 @@ function view_form($user_id, string $value = '', $mode = 'fdtp'): string
 
 	// Input field for amount
 	$str .= '<label for="amount" class="form-label">' . $token_name . ' Amount:</label>';
-	$str .= '<input type="text" name="amount" placeholder="Input Amount (' . $token_name . ')" value="' . $value . '" id="amount" class="form-input" ' .
-		($value == '' ? '' : 'readonly') . '>';
+	$str .= '<input type="text" name="amount" placeholder="Input Amount (' . $token_name . ')" value="' . $value . '" id="amount" class="form-input" readonly' .
+		/* ($value == '' ? '' : 'readonly') . */ '>';
 
 	// Payment method select
 	$str .= view_method_select($user_id, $mode);

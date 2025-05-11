@@ -269,22 +269,44 @@ function validate_input($user_id, $amount, $method, $mode)
 	}
 
 	if ($mode === 'ftk') {
-		$ftk_converts = user_efund_convert($user_id, 'ftk');
+		$sop_converts = user_efund_convert($user_id, 'ftk');
 
-		$ftk_total = 0;
+		$sop_total = 0;
 
-		if (!empty($ftk_converts)) {
-			foreach ($ftk_converts as $ftk) {
-				$ftk_total += $ftk->amount;
+		if (!empty($sop_converts)) {
+			foreach ($sop_converts as $sop) {
+				$sop_total += $sop->amount;
 			}
 		}
 
-		if ($user->fast_track_balance < ($ftk_total + $amount)) {
+		if ($user->fast_track_balance < ($sop_total + $amount)) {
 			session_set('ftk', '');
 
 			$app->redirect(
 				Uri::root(true) . '/' . sef(57),
 				settings('plans')->fast_track_name . ' Balance exceeded!',
+				'error'
+			);
+		}
+	}
+
+	if ($mode === 'sop') {
+		$sop_converts = user_efund_convert($user_id);
+
+		$sop_total = 0;
+
+		if (!empty($sop_converts)) {
+			foreach ($sop_converts as $sop) {
+				$sop_total += $sop->amount;
+			}
+		}
+
+		if ($user->payout_transfer < ($sop_total + $amount)) {
+			session_set('sop', '');
+
+			$app->redirect(
+				Uri::root(true) . '/' . sef(57),
+				settings('ancillaries')->efund_name . ' Balance exceeded!',
 				'error'
 			);
 		}
@@ -576,6 +598,10 @@ function process_conversion($user_id, $amount, $method, $mode)
 
 			if ($mode === 'lpd') {
 				session_set('lpd', '');
+			}
+
+			if ($mode === 'sop') {
+				session_set('sop', '');
 			}
 		}
 

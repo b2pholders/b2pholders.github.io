@@ -51,8 +51,108 @@ function main()
 	}
 
 	$str .= view_form($user_id);
+	$str .= view_pending_conversions();
 
 	echo $str;
+}
+
+/**
+ *
+ * @return string
+ *
+ * @since version
+ */
+function view_pending_conversions(): string
+{
+	$user_id = session_get('user_id');
+
+	$pending = user_token_convert($user_id);
+
+	$token_name = /* settings('ancillaries')->efund_name */ 'B2P';
+
+	$str = '<h2>Pending ' . $token_name . ' Withdrawals</h2>';
+
+	if (empty($pending)) {
+		$str .= '<hr><p>No pending ' . $token_name . ' withdrawals yet.</p>';
+	} else {
+		$str .= '<div class="table-responsive">';
+		$str .= '<table class="category table table-striped table-bordered table-hover">';
+		$str .= '<thead>';
+		$str .= '<tr>';
+		$str .= '<th>Date</th>';
+		$str .= '<th>Amount</th>';
+		$str .= '<th>System Charge</th>';
+		$str .= '<th>Rate</th>';
+		$str .= '<th>Method</th>';
+		$str .= '<th>Mode</th>';
+		$str .= '<th>On Processing</th>';
+		$str .= '</tr>';
+		$str .= '</thead>';
+		$str .= '<tbody>';
+
+		foreach ($pending as $tmp) {
+			$currency = in_array($tmp->method, ['bank', 'gcash']) ? 'PHP' : $tmp->method;
+
+			// $sa = settings('ancillaries');
+
+			switch ($tmp->mode) {
+				case 'fdp':
+					$mode = settings('plans')->fixed_daily_name;
+					break;
+				case 'fdtp':
+					$mode = settings('plans')->fixed_daily_token_name;
+					break;
+				case 'ftk':
+					$mode = settings('plans')->fast_track_name;
+					break;
+				case 'lpd':
+					$mode = settings('plans')->leadership_passive_name;
+					break;
+				default:
+					$mode = 'Standard';
+					break;
+			}
+
+			$str .= '<tr>';
+			$str .= '<td> ' . date('M j, Y - g:i A', $tmp->date_posted) . ' </td>';
+			$str .= '<td> ' . number_format($tmp->amount, 8) . ' ' . /* $sa->efund_name */ $token_name . '</td>';
+			$str .= '<td> ' . number_format($tmp->cut, 8) . ' ' . /* $sa->efund_name */ $token_name . '</td>';
+			$str .= '<td> ' . number_format($tmp->price, 8) . ' ' . strtoupper($currency) . '</td>';
+			$str .= '<td>' . strtoupper($tmp->method) . '</td>';
+			$str .= '<td>' . $mode . '</td>';
+
+			$str .= '<td> ' . '<input type="button" class="uk-button uk-button-primary" value="Cancel" 
+				data-uk-modal="{target:\'#modal-cancel-' . $tmp->convert_id . '\'}"></td>';
+
+			$str .= '<div id="modal-cancel-' . $tmp->convert_id . '" class="uk-modal" aria-hidden="true" 
+						style="display: none; overflow-y: scroll; margin-top: 120px">
+		            <div class="uk-modal-dialog" style="text-align: center">
+		                <button type="button" class="uk-modal-close uk-close"></button>';
+			$str .= '<p><strong>Are you sure, you want to cancel this transaction?</strong></p>';
+			$str .= '<div class="uk-panel uk-panel-box" style="text-align: left">
+                        <h3 class="uk-panel-title"><strong>Date of Transaction:</strong> ' .
+				date('M j, Y - g:i A', $tmp->date_posted) . '</h3>
+                        <h3 class="uk-panel-title"><strong>Amount:</strong> ' .
+				number_format($tmp->amount, 2) . ' ' . '</h3>
+                        <h3 class="uk-panel-title"><strong>Final: </strong> ' .
+				number_format($tmp->price, 2) . ' ' . strtoupper($currency) . '</h3>                        
+                    </div>';
+			$str .= '<div class="uk-modal-footer" style="text-align: right">
+						<input type="button" class="uk-modal-close uk-button uk-button-primary" value="Close">
+						<a href="' . sef(98) . qs() . 'cid=' . $tmp->convert_id . '" 
+							type="button" class="uk-button uk-button-primary">Confirm</a>
+					</div>';
+			$str .= '</div>
+		        </div>';
+			$str .= '</tr>';
+		}
+
+		$str .= '</tbody>
+        </table> ';
+		$str .= '</div>';
+	}
+
+	return $str;
 }
 
 /**
@@ -201,7 +301,7 @@ function process_form($user_id, $amount)
 //		settings('plans')->fixed_daily_name . ' Deposit Completed Successfully!', 'success');
 
 	application()->redirect(
-		Uri::root(true) . '/' . sef(98)/* . qs() . 'fdp=' . $amount*//*,
+		Uri::root(true) . '/' . sef(98) . qs() . 'fdtp=' . $amount/*,
 'We\'ll Process your conversion within 24 hours.<br>Thank You.', 'success'*/
 	);
 }
