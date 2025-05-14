@@ -734,17 +734,14 @@ function price_usd($method)
 	} else {
 		$currency = strtoupper($method);
 
-		// if (in_array($currency, ['B2P', 'AET', 'TPAY', 'BTCB', /*'BTC3', 'BTCW', 'GOLD', 'PAC', 'P2P',*/ 'PESO'])) {
-		// 	$price_res = 1 / price_coinbrain($currency);
-		// } else {
-		// 	$price_method = token_price($currency)['price'];
-		// 	$price_base = token_price('USDT')['price'];
+		if (in_array($currency, ['B2P', 'AET', 'TPAY', 'BTCB', /*'BTC3', 'BTCW', 'GOLD', 'PAC', 'P2P',*/ 'PESO'])) {
+			$price_res = 1 / price_coinbrain($currency);
+		} else {
+			$price_method = token_price($currency)['price'];
+			$price_base = token_price('USDT')['price'];
 
-		// 	$price_res = $price_base / $price_method;
-		// }
-
-		$results = token_price(strtoupper($currency));
-		$price_res = $results['price']; // USD / method
+			$price_res = $price_base / $price_method;
+		}
 	}
 
 	return $price_res;
@@ -772,7 +769,7 @@ function process_add_buy_post(
 	$se = settings('entry');
 	$buffer = $se->{$account_type . '_p2p_share'};
 
-	$price_buy_post = price_usd($type_buy_post) * (1 - $buffer / 100);
+	$price_buy_post = (1 / price_usd($type_buy_post)) * (1 - $buffer / 100);
 
 	$contacts = arr_contact_info($user);
 
@@ -940,19 +937,14 @@ function process_add_request($user_id, $value, $sell_id, $type)
 	} else {
 		$currency = strtoupper($method_seller);
 
-		// if (in_array($currency, ['B2P', 'AET', 'TPAY', /*'BTC3', 'BTCB', 'BTCW', 'GOLD', 'PAC', 'P2P',*/ 'PESO'])) {
-		// 	$price_total = $total / price_coinbrain($currency);
-		// } else {
-		// 	$price_method = token_price($currency)['price'];
-		// 	$price_base = token_price('USDT')['price'];
+		if (in_array($currency, ['B2P', 'AET', 'TPAY', /*'BTC3', 'BTCB', 'BTCW', 'GOLD', 'PAC', 'P2P',*/ 'PESO'])) {
+			$price_total = $total / price_coinbrain($currency);
+		} else {
+			$price_method = token_price($currency)['price'];
+			$price_base = token_price('USDT')['price'];
 
-		// 	$price_total = ($price_base / $price_method) * $total;
-		// }
-
-		$results = token_price(strtoupper($currency));
-		$price = $results['price']; // USD / method
-
-		return $total / $price; // (USD) / (USD / method) => method
+			$price_total = ($price_base / $price_method) * $total;
+		}
 	}
 
 	$contact_info_seller = arr_contact_info($user_seller);
@@ -1079,7 +1071,7 @@ function view_form($sell_id): string
 			<form method="post" onsubmit="submit.disabled=true; return true;">
 				<input type="hidden" name="sell_id" value="' . $sell_id . '">' .
 		/*'<input type="hidden" name="amount" value="' . $amount . '">
-																					  <input type="hidden" name="price" value="' . $price . '">' .*/
+															  <input type="hidden" name="price" value="' . $price . '">' .*/
 		'<fieldset>
                     <legend>Fill Up Desired Amount to Buy</legend>
                     <div class="uk-form-row">

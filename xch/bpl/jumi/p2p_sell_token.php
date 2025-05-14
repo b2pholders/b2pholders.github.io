@@ -284,19 +284,14 @@ function process_sell_request($user_id, $value_sell, $request_id)
 	} else {
 		$currency = strtoupper($method_buyer);
 
-		// if (in_array($currency, ['B2P', 'AET', 'TPAY', 'BTCB', /*'BTC3', 'BTCW', 'GOLD', 'PAC', 'P2P',*/ 'PESO'])) {
-		// 	$price_total = $total / price_usd_coinbrain($currency);
-		// } else {
-		// 	$price_method = token_price($currency)['price'];
-		// 	$price_base = token_price('USDT')['price'];
+		if (in_array($currency, ['B2P', 'AET', 'TPAY', 'BTCB', /*'BTC3', 'BTCW', 'GOLD', 'PAC', 'P2P',*/ 'PESO'])) {
+			$price_total = $total / price_usd_coinbrain($currency);
+		} else {
+			$price_method = token_price($currency)['price'];
+			$price_base = token_price('USDT')['price'];
 
-		// 	$price_total = ($price_base / $price_method) * $total;
-		// }
-
-		$results = token_price(strtoupper($currency));
-		$price = $results['price']; // USD / method
-
-		return $total / $price; // (USD) / (USD / method) => method
+			$price_total = ($price_base / $price_method) * $total;
+		}
 	}
 
 	$contact_info_buyer = arr_contact_info($user_buyer);
@@ -1003,7 +998,7 @@ function view_form_sell_request($request_id): string
 			<form method="post" onsubmit="submit.disabled=true; return true;">
 				<input type="hidden" name="request_id" value="' . $request_id . '">' .
 		/*'<input type="hidden" name="amount_buy" value="' . $amount . '">
-																														  <input type="hidden" name="price_buy" value="' . $price_buy . '">' .*/
+																					  <input type="hidden" name="price_buy" value="' . $price_buy . '">' .*/
 		'<fieldset>
                     <legend>Fill Up Desired Amount to Sell</legend>
                     <div class="uk-form-row">
@@ -1164,9 +1159,9 @@ function process_delete_post($cid, $gp, $dp)
 	$db = db();
 
 	/*if ((time() - $dp) > $gp) {
-																 application()->redirect(Uri::root(true) . '/' . sef(54),
-																	 'Post is now permanent and cannot be cancelled!', 'warning');
-															 }*/
+											   application()->redirect(Uri::root(true) . '/' . sef(54),
+												   'Post is now permanent and cannot be cancelled!', 'warning');
+										   }*/
 
 	$posting = posting_single($cid);
 
@@ -1445,17 +1440,14 @@ function price_usd($method)
 	} else {
 		$currency = strtoupper($method);
 
-		// if (in_array($currency, ['B2P', 'AET', 'TPAY', /*'BTC3', 'BTCB', 'BTCW', 'GOLD', 'PAC', 'P2P',*/ 'PESO'])) {
-		// 	$price_res = 1 / price_usd_coinbrain($currency);
-		// } else {
-		// 	$price_method = token_price($currency)['price'];
-		// 	$price_base = token_price('USDT')['price'];
+		if (in_array($currency, ['B2P', 'AET', 'TPAY', /*'BTC3', 'BTCB', 'BTCW', 'GOLD', 'PAC', 'P2P',*/ 'PESO'])) {
+			$price_res = 1 / price_usd_coinbrain($currency);
+		} else {
+			$price_method = token_price($currency)['price'];
+			$price_base = token_price('USDT')['price'];
 
-		// 	$price_res = $price_base / $price_method;
-		// }
-
-		$results = token_price(strtoupper($currency));
-		$price_res = $results['price']; // USD / method
+			$price_res = $price_base / $price_method;
+		}
 	}
 
 	return $price_res;
@@ -1481,7 +1473,7 @@ function process_add_post($user_id, $amount, $amount_min, $type, $method)
 	$se = settings('entry');
 	$buffer = $se->{$account_type . '_p2p_share'};
 
-	$price = price_usd($type) * (1 + $buffer / 100);
+	$price = (1 / price_usd($type)) * (1 + $buffer / 100);
 
 	$price_total = (double) $amount * (double) $price;
 

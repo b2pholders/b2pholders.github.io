@@ -7,7 +7,7 @@ require_once 'bpl/mods/query.php';
 require_once 'bpl/mods/mailer.php';
 require_once 'bpl/mods/btc_currency.php';
 require_once 'bpl/mods/api_token_price.php';
-// require_once 'bpl/mods/api_coinbrain_token_price.php';
+require_once 'bpl/mods/api_coinbrain_token_price.php';
 require_once 'bpl/mods/helpers.php';
 require_once 'bpl/plugins/phpqrcode/qrlib.php';
 
@@ -29,7 +29,7 @@ use function BPL\Mods\Mailer\main as send_mail;
 
 //use function BPL\Mods\BTC_Currency\main as btc_currency;
 use function BPL\Mods\API_Token_Price\main as token_price;
-// use function BPL\Mods\API\Coinbrain\TokenPrice\main as coinbrain_price_token;
+use function BPL\Mods\API\Coinbrain\TokenPrice\main as coinbrain_price_token;
 
 use function BPL\Mods\Url_SEF\sef;
 use function bpl\Mods\Url_SEF\qs;
@@ -366,26 +366,20 @@ function price_token_method($value, $method)
 		}
 
 		$price_res = $price_php; // PHP
-
-		return $price_res * $value;
 	} else {
-		$results = token_price(strtoupper($method));
-		$price = $results['price']; // USD / method
+		$currency = strtoupper($method);
 
-		return $value / $price; // (USD) / (USD / method) => method
-		// $currency = strtoupper($method);
+		if (in_array($currency, ['B2P', 'AET', 'TPAY', /*'BTC3', 'BTCB', 'BTCW', 'GOLD', 'PAC', 'P2P',*/ 'PESO'])) {
+			$price_res = 1 / price_coinbrain($currency);
+		} else {
+			// $price_method = token_price($currency)['price'];
+			$price_base = token_price('USDT')['price'];
 
-		// if (in_array($currency, ['B2P', 'AET', 'TPAY', /*'BTC3', 'BTCB', 'BTCW', 'GOLD', 'PAC', 'P2P',*/ 'PESO'])) {
-		// 	$price_res = 1 / price_coinbrain($currency);
-		// } else {
-		// 	// $price_method = token_price($currency)['price'];
-		// 	$price_base = token_price('USDT')['price'];
-
-		// 	$price_res = $price_base * /* $price_method */ price_coinbrain('B2P');
-		// }
+			$price_res = $price_base * /* $price_method */ price_coinbrain('B2P');
+		}
 	}
 
-	// return $price_res * $value;
+	return $price_res * $value;
 }
 
 /**
@@ -801,57 +795,57 @@ function user_efund_request($user_id)
 	)->loadObjectList();
 }
 
-// function price_coinbrain($token = 'BTC3')
-// {
-// 	switch ($token) {
-// 		case 'B2P':
-// 			$contract = '0xF8AB9fF465C612D5bE6A56716AdF95c52f8Bc72d';
-// 			break;
-// 		case 'BTC3':
-// 			$contract = '0xbea17f143f2535f424c9d7acd5fbff75a9c8ab62';
-// 			break;
-// 		case 'BTCB':
-// 			$contract = '0x7130d2A12B9BCbFAe4f2634d864A1Ee1Ce3Ead9c';
-// 			break;
-// 		case 'BTCW':
-// 			$contract = '0xfc4f8cDC508077e7a60942e812A9C9f1f05020c5';
-// 			break;
-// 		case 'GOLD':
-// 			$contract = '0x4A0bfC65fEb6F477E3944906Fb09652d2d8b5f0d';
-// 			break;
-// 		case 'PAC':
-// 			$contract = '0x565C9e3A95E9d3Df4afa4023204F758C27E38E6a';
-// 			break;
-// 		case 'P2P':
-// 			$contract = '0x07A9e44534BabeBBd25d2825C9465b0a82f26813';
-// 			break;
-// 		case 'PESO':
-// 			$contract = '0xBdFfE2Cd5B9B4D93B3ec462e3FE95BE63efa8BC0';
-// 			break;
-// 		case 'AET':
-// 			$contract = '0xbc26fCCe32AeE5b0D470Ca993fb54aB7Ab173a1E';
-// 			break;
-// 		case 'TPAY':
-// 			$contract = '0xd405200D9c8F8Be88732e8c821341B3AeD6724b7';
-// 			break;
-// 		default:
-// 			$contract = '0xac642e017764c4759efeb1c9ea0782cf5d1a81d1';
-// 	}
+function price_coinbrain($token = 'BTC3')
+{
+	switch ($token) {
+		case 'B2P':
+			$contract = '0xF8AB9fF465C612D5bE6A56716AdF95c52f8Bc72d';
+			break;
+		case 'BTC3':
+			$contract = '0xbea17f143f2535f424c9d7acd5fbff75a9c8ab62';
+			break;
+		case 'BTCB':
+			$contract = '0x7130d2A12B9BCbFAe4f2634d864A1Ee1Ce3Ead9c';
+			break;
+		case 'BTCW':
+			$contract = '0xfc4f8cDC508077e7a60942e812A9C9f1f05020c5';
+			break;
+		case 'GOLD':
+			$contract = '0x4A0bfC65fEb6F477E3944906Fb09652d2d8b5f0d';
+			break;
+		case 'PAC':
+			$contract = '0x565C9e3A95E9d3Df4afa4023204F758C27E38E6a';
+			break;
+		case 'P2P':
+			$contract = '0x07A9e44534BabeBBd25d2825C9465b0a82f26813';
+			break;
+		case 'PESO':
+			$contract = '0xBdFfE2Cd5B9B4D93B3ec462e3FE95BE63efa8BC0';
+			break;
+		case 'AET':
+			$contract = '0xbc26fCCe32AeE5b0D470Ca993fb54aB7Ab173a1E';
+			break;
+		case 'TPAY':
+			$contract = '0xd405200D9c8F8Be88732e8c821341B3AeD6724b7';
+			break;
+		default:
+			$contract = '0xac642e017764c4759efeb1c9ea0782cf5d1a81d1';
+	}
 
-// 	$data = [
-// 		56 => [$contract]
-// 	];
+	$data = [
+		56 => [$contract]
+	];
 
-// 	$price = settings('ancillaries')->currency === 'PHP' ? 0.00012 : 0.0000024;
+	$price = settings('ancillaries')->currency === 'PHP' ? 0.00012 : 0.0000024;
 
-// 	$results = json_decode(
-// 		coinbrain_price_token('https://api.coinbrain.com/public/coin-info', $data)
-// 	);
+	$results = json_decode(
+		coinbrain_price_token('https://api.coinbrain.com/public/coin-info', $data)
+	);
 
-// 	if (!empty($results)) {
-// 		$results = (array) $results[0];
-// 		$price = $results['priceUsd'];
-// 	}
+	if (!empty($results)) {
+		$results = (array) $results[0];
+		$price = $results['priceUsd'];
+	}
 
-// 	return $price;
-// }
+	return $price;
+}
