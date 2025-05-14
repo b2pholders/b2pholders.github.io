@@ -1,6 +1,6 @@
 <?php
 
-namespace BPL\Jumi\Profile_Update;
+namespace BPL\Jumi\Profile_Update_Test;
 
 require_once 'bpl/menu.php';
 require_once 'bpl/mods/query.php';
